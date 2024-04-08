@@ -77,11 +77,21 @@ hist(setosa, breaks=30, border="#e9ecef",col=alpha("#69b3a2", 0.6), xlab="height
      ylab="Count", main="Histogram",add=T)
 # Second with add=T to plot on top
 hist(versicol, breaks=30, col=alpha("#404080",0.6),border="#e9ecef",add=T)
+# Third with add=T to plot on top
 hist(virginica, breaks=30, col=alpha("#FFA500",0.6),border="#e9ecef",add=T)
-
-
 # Add legend
 legend("topright", legend=c("Setosa","Versicolor", "Virginica"), col=c("#69b3a2","#404080","#FFA500"), pt.cex=2, pch=15 )
+
+
+## plotly 
+plotly.2 <- plot_ly(alpha = 0.6) %>% 
+  add_histogram(x = setosa, opacity=0.6,marker= list(color ="#404080",line =list(color="#e9ecef", width=1)), name= "Setosa") %>% 
+  add_histogram(x = versicol,opacity=0.6,marker= list(color = "#69b3a2",line =list(color="#e9ecef", width=1)),name= "Versicolor") %>% 
+  add_histogram(x = virginica,opacity=0.6,marker= list(color = "#FFA500",line =list(color="#e9ecef", width=1)),name= "Virginica") %>% 
+  
+  layout(barmode = "overlay", title="Histogram example", xaxis = list(title = "Value",showgrid = TRUE), yaxis = list(title = "Count",showgrid = TRUE)
+  )
+plotly.2 
 
 ##---------------------------
 
