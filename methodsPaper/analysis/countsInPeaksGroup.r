@@ -91,6 +91,9 @@ peaksAnno<-annotatePeak(peaks, tssRegion=c(-1000, 1000),TxDb=TxDb.Hsapiens.UCSC.
 bamFiles<-list.files(alignedDir, pattern = "*.filt.nodup.bam$", recursive = TRUE, include.dirs = TRUE)
 sampleNames<-gsub(".filt.nodup.bam$", "", bamFiles)
 sampleNames <- sampleNames[sampleNames %in% pheno$sampleID]
+bamFiles<-bamFiles[bamFiles %in% unlist(lapply(sampleNames, function(x) paste0(x,".filt.nodup.bam")))]
+print(bamFiles)
+                                               
 print(dim(bamFiles))
 stopifnot(all(dim(bamFiles) == nrow(pheno)))
 
