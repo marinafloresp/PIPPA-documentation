@@ -53,8 +53,8 @@ suppressWarnings(suppressPackageStartupMessages({
 
 groupsPeaks <- "/dir/to/peaks/cellfraction/groups"
 macs_thres_group <- "threshold used for macs3 peak calling"
-groupAnalysisSamples <- "/dir/to/sampleSheet/with/samples/passed/Stage1and2/QC"
-groupCountsAll <- "/dir/and/name/for/counts/in/peaks/file"
+groupAnalysisSamples <- "/dir/to/sampleSheet/with/samples/passed/Stage1and2/QC.csv"
+groupCountsAll <- "/dir/and/name/for/counts/in/peaks/file.rdata"
 alignedDir <-"/dir/to/aligned/bam/files"
 
 ## ===============##
