@@ -26,13 +26,14 @@ df <- tibble(file = names(numPeaks)) %>%
     reads    = as.integer(str_extract(file, "(?<=_)[0-9]+(?=readsAll)"))
   )
 
+## Figure 2.a Line graph of number of peaks (y-axis) vs number of reads (x-axis) for q5e-2 
 p1<-ggplot(df, aes(x = reads, y = num / 1000)) +
   scale_x_continuous(breaks = sort(unique(df$reads))) +  # guarantees numeric ordering) 
   geom_point(size = 3, color = '#FF6A6A')+
   geom_line(size = 1, color = '#FF6A6A')+
   labs(x = "Number of reads pairs (x10^8)",
        y = "Number of peaks (x1000)") +
-  theme_classic(base_size = 11) +
+  theme_minimal(base_size = 11) +
   theme(
     axis.text = element_text(size = 11),
     legend.position = "none",
@@ -47,12 +48,13 @@ widthPeaks_df <- data.frame(
 
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
+## Plot 2.b Box plot/violin plots of width of peaks (y-axis) vs number of reads (x-axis) 
 p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
   geom_violin(scale = "width", fill = '#FF6A6A') +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
   labs(x = "Number of reads pairs (x10^8)", y = "Width (log10bp)") +
-  theme_classic(base_size = 11) +
+  theme_minimal(base_size = 11) +
   theme(
     axis.text = element_text(size = 11),
     legend.position = "none",
@@ -79,12 +81,13 @@ peaksAnno.all.df.space <- bind_rows(peaksAnno.all.df)
 
 peaksAnno.all.df.space$set_num <- as.integer(str_extract(peaksAnno.all.df.space$set, "(?<=_)[0-9]+(?=readsAll)"))
 
+## Plot 2.c Box plot/violin plots of gaps between peaks (y-axis) vs number of reads (x-axis) 
 p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
   geom_violin(scale = "width", fill = '#FF6A6A')+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
   labs(x = "Number of reads pairs (x10^8)", y = "Distance to nearest peak (log10bp)") +
-  theme_classic(base_size = 11) +
+  theme_minimal(base_size = 11) +
   theme(
     axis.text = element_text(size = 11),
     legend.position = "none",
