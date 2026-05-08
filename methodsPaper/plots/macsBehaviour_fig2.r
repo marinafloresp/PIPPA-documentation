@@ -21,6 +21,7 @@ meanWidthPeaks<- sapply(widthPeaks, mean)
 
 df <- tibble(file = names(numPeaks)) %>%
   mutate(
+    num = numPeaks,
     cutoff = str_extract(file, "[0-9]+e-[0-9]+"),
     reads    = as.integer(str_extract(file, "(?<=_)[0-9]+(?=readsAll)"))
   )
