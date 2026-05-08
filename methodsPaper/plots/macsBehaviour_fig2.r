@@ -1,6 +1,8 @@
 library(ggplot2)
 library(GenomicRanges)
 
+groupsPeaks <- "/dir/to/peak/sets"
+
 peakFiles<-list.files(groupsPeaks, pattern="NEUN_5e-2.*\\.narrowPeak\\.filt")
 print("Peaks files: ")
 print(peakFiles)
