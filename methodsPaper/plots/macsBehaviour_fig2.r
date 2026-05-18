@@ -3,6 +3,20 @@ library(GenomicRanges)
 
 groupsPeaks <- "/dir/to/peak/sets"
 
+## Universal theme for plotting
+pub_theme <- theme_classic(base_size = 12) +
+  theme(
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10),
+    strip.text = element_text(size = 11 ),
+    plot.title = element_text(face = "bold", size = 14),
+    legend.position = "bottom",
+    legend.key.width = unit(2.2, "cm")
+  )
+
+
 peakFiles<-list.files(groupsPeaks, pattern="NEUN_5e-2.*\\.narrowPeak\\.filt")
 print("Peaks files: ")
 print(peakFiles)
@@ -26,19 +40,18 @@ df <- tibble(file = names(numPeaks)) %>%
     reads    = as.integer(str_extract(file, "(?<=_)[0-9]+(?=readsAll)"))
   )
 
-## Figure 2.a Line graph of number of peaks (y-axis) vs number of reads (x-axis) for q5e-2 
 p1<-ggplot(df, aes(x = reads, y = num / 1000)) +
   scale_x_continuous(breaks = sort(unique(df$reads))) +  # guarantees numeric ordering) 
   geom_point(size = 3, color = '#FF6A6A')+
   geom_line(size = 1, color = '#FF6A6A')+
   labs(x = "Number of reads pairs (x10^8)",
-       y = "Number of peaks (x1000)") +
-  theme_minimal(base_size = 11) +
+       y = "Number of peaks (x1000)", title = "A") +
+  pub_theme +
   theme(
-    axis.text = element_text(size = 11),
     legend.position = "none",
-    plot.title = element_text(size = 16, face = "bold")
-  )
+    axis.text.x = element_text(hjust = 1)
+  ) 
+
 
 widthPeaks_vec <- sapply(peaks, width)
 widthPeaks_df <- data.frame(
@@ -48,18 +61,17 @@ widthPeaks_df <- data.frame(
 
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-## Plot 2.b Box plot/violin plots of width of peaks (y-axis) vs number of reads (x-axis) 
 p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
   geom_violin(scale = "width", fill = '#FF6A6A') +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
-  labs(x = "Number of reads pairs (x10^8)", y = "Width (log10bp)") +
-  theme_minimal(base_size = 11) +
+  labs(x = "Number of reads pairs (x10^8)", y = "log10(base-pairs)", title = "B") +
+  pub_theme +
   theme(
-    axis.text = element_text(size = 11),
     legend.position = "none",
-    plot.title = element_text(size = 16, face = "bold")
-  )
+    axis.text.x = element_text(hjust = 1)
+  ) 
+
 
 spacing_prev <- lapply(peaks, function(x) {
   hits <- distanceToNearest(x, ignore.strand = TRUE)
@@ -81,24 +93,36 @@ peaksAnno.all.df.space <- bind_rows(peaksAnno.all.df)
 
 peaksAnno.all.df.space$set_num <- as.integer(str_extract(peaksAnno.all.df.space$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-## Plot 2.c Box plot/violin plots of gaps between peaks (y-axis) vs number of reads (x-axis) 
 p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
   geom_violin(scale = "width", fill = '#FF6A6A')+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
-  labs(x = "Number of reads pairs (x10^8)", y = "Distance to nearest peak (log10bp)") +
-  theme_minimal(base_size = 11) +
+  labs(x = "Number of reads pairs (x10^8)", y = "log10(base-pairs to nearest peak)",title = "C") +
+  pub_theme +
   theme(
-    axis.text = element_text(size = 11),
     legend.position = "none",
-    plot.title = element_text(size = 16, face = "bold")
-  )
-
-design <- "#AAAA#
-           #AAAA#
+    axis.text.x = element_text(hjust = 1)
+  ) 
+design <- "AAAAAA
+           AAAAAA
            BBBCCC
            BBBCCC"
-combined_plot <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = design)
+combined_fig2 <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = design)
 
 # Show combined plot
-combined_plot
+combined_fig2
+
+pdf(file.path(paste0("Figure_2_dataset1.pdf")), width = 10, height = 10)
+ggsave(
+  filename = "Figure_2_dataset1.pdf",
+  plot = combined_fig2,
+  width = 12,
+  height = 12
+)
+
+ggsave(
+  filename = "Figure_2_dataset1.png",
+  plot = combined_fig2,
+  width = 12,
+  height = 12
+)
