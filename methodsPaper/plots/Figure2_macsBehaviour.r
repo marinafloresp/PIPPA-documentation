@@ -16,8 +16,9 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.key.width = unit(2.2, "cm")
   )
 
-
-peakFiles<-list.files(groupsPeaks, pattern="NEUN_5e-2.*\\.narrowPeak\\.filt")
+# default colour palettes red "#F8766D" "#00BA38" "#619CFF"
+col_vals <- c("5e-2" = '#FF6A6A',"1e-2" = "#619CFF","1e-5" = "#00BA50")
+peakFiles<-list.files(groupsPeaks, pattern="NEUN_1e-2.*\\.narrowPeak\\.filt|NEUN_5e-2.*\\.narrowPeak\\.filt|NEUN_1e-5.*\\.narrowPeak\\.filt")
 print("Peaks files: ")
 print(peakFiles)
 
@@ -40,20 +41,21 @@ df <- tibble(file = names(numPeaks)) %>%
     reads    = as.integer(str_extract(file, "(?<=_)[0-9]+(?=readsAll)"))
   )
 
-p1<-ggplot(df, aes(x = reads, y = num / 1000)) +
+p1<-ggplot(df, aes(x = reads, y = num / 1000,color = cutoff)) +
   scale_x_continuous(breaks = sort(unique(df$reads))) +  # guarantees numeric ordering) 
-  geom_point(size = 3, color = '#FF6A6A')+
-  geom_line(size = 1, color = '#FF6A6A')+
+  geom_point(size = 3)+
+  geom_line(size = 1)+scale_color_manual(values = col_vals) + 
   labs(x = "Number of reads pairs (x10^8)",
-       y = "Number of peaks (x1000)", title = "A") +
+       y = "Number of peaks (x1000)", title = "A", color = "Q value threshold") +
   pub_theme +
   theme(
-    legend.position = "none",
+    legend.position = "bottom",
     axis.text.x = element_text(hjust = 1)
   ) 
 
-
-widthPeaks_vec <- sapply(peaks, width)
+# subset to only peak sets with 5e-2 q-value threshold
+peak_sets_sub <- peaks[grepl("5e-2", names(peaks))]
+widthPeaks_vec <- sapply(peak_sets_sub, width)
 widthPeaks_df <- data.frame(
   set = rep(names(numPeaks), times = numPeaks),
   width = unlist(widthPeaks_vec)
