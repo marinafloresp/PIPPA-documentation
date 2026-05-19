@@ -41,17 +41,27 @@ df <- tibble(file = names(numPeaks)) %>%
     reads    = as.integer(str_extract(file, "(?<=_)[0-9]+(?=readsAll)"))
   )
 
-p1<-ggplot(df, aes(x = reads, y = num / 1000,color = cutoff)) +
-  scale_x_continuous(breaks = sort(unique(df$reads))) +  # guarantees numeric ordering) 
-  geom_point(size = 3)+
-  geom_line(size = 1)+scale_color_manual(values = col_vals) + 
-  labs(x = "Number of reads pairs (x10^8)",
-       y = "Number of peaks (x1000)", title = "A", color = "Q value threshold") +
+p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
+  geom_point(size = 3) +
+  geom_line(size = 1) +
+  scale_color_manual(values = col_vals) +
+  scale_x_continuous(
+    breaks = sort(unique(df$reads)),
+    labels = scales::label_number( suffix = "M")
+  ) +
+  scale_y_continuous(
+    labels = scales::label_number( suffix = "M",scale = 1e-4)
+  )+
+  labs(
+    x = "Number of reads pairs",
+    y = "Number of peaks",
+    title = "A",
+    color = "Q value threshold"
+  ) +
   pub_theme +
   theme(
-    legend.position = "bottom",
-    axis.text.x = element_text(hjust = 1)
-  ) 
+    legend.position = "bottom"
+  )
 
 # subset to only peak sets with 5e-2 q-value threshold
 peak_sets_sub <- peaks[grepl("5e-2", names(peaks))]
@@ -66,15 +76,16 @@ widthPeaks_df <- data.frame(
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
 p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
-  geom_violin(scale = "width", fill = '#FF6A6A') +
+  geom_violin(scale = "width", fill = "#FF6A6A") +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
-  labs(x = "Number of reads pairs (x10^8)", y = "log10(base-pairs)", title = "B") +
+  labs(x = "Number of reads pairs", y = "log10(base-pairs)", title = "B") +
   pub_theme +
   theme(
-    legend.position = "none",
-    axis.text.x = element_text(hjust = 1)
-  ) 
+    legend.position = "none"
+  ) + scale_x_discrete(
+    labels = function(x) paste0(x, "M")
+  )
 
 
 spacing_prev <- lapply(peaks, function(x) {
@@ -101,12 +112,14 @@ p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)
   geom_violin(scale = "width", fill = '#FF6A6A')+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
-  labs(x = "Number of reads pairs (x10^8)", y = "log10(base-pairs to nearest peak)",title = "C") +
+  labs(x = "Number of reads pairs", y = "log10(base-pairs to nearest peak)",title = "C") +
   pub_theme +
   theme(
-    legend.position = "none",
-    axis.text.x = element_text(hjust = 1)
-  ) 
+    legend.position = "none"
+  ) + scale_x_discrete(
+    labels = function(x) paste0(x, "M")
+  )
+
 design <- "AAAAAA
            AAAAAA
            BBBCCC
