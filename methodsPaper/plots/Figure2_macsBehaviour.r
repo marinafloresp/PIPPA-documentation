@@ -56,10 +56,12 @@ p1<-ggplot(df, aes(x = reads, y = num / 1000,color = cutoff)) +
 # subset to only peak sets with 5e-2 q-value threshold
 peak_sets_sub <- peaks[grepl("5e-2", names(peaks))]
 widthPeaks_vec <- sapply(peak_sets_sub, width)
+numPeaks.sub <- sapply(peak_sets_sub, length)
 widthPeaks_df <- data.frame(
-  set = rep(names(numPeaks), times = numPeaks),
+  set = rep(names(numPeaks.sub), times = numPeaks.sub),
   width = unlist(widthPeaks_vec)
 )
+
 
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
