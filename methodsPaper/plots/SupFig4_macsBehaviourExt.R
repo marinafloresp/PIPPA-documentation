@@ -1,6 +1,9 @@
-##############################
-## First part is same as ## For supplementary Figure 4
+#####################################################
+## First part is same as "Figure2_macsBehaviour.r" ##
+## Here we only add one additional plot            ##
+#####################################################
 
+## For supplementary Figure 4
 peaksAnno.all.df.space$group <- cut(
   peaksAnno.all.df.space$width,
   breaks = c(0,400,700,1200,2500,4000,Inf),
