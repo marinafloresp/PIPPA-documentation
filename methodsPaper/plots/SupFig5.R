@@ -11,9 +11,7 @@ library(tidyverse)
 
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 
-# default colour palettes red "#F8766D" "#00BA38" "#619CFF"
 groupsPeaks <-"/path/to/peaks/"
-col_vals <- c("5e-2" = '#FF6A6A',"1e-2" = "#619CFF","1e-5" = "#00BA50")
 col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
 
 ## Find all peak sets called in NeuN+, Sox10+ and IRF8+ with different q-value thresholds and number of random reads
