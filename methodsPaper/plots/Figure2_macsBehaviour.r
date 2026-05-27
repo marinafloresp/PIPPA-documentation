@@ -1,3 +1,7 @@
+#########################
+##       Figure 2      ##
+#########################
+
 library(ggplot2)
 library(GenomicRanges)
 
