@@ -2,8 +2,10 @@
 ##       Figure 2      ##
 #########################
 
-library(ggplot2)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(GenomicRanges)
+library(ggplot2)
+library(tidyverse)
 
 groupsPeaks <- "/dir/to/peak/sets"
 
