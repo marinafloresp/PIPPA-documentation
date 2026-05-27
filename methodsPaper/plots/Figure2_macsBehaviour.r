@@ -16,7 +16,6 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.key.width = unit(2.2, "cm")
   )
 
-# default colour palettes red "#F8766D" "#00BA38" "#619CFF"
 col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
 peakFiles<-list.files(groupsPeaks, pattern="NEUN_1e-2.*\\.narrowPeak\\.filt|NEUN_5e-2.*\\.narrowPeak\\.filt|NEUN_1e-5.*\\.narrowPeak\\.filt")
 print("Peaks files: ")
@@ -82,6 +81,11 @@ widthPeaks_df <- data.frame(
 
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
+# ########################## Fig 2.b ###########################################
+# Box plot/violin plots of width of peaks (y-axis) 
+# number of reads (x-axis) 
+# only 5e-2 peaks for all read subsets
+
 p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
   geom_violin(scale = "width", fill = "#56B4E9") +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
@@ -114,11 +118,16 @@ peaksAnno.all.df.space <- bind_rows(peaksAnno.all.df)
 
 peaksAnno.all.df.space$set_num <- as.integer(str_extract(peaksAnno.all.df.space$set, "(?<=_)[0-9]+(?=readsAll)"))
 
+# ########################## Fig 2.c ###########################################
+# Box plot/violin plots of gaps between peaks (y-axis) 
+# number of reads (x-axis) 
+# only 5e-2 peaks for all read subsets
+
 p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
-  geom_violin(scale = "width", fill = '#FF6A6A')+
+  geom_violin(scale = "width", fill = "#56B4E9")+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
-  labs(x = "Number of reads pairs", y = "log10(base-pairs to nearest peak)",title = "C") +
+  labs(x = "Number of reads pairs", y = "base pairs to nearest peak (scale log10)",title = "C") +
   pub_theme +
   theme(
     legend.position = "none"
@@ -130,6 +139,7 @@ design <- "AAAAAA
            AAAAAA
            BBBCCC
            BBBCCC"
+
 combined_fig2 <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = design)
 
 # Show combined plot
