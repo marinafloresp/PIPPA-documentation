@@ -137,7 +137,7 @@ p3 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+
     labels = function(x) paste0(x, "M")
   )
 
-# ########################## Fig 4.c ###########################################
+# ########################## Fig 4.d ###########################################
 # Box plot/violin plots of gaps between peaks (y-axis) 
 # number of reads (x-axis) 
 # for peak set called with 5e-2
