@@ -17,7 +17,7 @@ pub_theme <- theme_classic(base_size = 12) +
   )
 
 # default colour palettes red "#F8766D" "#00BA38" "#619CFF"
-col_vals <- c("5e-2" = '#FF6A6A',"1e-2" = "#619CFF","1e-5" = "#00BA50")
+col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
 peakFiles<-list.files(groupsPeaks, pattern="NEUN_1e-2.*\\.narrowPeak\\.filt|NEUN_5e-2.*\\.narrowPeak\\.filt|NEUN_1e-5.*\\.narrowPeak\\.filt")
 print("Peaks files: ")
 print(peakFiles)
@@ -41,6 +41,13 @@ df <- tibble(file = names(numPeaks)) %>%
     reads    = as.integer(str_extract(file, "(?<=_)[0-9]+(?=readsAll)"))
   )
 
+df$cutoff <-fct_recode(df$cutoff, "0.05" = "5e-2", "0.01" = "1e-2", "0.00001" = "1e-5")
+
+# ########################## Fig 2.a ###########################################
+# Line graph of number of peaks (y-axis)
+# number of reads (x-axis) 
+# coloured by default thresholds 
+
 p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
   geom_point(size = 3) +
   geom_line(size = 1) +
@@ -50,7 +57,7 @@ p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
     labels = scales::label_number( suffix = "M")
   ) +
   scale_y_continuous(
-    labels = scales::label_number( suffix = "M",scale = 1e-4)
+    labels = scales::label_number( suffix = "K",scale = 1e-3)
   )+
   labs(
     x = "Number of reads pairs",
@@ -76,17 +83,16 @@ widthPeaks_df <- data.frame(
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
 p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
-  geom_violin(scale = "width", fill = "#FF6A6A") +
+  geom_violin(scale = "width", fill = "#56B4E9") +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
-  labs(x = "Number of reads pairs", y = "log10(base-pairs)", title = "B") +
+  labs(x = "Number of reads pairs", y = "base pairs (scale log10)", title = "B") +
   pub_theme +
   theme(
     legend.position = "none"
   ) + scale_x_discrete(
     labels = function(x) paste0(x, "M")
   )
-
 
 spacing_prev <- lapply(peaks, function(x) {
   hits <- distanceToNearest(x, ignore.strand = TRUE)
