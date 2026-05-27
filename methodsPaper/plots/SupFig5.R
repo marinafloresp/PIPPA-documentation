@@ -1,5 +1,9 @@
-#Genomic distribution of “inflated” peak sets at default thresholds (BDr &SFARI if available, for all cell types).
-#Depending on aesthetics, all cell types together/one panel for each). 
+#####################################################
+##       Supplementary Figure 5                    ##
+## Genomic distribution of “inflated” peak sets at ## 
+## default thresholds ( for all cell types).       ##
+#####################################################
+
 
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 
