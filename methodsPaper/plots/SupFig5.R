@@ -4,6 +4,10 @@
 ## default thresholds ( for all cell types).       ##
 #####################################################
 
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(GenomicRanges)
+library(ggplot2)
+library(tidyverse) 
 
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 
