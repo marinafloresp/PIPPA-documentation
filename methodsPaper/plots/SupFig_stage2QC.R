@@ -164,19 +164,19 @@ genoScores <- genoScores[complete.cases(genoScores[ , c('FREEMIX', 'CHIPMIX')]),
 
 genoScores$qcpass <- ifelse(genoScores$FREEMIX < 0.1, "TRUE", "FALSE")
 genoScores.plots.p1 <- genoScores                   
-genoScores.plots.p1$qcpass <- genoScores.plots.p1$qcpass  # force copy, not reference
+genoScores.plots.p1$qcpass <- genoScores.plots.p1$qcpass  
 
 p1 <- ggplot(genoScores.plots.p1, aes(x=nREADS, y=FREEMIX, color=qcpass)) +
   geom_point(size=2) +
   geom_hline(yintercept=0.1) +
   scale_color_manual(values = col_vals_pass) +
-  labs(x="Number of reads", y="FREEMIX", color="PASS QC", title = "B") +  # remove title="B", add via plot_annotation
+  labs(x="Number of reads", y="FREEMIX", color="PASS QC", title = "B") +  
   scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
   pub_theme
 
 genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1, "TRUE", "FALSE")
 genoScores.plots.p2 <- genoScores
-genoScores.plots.p2$qcpass <- genoScores.plots.p2$qcpass  # force copy
+genoScores.plots.p2$qcpass <- genoScores.plots.p2$qcpass  
 
 p2 <- ggplot(genoScores.plots.p2, aes(x=nREADS, y=CHIPMIX, color=qcpass)) +
   geom_point(size=2) +
