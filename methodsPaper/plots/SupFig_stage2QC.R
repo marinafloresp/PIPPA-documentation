@@ -162,52 +162,45 @@ genoScores <- genoScores[complete.cases(genoScores[ , c('FREEMIX', 'CHIPMIX')]),
 #genoScores$qcpass2 <- pheno[match(genoScores$sampleID, pheno$sampleID),]$qcpass2
 #genoScores$qcpass2 <- as.factor(genoScores$qcpass2)
 
-genoScores$qcpass <- ifelse(genoScores$FREEMIX < 0.1, "TRUE", "FALSE")
-genoScores.plots.p1 <- genoScores                   
-genoScores.plots.p1$qcpass <- genoScores.plots.p1$qcpass  
+genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1 & genoScores$FREEMIX , "TRUE", "FALSE")
+genoScores.plots.p3 <- genoScores
+genoScores.plots.p3$qcpass <- genoScores.plots.p2$qcpass  
 
-p1 <- ggplot(genoScores.plots.p1, aes(x=nREADS, y=FREEMIX, color=qcpass)) +
+p3 <- ggplot(genoScores.plots.p2, aes(x=FREEMIX, y=CHIPMIX, color=qcpass)) +
   geom_point(size=2) +
   geom_hline(yintercept=0.1) +
   scale_color_manual(values = col_vals_pass) +
-  labs(x="Number of reads", y="FREEMIX", color="PASS QC", title = "B") +  
-  scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
+  labs(x="FREEMIX", y="CHIPMIX", title = "B",color="PASS QC")  +
   pub_theme
-
-genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1, "TRUE", "FALSE")
-genoScores.plots.p2 <- genoScores
-genoScores.plots.p2$qcpass <- genoScores.plots.p2$qcpass  
-
-p2 <- ggplot(genoScores.plots.p2, aes(x=nREADS, y=CHIPMIX, color=qcpass)) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.1) +
-  scale_color_manual(values = col_vals_pass) +
-  labs(x="Number of reads", y="CHIPMIX", color="PASS QC") +
-  scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
-  pub_theme
-
-## Combined figures ##
+ 
 combined_fig5 <- (a1 + a2 + 
   plot_layout( guides = "collect", nrow = 1))& theme(
   legend.position = "bottom"
 )
 
-combined_fig52 <- (p1 + p2 + 
+combined_fig52 <- (p3 + 
   plot_layout( guides = "collect", nrow = 1))& theme(
-  legend.position = "bottom"
+  legend.position = "right"
 )
-combFig5 <- combined_fig5 / combined_fig52 
+
+design <- "AAAAAA
+           AAAAAA
+           #BBBB#
+           #BBBB#
+           "
+           
+combFig5 <- combined_fig5 / free(combined_fig52) + plot_layout( design = design)
  
 ggsave(
-  filename = paste0("SupplementaryFig_4.png"),
+  filename = paste0("/lustre/home/mf662/SupplementaryFig_4.png"),
   plot = combFig5,
   width = 10,
   height = 10
 )
 
 ggsave(
-  filename = paste0("SupplementaryFig_4.pdf"),
-  plot = combined_fig52,
+  filename = paste0("/lustre/home/mf662/SupplementaryFig_4.pdf"),
+  plot = combFig5,
   width = 10,
   height = 10
 )
