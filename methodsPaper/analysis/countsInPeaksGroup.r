@@ -78,10 +78,8 @@ for(each in peakFiles){
                                               ignore.strand=TRUE)
 }
 
-peaks<-reduce(unlist(GRangesList(peaks)))
+peaks<-reduce(unlist(GRangesList(peaks)),min.gapwidth = 150)
 
-length(peaks)
-head(peaks)
 ## consensus peak set exported
 export(peaks, con = paste0(groupsPeaks,"/consensus4CT_",macs_thres_group,".narrowPeak.bed"), format = "bed")
 
@@ -104,11 +102,10 @@ stopifnot(all(dim(bamFiles) == nrow(pheno)))
 ## File name specified in config file
 print(groupCountsAll)
 
-ctPeaks <- data.frame(peaks)
-head(ctPeaks)
+ctPeaks <- as.data.frame(peaksAnno@anno)
 ctPeaks$GeneID <- paste0("Peak_", row.names(ctPeaks))
-ctPeaks <- ctPeaks[c(6,1,2,3,5)]
-names(ctPeaks) <- c("GeneID", "Chr", "Start", "End", "Strand")
+ctPeaks <- ctPeaks[,c("GeneID", "seqnames", "start", "end", "strand")]
+colnames(ctPeaks) <- c("GeneID", "Chr", "Start", "End", "Strand")
 ## Get counts in all peaks
 fc_ctPeaks <- featureCounts(file.path(paste0(alignedDir,"/", bamFiles)),annot.ext=ctPeaks, allowMultiOverlap = TRUE, isPairedEnd = TRUE, nthreads = 10, fracOverlap=0.2)
 save(fc_ctPeaks, file = groupCountsAll)
