@@ -146,24 +146,8 @@ Output directory is ${PEAK_DIR}/QCOutput
 
 EOF
    
-   Rscript "/lustre/home/mf662/scripts/Rscripts/fragmentSize.r" ${CONFIGR}
+   Rscript -e "rmarkdown::render('${RSCRIPTS_DIR}/collateDataQualityStats.Rmd'), output_file='$PEAK_DIR/QCOutput/stage1SummaryStats.html'))" "${CONFIGR}"
 fi
-
-## option SUMMARY: collate output from previous steps into a single r markdown report
-if [ $# = 1 ] || [[ $2 == 'METRICS' ]]
-then
- 
-cat <<EOF
-
-|| Running step 4.3 of ATAC-seq pipeline: SUMMARY ||
-
-Summary of results to this point are collated in a Rmarkdown report
-Output directory is ${PEAK_DIR}/QCOutput
-
-EOF
- Rscript -e "rmarkdown::render('/lustre/home/mf662/scripts/Rscripts/QCmetrics.Rmd', output_file='$PEAK_DIR/QCOutput/QCmetrics_stats50bp.html')" "${CONFIGR}" 
-fi
-
 conda deactivate
 
 echo Job finished on:
