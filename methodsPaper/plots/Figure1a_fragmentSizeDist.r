@@ -99,6 +99,10 @@ melt.df$FragSize <- factor(
   levels = c("NFR", "Mono", "Di", "Tri", "Quad")
 )
 
+# ########################## Fig 1.a ###########################################
+# Violin plot for fragment size % (y-axis)
+# fragment size group (x-axis)
+
 p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
    geom_violin(scale = "width",
             position = position_dodge(width = 0.9),
@@ -121,6 +125,10 @@ p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
     plot.title = element_text(size = 16, face = "bold")
   )
 
+# ########################## Fig 1.b ###########################################
+# Violin plot for fragment size % (y-axis)
+# fragment size group (x-axis)
+# coloured by overall pass/fail Stage 1 QC
 
 p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
    geom_violin(scale = "width",
