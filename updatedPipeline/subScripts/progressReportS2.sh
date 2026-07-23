@@ -1,6 +1,6 @@
 #!/bin/bash
 ## =============================================================================================##
-##                             ATAC-seq pipeline STEP 8.1: Collate QMetrics                     ##
+##                   ATAC-seq pipeline STEP 7.1: Progress Report Stage 2 QC                     ##
 ## =============================================================================================##
 ## EXECUTION: sbatch ./subScripts/progressReportS2.sh                                           ||
 ## - execute from pipeline's main directory                                                     ||
