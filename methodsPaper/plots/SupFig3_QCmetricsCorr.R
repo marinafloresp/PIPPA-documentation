@@ -16,6 +16,7 @@ suppressWarnings(suppressPackageStartupMessages({
   library(patchwork)
 }))
 
+## for plotting ##
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 10),
@@ -27,16 +28,15 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.position = "bottom",
     legend.key.width = unit(2.2, "cm")
   )
-
+col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
 
 args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 source(configFile)
-col_vals <- c("Sox10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
 
 ## Gather all QC Stage 1 data and results ##
 pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
+pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
 pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
 pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
@@ -115,10 +115,7 @@ for(each in filePaths){
   diptestStatsAll<-rbind(diptestStatsAll, diptestStats)
 }
 
-#diptestStatsAll<-as.data.frame(diptestStatsAll)
 propNucleosomesAll<-propNucleosomesAll[match(processSum$sampleID, rownames(propNucleosomesAll)),]
-diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll))),]
-rownames(diptestStatsAll)<-processSum$sampleID
 
 ## count number of samples with X million reads
 readThres<-seq(0,max(mergeStats[,2], na.rm = TRUE)+10^6, 10^6)
@@ -143,92 +140,57 @@ decreasingProps <- as.data.frame(decreasingProps)
 ## Load TSS enrichment scores
 tssSamples <- read.table(paste0(alignedDir,"/QCOutput/TSS_enrichment.tsv"),header= TRUE)
 
+qcStats <- read.csv(file.path(qc1stats),header = TRUE, sep = ',', stringsAsFactors = FALSE)
+qcStats$qcpass <- QCPASS.df[match(qcStats$sampleID, QCPASS.df$sampleID),]$QCPASS
+mergeStats$totalreads<-mergeStats$Total.Sequences_R1+mergeStats$Total.Sequences_R2
+mergeStats$total_deduplicated_percentage_mean<-(mergeStats$total_deduplicated_percentage_R1+mergeStats$total_deduplicated_percentage_R2)/2
+qcStats$NumReadsbeforeQC <- mergeStats[match(qcStats$sampleID,mergeStats$sampleID),]$totalreads
+qcStats$UniqueNumReadsQC <- mergeStats[match(qcStats$sampleID,mergeStats$sampleID),]$total_deduplicated_percentage_mean
+
 # ########################## Sup Fig 3 ###########################################
 # Correlation heatmap of QC metrics refined to those that are used to filter samples and QCPASS indicator variable.
 
-corMergeStats<-cbind(fripStats$BAMTotalReads,
-                     eMetrics$NRF,
-                     eMetrics$PBC1,
-                     eMetrics$PBC2,
-                     propNucleosomesAll[,1],
-                     propNucleosomesAll[,2],
-                     fripStats$BAMPeaks,
-                     fripStats$FripMACS3PE)              
-colnames(corMergeStats)<- c('Total\nreads', 'NFR', 'PBC1', 'PBC2', "%NFR", "%Mono", 'Total\npeaks',"FRiP")
+corMergeStats<-cbind(qcStats$UniqueReads,
+                     qcStats$NRF,
+                     qcStats$PBC1,
+                     qcStats$PBC2,
+                     qcStats$NFR,
+                     qcStats$MNC,
+                     qcStats$AlignmentRate)
+head(corMergeStats)                
+colnames(corMergeStats)<- c('Total\nreads', 'NFR', 'PBC1', 'PBC2', "%NFR", "%Mono", 'Alingment\nrate')
+
 corMergeStats<- corMergeStats[, colSums(corMergeStats, na.rm = TRUE) != 0]
 
-## Option to also add non-numeric variables and 0 for FALSE and 1 for TRUE to compute correlation with the rest of metrics
-qcPass1 <- read.csv(paste0(metaDir,"/passStage1Status.csv"), stringsAsFactors = FALSE, strip.white = TRUE, header = TRUE)
-corMergeStats2 <- data.frame(
-  BAMTotalReads = fripStats$BAMTotalReads,
-  NRF = eMetrics$NRF,
-  PBC1 = eMetrics$PBC1,
-  PBC2 = eMetrics$PBC2,
-  PropNuc1 = propNucleosomesAll[,1],
-  PropNuc2 = propNucleosomesAll[,2],
-  BAMPeaks = fripStats$BAMPeaks,
-  FripMACS3PE = fripStats$FripMACS3PE,
-  DecreasingProps = as.numeric(decreasingProps[,1]),
-  QCPASS = as.numeric(qcPass1$QCPASS)
-)
-colnames(corMergeStats2)<- c('Total\nreads', 'NFR', 'PBC1', 'PBC2', "%NFR", "%Mono", 'Total\npeaks',"FRiP", "%NFR > %Mono", "PASS Stage\n1 QC")
+png("SupplementaryFig_3.png", width = 2100, height = 2000, res = 300)
 
-png("SupplementaryFig_3.png", width = 2000, height = 2000, res = 300)
 corrplot(
  cor(corMergeStats,use = "pairwise.complete.obs"),
   method = "circle",
   addCoef.col = "black",
-  number.cex = 0.5,
-  col = COL2("RdBu", 200),
+  number.cex = 0.8,
+  col = colorRampPalette(c("#D55E00", "#F7F7F7", "#0072B2"))(200),
   tl.col = "black",
-  tl.cex = 0.8,
-  cl.cex = 0.6,
+  tl.cex = 1,
+  cl.cex = 1,
   mar = c(1,1,1,1),
   diag = FALSE
 )
+
 dev.off()
 
-png("SupplementaryFig_3_2.png", width = 2000, height = 2000, res = 300)
-corrplot(
- cor(corMergeStats2,use = "pairwise.complete.obs"),
-  method = "circle",
-  addCoef.col = "black",
-  number.cex = 0.5,
-  col = COL2("RdBu", 200),
-  tl.col = "black",
-  tl.cex = 0.8,
-  cl.cex = 0.6,
-  mar = c(1,1,1,1),
-  diag = FALSE
-)
-dev.off()
-
-pdf("SupplementaryFig_3.pdf",width = 10, height = 10)
+pdf("SupplementaryFig_3.pdf",width = 11, height = 10)
 
 corrplot(
  cor(corMergeStats, use = "pairwise.complete.obs"),
   method = "circle",
   addCoef.col = "black",
   number.cex = 1.2,
-  col = COL2("RdBu", 200),
+  col = colorRampPalette(c("#D55E00", "#F7F7F7", "#0072B2"))(200),
   tl.col = "black",
   tl.cex = 1,
-  cl.cex = 0.8,
+  cl.cex = 1,
   mar = c(1,1,1,1),
   diag = FALSE
 )
-
-corrplot(
- cor(corMergeStats2, use = "pairwise.complete.obs"),
-  method = "circle",
-  addCoef.col = "black",
-  number.cex = 1.2,
-  col = COL2("RdBu", 200),
-  tl.col = "black",
-  tl.cex = 1,
-  cl.cex = 0.8,
-  mar = c(1,1,1,1),
-  diag = FALSE
-)
-
 dev.off()
