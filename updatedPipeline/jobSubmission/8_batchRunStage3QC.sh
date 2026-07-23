@@ -13,7 +13,7 @@
 ## ===================================================================================================================##
 ##                           ATAC-seq pipeline STEP 8: Group Peak calling                                             ##
 ## ===================================================================================================================##
-## EXECUTION: sbatch  ./jobSubmission/8_batchRunGroupPeakCalling.sh <project directory> <STEP> <GROUP>                ||
+## EXECUTION: sbatch  ./jobSubmission/8_batchRunStage3QC.sh <project directory> <STEP> <GROUP>                        ||
 ## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs peak calling by grouping samples of the same cell type. This includes selecting  ||
