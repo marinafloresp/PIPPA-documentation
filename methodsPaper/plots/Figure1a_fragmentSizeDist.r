@@ -19,17 +19,8 @@ qc1pass <- "/dir/to/qc/stage/1/output/file.csv"
 sampleSheet <- "/dir/to/sample/sheet.csv"
 alignedDir <- "/dir/to/aligned/dir"
 
-## gather data ##
-passQC1 <- read.csv(paste0(metaDir,qc1pass),header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
-pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
-pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
-pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
-
+## plotting colours/themes ##
 col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
-
-
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 14),
@@ -41,12 +32,27 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.position = "bottom",
     legend.key.width = unit(2.2, "cm")
   )
-  
-  
-passQC1 <- read.csv(qc1stats,header = TRUE, sep = ',', stringsAsFactors = FALSE)
+
+cb <- c(
+  "#0072B2",  # blue
+  "#E69F00",  # orange
+  "#009E73",  # green
+  "#CC79A7",  # purple
+  "#D55E00",  # vermillion
+  "#56B4E9"   # sky blue
+)
+
+pass_fail_cols <- c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
+)
+
+
+## gather data ##
+passQC1 <- read.csv(paste0(metaDir,qc1pass),header = TRUE, sep = ',', stringsAsFactors = FALSE)
 pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
-pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
+pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
 pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
 pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
 
@@ -64,12 +70,8 @@ for(each in filePaths){
   diptestStatsAll<-rbind(diptestStatsAll, diptestStats)
 }
 
-#diptestStatsAll<-as.data.frame(diptestStatsAll)
 propNucleosomesAll<-propNucleosomesAll[match(processSum$sampleID, rownames(propNucleosomesAll)),]
-diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll))),]
 rownames(diptestStatsAll)<-processSum$sampleID
-diptestStatsAll <- as.data.frame(diptestStatsAll)
-diptestStatsAll$sampleCode <- processSum$sampleCode
 propNucleosomesAll <-as.data.frame(propNucleosomesAll)
 
 ## plot nucleosome periodicity
@@ -96,19 +98,6 @@ melt.df$FragSize <- factor(
   melt.df$FragSize,
   levels = c("NFR", "Mono", "Di", "Tri", "Quad")
 )
-cb <- c(
-  "#0072B2",  # blue
-  "#E69F00",  # orange
-  "#009E73",  # green
-  "#CC79A7",  # purple
-  "#D55E00",  # vermillion
-  "#56B4E9"   # sky blue
-)
-
-pass_fail_cols <- c(
-  "FALSE" = "#D55E00",  # vermillion (fail)
-  "TRUE"  = "#009E73"   # bluish green (pass)
-)
 
 p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
    geom_violin(scale = "width",
@@ -132,7 +121,6 @@ p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
     legend.position = "none",
     plot.title = element_text(size = 16, face = "bold")
   )
-
 
 p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
    geom_violin(scale = "width",
