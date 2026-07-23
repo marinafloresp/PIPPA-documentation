@@ -113,14 +113,14 @@ p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
     color = "white",
     size = 2
   )+scale_fill_manual(values = cb)+
-   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
-      pub_theme +
+       pub_theme +
   theme(
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 15),
     legend.position = "none",
     plot.title = element_text(size = 16, face = "bold")
   )
+
 
 p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
    geom_violin(scale = "width",
@@ -129,7 +129,6 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
   geom_boxplot(width = 0.15,
              position = position_dodge(width = 0.9),
              outlier.shape = NA)+
-  #  facet_grid(rows = vars(passQC1))+
     scale_fill_manual(values = pass_fail_cols)+ #c("FALSE" = "#CD5555","TRUE" = "#008B00")) +
     labs(y = "Proportion of reads", x = "Fragment size classification", title = "B",fill = "Pass QC stage 1")+
    stat_summary(
@@ -138,9 +137,7 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
     position = position_dodge(width = 0.9),
     color = "white",
     size = 2
-  )+
-   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
-      pub_theme +
+  )+      pub_theme +
   theme(
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 15),
