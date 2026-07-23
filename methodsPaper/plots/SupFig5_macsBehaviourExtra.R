@@ -1,5 +1,5 @@
 #######################################
-##       Figure Supplementary 4      ##
+##       Figure Supplementary 5     ##
 #######################################
 
 library(ggplot2)
