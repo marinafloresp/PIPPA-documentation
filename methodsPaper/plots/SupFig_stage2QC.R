@@ -121,6 +121,10 @@ xPeaksWide <- xPeaksWide[complete.cases(xPeaksWide[ , c('qcpass2')]), ]
 xPeaksWide$sex[xPeaksWide$sex == "F"] <- "Female"
 xPeaksWide$sex[xPeaksWide$sex == "M"] <- "Male"
 
+# ########################## Supplementary Fig 4.a ###########################################
+# Dot point for counts in peaks nearby genes XIST/FIRRE
+# coloured by phenotype sex group
+# shape is whether pass Stage 2 QC or not
 
 a1<-ggplot(xPeaksWide, aes(x=FIRRE, y=YTot, color=sex, shape = qcpass2)) + 
   geom_point() + 
@@ -180,33 +184,12 @@ genoScores$cohort <- pheno[match(genoScores$sampleID, pheno$sampleID),]$cohort
 genoScores$batch <- pheno[match(genoScores$sampleID, pheno$sampleID),]$sequencingBatch
 genoScores$sampleCode <- pheno[match(genoScores$sampleID, pheno$sampleID),]$sampleCode
 genoScores <- genoScores[complete.cases(genoScores[ , c('FREEMIX', 'CHIPMIX')]), ]
-#genoScores$qcpass2 <- pheno[match(genoScores$sampleID, pheno$sampleID),]$qcpass2
-#genoScores$qcpass2 <- as.factor(genoScores$qcpass2)
 
-genoScores$qcpass <- ifelse(genoScores$FREEMIX < 0.1, "TRUE", "FALSE")
-genoScores.plots.p1 <- genoScores                    # snapshot includes FREEMIX-based qcpass
-genoScores.plots.p1$qcpass <- genoScores.plots.p1$qcpass  # force copy, not reference
-
-p1 <- ggplot(genoScores.plots.p1, aes(x=nREADS, y=FREEMIX, color=qcpass)) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.1) +
-  scale_color_manual(values = col_vals_pass) +
-  labs(x="Number of reads", y="FREEMIX", color="PASS QC", title = "B") +  # remove title="B", add via plot_annotation
-  scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
-  pub_theme
-
-genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1, "TRUE", "FALSE")
-genoScores.plots.p2 <- genoScores
-genoScores.plots.p2$qcpass <- genoScores.plots.p2$qcpass  # force copy
-
-p2 <- ggplot(genoScores.plots.p2, aes(x=nREADS, y=CHIPMIX, color=qcpass)) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.1) +
-  geom_vline(xintercept=0.1) +
-  scale_color_manual(values = col_vals_pass) +
-  labs(x="Number of reads", y="CHIPMIX", color="PASS") +
-  scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
-  pub_theme
+# ########################## Supplementary Fig 4.b ###########################################
+# Dot point for genotype check results
+# FREEMIX value (x-axis)
+# CHIPMIX value (y-axis)
+# coloured by pass/fail genotype check
 
 genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1 & genoScores$FREEMIX , "TRUE", "FALSE")
 genoScores.plots.p3 <- genoScores
@@ -220,12 +203,12 @@ p3 <- ggplot(genoScores.plots.p2, aes(x=FREEMIX, y=CHIPMIX, color=qcpass)) +
   labs(x="FREEMIX", y="CHIPMIX", title = "B",color="PASS")  +
   pub_theme
  
-combined_fig5 <- (a1 + a2 + 
+combined_fig4 <- (a1 + a2 + 
   plot_layout( guides = "collect", nrow = 1))& theme(
   legend.position = "bottom"
 )
 
-combined_fig52 <- (p3 + 
+combined_fig4b <- (p3 + 
   plot_layout( guides = "collect", nrow = 1))& theme(
   legend.position = "bottom"
 )
@@ -236,18 +219,18 @@ design <- "AAAAAA
            #BBBB#
            "
            
-combFig5 <- combined_fig5 / free(combined_fig52) + plot_layout( design = design, height= c(1,2))
+combFig4 <- combined_fig4 / free(combined_fig4b) + plot_layout( design = design, height= c(1,2))
  
 ggsave(
   filename = paste0(outputDir, "SupplementaryFig_4.png"),
-  plot = combFig5,
+  plot = combFig4,
   width = 10,
   height = 12
 )
 
 ggsave(
   filename = paste0(outputDir, "SupplementaryFig_4.pdf"),
-  plot = combFig5,
+  plot = combFig4,
   width = 10,
   height = 12
 )
