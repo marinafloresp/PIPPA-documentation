@@ -16,6 +16,7 @@ suppressWarnings(suppressPackageStartupMessages({
   library(patchwork)
 }))
 
+## for plotting ##
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 10),
@@ -27,16 +28,20 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.position = "bottom",
     legend.key.width = unit(2.2, "cm")
   )
+col_vals_pass <- c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
+)
+col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
 
 
 args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 source(configFile)
-col_vals <- c("Sox10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
 
 ## Gather all QC Stage 1 data and results ##
 pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
+pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
 pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
 pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
@@ -115,9 +120,7 @@ for(each in filePaths){
   diptestStatsAll<-rbind(diptestStatsAll, diptestStats)
 }
 
-#diptestStatsAll<-as.data.frame(diptestStatsAll)
 propNucleosomesAll<-propNucleosomesAll[match(processSum$sampleID, rownames(propNucleosomesAll)),]
-#diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, sub("X", "", gsub("\\.D$", "", rownames(diptestStatsAll)))),]
 diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll))),]
 rownames(diptestStatsAll)<-processSum$sampleID
 
@@ -133,7 +136,6 @@ for(i in readThres){
   }
 }
 
-#propNucleosomesAll <- na.omit(propNucleosomesAll)
 ## a successful ATAC experiment should have decreasing proportions in the nucleosome, mono, di,tri- nucleosomes
 ## define a tolerance for these comparisons
 tol <- 0
@@ -145,152 +147,183 @@ colnames(decreasingProps)<-c("NFR>Mono", "Mono>Di", "Di>Tri")
 decreasingProps <- as.data.frame(decreasingProps)
 
 ## Load TSS enrichment scores
-tssSamples <- read.table(paste0(alignedDir,"/QCOutput/TSS_enrichment.tsv"),header= TRUE)
+tssSamples <- read.table(tssEnrich,header= TRUE)
+eIndex<-match(mergeStats$sampleID, tssSamples$sample)
+tssSamples<-tssSamples[eIndex,]
+mergeStats <- cbind(mergeStats,TSSScore = tssSamples$"TSS_enrichment")
+
+QCPASS.df <- read.csv(file.path(qc1pass),header = TRUE, sep = ',', stringsAsFactors = FALSE)
+QCPASS.df <- QCPASS.df[,-1]
+head(QCPASS.df)
+qcStats <- read.csv(file.path(qc1stats),header = TRUE, sep = ',', stringsAsFactors = FALSE)
+qcStats$qcpass <- QCPASS.df[match(qcStats$sampleID, QCPASS.df$sampleID),]$QCPASS
+mergeStats$totalreads<-mergeStats$Total.Sequences_R1+mergeStats$Total.Sequences_R2
+mergeStats$total_deduplicated_percentage_mean<-(mergeStats$total_deduplicated_percentage_R1+mergeStats$total_deduplicated_percentage_R2)/2
+qcStats$NumReadsbeforeQC <- mergeStats[match(qcStats$sampleID,mergeStats$sampleID),]$totalreads
+qcStats$UniqueNumReadsQC <- mergeStats[match(qcStats$sampleID,mergeStats$sampleID),]$total_deduplicated_percentage_mean
 
 # ########################## Sup Fig 2.a ###########################################
 # Histogram of number of reads (pre QC) 
 
-mergeStats <- mergeStats[,-c(1,17)]
-
-dfa <- data.frame(pheno$sampleID, mergeStats[,c(1,9)]) %>%
-  setNames(c('Samples', 'Raw reads')) %>%
-  melt(id='Samples') %>% as.data.frame()
-
-plot.a <- ggplot(dfa, aes(x=Samples, y=value)) +
-  geom_bar(position='dodge', stat='identity') +
-  labs(x = "", y='Number of reads (x10^6)', title="A") +
-  geom_hline(color='red', size=0.8, aes(yintercept=2)) +
+dfa <- data.frame(
+  Samples = qcStats$sampleID,
+  qcpass = qcStats$qcpass,
+  reads = qcStats$NumReadsbeforeQC
+) 
+ 
+plot.a <- ggplot(dfa, aes( x = reads)) +
+  geom_histogram(bins = 100,fill ='gray')+
+  labs( x = 'Number of reads (R1 + R2)', y = "Number of samples", title = "A") +
   pub_theme +
-  theme(
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    legend.position='bottom',
-    legend.title=element_blank()
-  ) +
-  scale_fill_manual(values=colorBlindGrey8) +
-  scale_y_continuous(
-    labels = label_number(suffix="M", scale=1e-6)
+  scale_x_continuous(
+    labels = label_number(suffix = "M", scale = 1e-6)
   )
 
 # ########################## Sup Fig 2.b ###########################################
 # plot %unique reads against read number
 
-plot.b <- ggplot(
-  mergeStats,
-  aes(x = Sample, y = total_deduplicated_percentage)
-)+ geom_bar(position = 'dodge', stat = 'identity')+
-  labs(x = '', y = '% unique reads', title = "B")+
-  geom_hline(color='red', size=0.8, aes(yintercept=2)) +
-  pub_theme + 
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'bottom')
+dfb <- data.frame(
+  Samples = qcStats$sampleID,
+  reads = qcStats$UniqueNumReadsQC
+)
+plot.b <- ggplot(dfb,aes(x =  reads))+
+geom_histogram(bins = 100,fill ='gray')+
+  labs(x  = '% unique reads (mean R1 + R2)', y = "Number of samples", title = "B")+
+  pub_theme 
 
 # ########################## Sup Fig 2.c ###########################################
 # Histogram of alignment rate 
 
-df.c <- mergeStats[,c('aligned_total','overall_alignment_rate',"Sample")]
-plot.c <- ggplot(df.c, aes(x = Sample, y = overall_alignment_rate))+
-  geom_bar(position = 'dodge', stat = 'identity')+
-  geom_hline(yintercept=80, #acceptable
+dfc <- qcStats
+dfc$qcpass<- ifelse(dfc$AlignmentRate > 80, "TRUE", "FALSE")
+
+plot.c <- ggplot(dfc, aes(x = AlignmentRate,fill = qcpass))+
+  geom_histogram(bins = 100)+
+  geom_vline(xintercept=80, 
              color ='red')+
-  labs(x = '', y = '% Alignment rate', title = "C")+
-  pub_theme + 
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'bottom')
+             scale_fill_manual(values = col_vals_pass) +
+  labs(x  = '% Alignment rate', y = "Number of samples", title = "C", fill = "PASS")+
+  pub_theme 
 
 # ########################## Sup Fig 2.d ###########################################
 # Histogram of number of reads (post QC) 
 
-df.d <- mergeStats[,c('aligned_total','overall_alignment_rate',"Sample")]
-plot.d <- ggplot(df.d, aes(x = Sample, y = aligned_total))+
-  geom_bar(position = 'dodge', stat = 'identity')+
-  geom_hline(yintercept=c(95, 80), #acceptable
-             color = c('black', colorBlindGrey8[2]))+
-  labs(x = '', y = 'Number of reads aligned', title = "D")+
-  pub_theme + 
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'bottom')+
-	scale_y_continuous(labels = label_number(suffix = "M", scale = 1e-6))
+mergeStats$qcpass <- ifelse(mergeStats$BAMTotalReads > uniqReads*2*10^6, "TRUE", "FALSE")
+plot.d <- ggplot(mergeStats, aes(x = BAMTotalReads,fill = qcpass))+
+  geom_histogram(bins = 100)+
+  geom_vline(xintercept=uniqReads*2*10^6,
+             color ='red')+
+  scale_fill_manual(values = col_vals_pass) +           
+  labs(x =  'Number of reads aligned (after QC)', y = "Number of samples", fill = "PASS",title = "D")+
+  pub_theme +
+	scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-6))
 
 # ########################## Sup Fig 2.e ###########################################
 # Histogram of % MT reads
 
-df.d <- mergeStats[,c('PercentMTReads',"Sample")]
-plot.e <- ggplot(df.d, aes(x = Sample, y = PercentMTReads))+
-  geom_bar(position = 'dodge', stat = 'identity')+
-  labs(x = '', y = '% MT reads', title = "E")+
-  pub_theme + 
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'none')
+plot.e <- ggplot(mergeStats, aes(x =  PercentMTReads))+
+  geom_histogram(bins = 100,fill ='gray')+
+  labs(x  = '% MT reads', y = "Number of samples", title = "E")+
+  pub_theme 
 
-# ########################## Sup Fig 2.f ###########################################
+# ########################## Sup Fig 2.f-h ###########################################
 # Histogram of ENDCODE metrics (PBC1, PBC2, NRF) with thresholds labelled 
 
-plot.f <- ggplot(eMetrics, aes(x = Sample, y = PBC1))+
-  geom_bar(position = 'dodge', stat = 'identity')+
-  labs(x = '', y = 'PBC1')+ 
-  pub_theme + geom_hline(yintercept=pbc1Thres, #acceptable
-             color = "red")+
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'none')
-        
-plot.g <- ggplot(eMetrics, aes(x = Sample, y = PBC2))+
-  geom_bar(position = 'dodge', stat = 'identity')+
-  labs(x = '', y = 'PBC2')+ 
-  pub_theme + geom_hline(yintercept=pbc2Thres, #acceptable
-             color = "red")+
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'none')        
+eMetrics_f <- qcStats
+eMetrics_f$qcpass <- ifelse(eMetrics_f$PBC1 > pbc1Thres, "TRUE", "FALSE")
 
-plot.h <- ggplot(eMetrics, aes(x = Sample, y = NRF))+
-  geom_bar(position = 'dodge', stat = 'identity')+
-  labs(x = '', y = 'NRF')+ 
-  pub_theme + geom_hline(yintercept=nrfThres, #acceptable
-             color = "red")+
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'none')   
+eMetrics_g <- qcStats
+eMetrics_g$qcpass <- ifelse(eMetrics_g$PBC2 > pbc2Thres, "TRUE", "FALSE")
 
-# ########################## Sup Fig 2.g ###########################################
+eMetrics_h <- qcStats
+eMetrics_h$qcpass <- ifelse(eMetrics_h$NRF > nrfThres, "TRUE", "FALSE")
+
+plot.f <- ggplot(eMetrics_f, aes(x = PBC1, fill = qcpass)) +
+  geom_histogram(bins = 100) +
+  scale_fill_manual(values = col_vals_pass) +
+  labs(x = 'PBC1', y = "Number of samples", title = "G", fill = "PASS") +
+  pub_theme + geom_vline(xintercept = pbc1Thres, color = "red")
+
+plot.g <- ggplot(eMetrics_g, aes(x = PBC2, fill = qcpass)) +
+  geom_histogram(bins = 100) +
+  scale_fill_manual(values = col_vals_pass) +
+  labs(x = 'PBC2', y = "Number of samples", title = "H", fill = "PASS") +
+  pub_theme + geom_vline(xintercept = pbc2Thres, color = "red")
+
+plot.h <- ggplot(eMetrics_h, aes(x = NRF, fill = qcpass)) +
+  geom_histogram(bins = 100) +
+  scale_fill_manual(values = col_vals_pass) +
+  labs(x = 'NRF', y = "Number of samples", title = "I", fill = "PASS") +
+  pub_theme + geom_vline(xintercept = nrfThres, color = "red")+ theme(
+  legend.position = "none"
+)   
+
+# ########################## Sup Fig 2.i ###########################################
 # Histogram of TSS enrichment distribution
 
-plot.i<- ggplot(tssSamples, aes(x = sample, y =TSS_enrichment)) + 
-  geom_bar(position = 'dodge', stat = 'identity')+
-  labs(x = '', y = 'TSS enrichment score', title = "G")+ 
-  pub_theme + 
-  theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'none')
+plot.i<- ggplot(qcStats, aes(x  =TSS_score)) + 
+  geom_histogram(bins = 100,fill ='gray')+
+  labs(x =  'TSS enrichment score', y = "Number of samples", title = "F")+ 
+  pub_theme 
+
+# ########################## Sup Fig 2.j-k ###########################################
+# Histogram of %NFR and %MNC
+
+propNuc_j <-qcStats
+propNuc_j$qcpass <- ifelse(propNuc_j$NFR > nucfThres, "TRUE", "FALSE")
+
+propNuc_k <-qcStats
+propNuc_k$qcpass <- ifelse(propNuc_k$MNC > monoThres, "TRUE", "FALSE")
+
+plot.j <- ggplot(propNuc_j, aes(x = NFR, fill = qcpass)) +
+  geom_histogram(bins = 100) +
+  scale_fill_manual(values = col_vals_pass) +
+  labs(x = '% NFR fragments', y = "Number of samples", title = "J", fill = "PASS") +
+  pub_theme + geom_vline(xintercept = nucfThres, color = "red") + 
+  theme(legend.position = "none")
+
+plot.k <- ggplot(propNuc_k, aes(x = MNC, fill = qcpass)) +
+  geom_histogram(bins = 100) +
+  scale_fill_manual(values = col_vals_pass) +
+  labs(x = '% MNC fragments', y = "Number of samples", title = "K", fill = "PASS") +
+  pub_theme + geom_vline(xintercept = monoThres, color = "red")
 
 ########################### Sup Fig 2 ######################################
 ### Gather all plots 
 
-design <- "AAABBB
-           AAABBB
-           CCCDDD
-           CCCDDD
-           EEEIII
-           EEEIII
-           FFGGHH
-           FFGGHH"
+plot.c <- plot.c + theme(legend.position = "none")
+plot.f <- plot.f + theme(legend.position = "none")
 
-combined_fig2 <- plot.a + plot.b + plot.c + 
-  plot.d + plot.e + plot.f + plot.g+ plot.h + plot.i + 
-  plot_layout(design = design)
+plot.d <- plot.d + theme(legend.position = "none")
+plot.g <- plot.g + theme(legend.position = "none")
+plot.h <- plot.h + theme(legend.position = "none")
+plot.i <- plot.i + theme(legend.position = "none")
+plot.j <- plot.j + theme(legend.position = "none")
+plot.k <- plot.k + theme(legend.position = "none")
+
+
+combined_figall <- (plot.a + plot.b + plot.c +
+  plot.d + plot.e + plot.f +
+  plot.g + plot.h + plot.i + 
+  plot.j + plot.k + 
+  plot_layout( design = "
+AAABBB
+AAABBB
+CCCDDD
+CCCDDD
+EEEIII
+EEEIII
+FFGGHH
+FFGGHH
+JJJKKK
+JJJKKK
+"
+)+ 
+  plot_layout(guides = "collect"             
+  ) & theme(
+  legend.position = "bottom"
+))
+
 
 ggsave(
   filename = "SupplementaryFig_2.png",
