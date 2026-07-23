@@ -36,26 +36,34 @@ args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 source(configFile)
 
-col_vals <- c("Sox10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
+## colours for plotting
+col_vals_pass <-c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
+)
 
-col_vals_pass <-c("FALSE" = "#E15759", "TRUE" = "#59A14F")
+col_vals_sex <- c(
+  "Female" = "#CC79A7",  # reddish purple
+  "Male"   = "#0072B2"   # blue
+)
 
-## Read data ## 
+## gather data ##
 pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
 pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
 pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
 pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
+pheno<- pheno[!grepl("EX078", pheno$sampleCode), ] 
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
 
-qcPass1 <- read.csv(qcStatsStage1.csv, stringsAsFactors = FALSE, strip.white = TRUE, header = TRUE)
+qcPass1 <- read.csv(qc1pass, stringsAsFactors = FALSE, strip.white = TRUE, header = TRUE)
 qcPass1$QCPASS <- as.factor(qcPass1$QCPASS)
 
-qcPass2 <- read.csv(qcStatsStage2.csv, stringsAsFactors = FALSE, strip.white = TRUE, header = TRUE)
+qcPass2 <- read.csv(qc2pass, stringsAsFactors = FALSE, strip.white = TRUE, header = TRUE)
 qcPass2$QCPASS <- as.factor(qcPass2$QCPASS)
+
 pheno$qcpass1 <- qcPass1[match(pheno$sampleID,qcPass1$sampleID),]$QCPASS
 pheno$qcpass2 <- qcPass2[match(pheno$sampleID,qcPass2$sampleID),]$QCPASS
 
-### Collate sex check results ###
 xPeakFile<-file.path(sexChrCountsDir, "/chrX.peakcounts.txt")
 yPeakFile<-file.path(sexChrCountsDir, "/chrY.peakcounts.txt")
 
@@ -76,8 +84,8 @@ yPeaksWide = yPeaks %>%
 	select("peak-name","counts","sampleID") %>%
  spread("peak-name","counts")
 
-xPeaksWide$sampleID<-gsub(".chrX.tn5.tagAlign.gz", "", xPeaksWide$sampleID, fixed = TRUE)
-yPeaksWide$sampleID<-gsub(".chrY.tn5.tagAlign.gz", "", yPeaksWide$sampleID,fixed = TRUE)
+xPeaksWide$sampleID<-gsub(".chrX.bam", "", xPeaksWide$sampleID, fixed = TRUE)
+yPeaksWide$sampleID<-gsub(".chrY.bam", "", yPeaksWide$sampleID,fixed = TRUE)
 
 xPeaksWide<-xPeaksWide[match(pheno$sampleID,xPeaksWide$sampleID), ]
 yPeaksWide<-yPeaksWide[match(pheno$sampleID,yPeaksWide$sampleID),]
@@ -110,37 +118,50 @@ sexPredict$concordantLabel[sexPredict$concordantPredictions != TRUE]<-FALSE
 xPeaksWide$qcpass2 <- sexPredict[match(xPeaksWide$sampleID, sexPredict$sampleID),]$concordantLabel
 xPeaksWide <- xPeaksWide[complete.cases(xPeaksWide[ , c('qcpass2')]), ]
 
-## Supplementary Figure 4.a: Results sex check ##
-## x counts nearby peaks in FIRRE/XIST
-## y total counts in peaks in Y chromosome 
-## color by phenotype sex
-## shape: predicted vs real sex
+xPeaksWide$sex[xPeaksWide$sex == "F"] <- "Female"
+xPeaksWide$sex[xPeaksWide$sex == "M"] <- "Male"
+
 
 a1<-ggplot(xPeaksWide, aes(x=FIRRE, y=YTot, color=sex, shape = qcpass2)) + 
   geom_point() + 
   labs(
     x = "Counts in FIRRE associated peak",
-    y = "Counts across all Y chr peaks", color = "Sex", title = "A", shape = "PASS QC"
+    y = "Counts across all Y chr peaks", color = "Sex", title = "A", shape = "PASS"
   ) +scale_shape_manual(values = c("FALSE" = 4, "TRUE" = 16))+
+  scale_color_manual(values = col_vals_sex)+
    scale_y_continuous(
     labels = label_number(suffix = "k", scale = 1e-3))+
- pub_theme + geom_abline(intercept = 0, slope = thresF) 
+    guides(
+    color = guide_legend(
+      override.aes = list(size = 4)
+    ),
+    shape = guide_legend(
+      override.aes = list(size = 4)
+    )
+  )+
+ pub_theme + geom_abline(intercept = 0, slope = thresF,color = "red") 
   
 a2 <- ggplot(xPeaksWide, aes(x=XIST, y=YTot, color=sex, shape = qcpass2)) + 
   geom_point() + 
   labs(
     x = "Counts in XIST associated peak",
-    y = "Counts across all X chr peaks",color = "Sex", shape = "PASS QC"
+    y = "Counts across all X chr peaks",color = "Sex", shape = "PASS"
   ) +scale_shape_manual(values = c("FALSE" = 4, "TRUE" = 16))+
+  guides(
+    color = guide_legend(
+      override.aes = list(size = 4)
+    ),
+    shape = guide_legend(
+      override.aes = list(size = 4)
+    )
+  )+
+  scale_color_manual(values = col_vals_sex)+
    scale_y_continuous(labels = label_number(suffix = "k", scale = 1e-3))+
-   pub_theme + geom_abline(intercept = 0, slope = thresX)
+   pub_theme + geom_abline(intercept = 0, slope = thresX, color = "red")
 
-## Supplementary Figure 4.b: Results genotype check ##
-## x number of reads
-## y FREEMIX/CHIPMIX scores 
-## color by pass/fail
+## Genotype check
 
-genoFolder<-file.path(dir, "3_aligned/genotypeConcordance")
+genoFolder<-file.path("/lustre/projects/Research_Project-MRC190311/ATACSeq/sortedBDR/3_aligned/genotypeConcordance")
 
 setwd(genoFolder)
 outFiles<-list.files(genoFolder, pattern = "selfSM$")
@@ -162,15 +183,41 @@ genoScores <- genoScores[complete.cases(genoScores[ , c('FREEMIX', 'CHIPMIX')]),
 #genoScores$qcpass2 <- pheno[match(genoScores$sampleID, pheno$sampleID),]$qcpass2
 #genoScores$qcpass2 <- as.factor(genoScores$qcpass2)
 
+genoScores$qcpass <- ifelse(genoScores$FREEMIX < 0.1, "TRUE", "FALSE")
+genoScores.plots.p1 <- genoScores                    # snapshot includes FREEMIX-based qcpass
+genoScores.plots.p1$qcpass <- genoScores.plots.p1$qcpass  # force copy, not reference
+
+p1 <- ggplot(genoScores.plots.p1, aes(x=nREADS, y=FREEMIX, color=qcpass)) +
+  geom_point(size=2) +
+  geom_hline(yintercept=0.1) +
+  scale_color_manual(values = col_vals_pass) +
+  labs(x="Number of reads", y="FREEMIX", color="PASS QC", title = "B") +  # remove title="B", add via plot_annotation
+  scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
+  pub_theme
+
+genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1, "TRUE", "FALSE")
+genoScores.plots.p2 <- genoScores
+genoScores.plots.p2$qcpass <- genoScores.plots.p2$qcpass  # force copy
+
+p2 <- ggplot(genoScores.plots.p2, aes(x=nREADS, y=CHIPMIX, color=qcpass)) +
+  geom_point(size=2) +
+  geom_hline(yintercept=0.1) +
+  geom_vline(xintercept=0.1) +
+  scale_color_manual(values = col_vals_pass) +
+  labs(x="Number of reads", y="CHIPMIX", color="PASS") +
+  scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-5)) +
+  pub_theme
+
 genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1 & genoScores$FREEMIX , "TRUE", "FALSE")
 genoScores.plots.p3 <- genoScores
 genoScores.plots.p3$qcpass <- genoScores.plots.p2$qcpass  
 
 p3 <- ggplot(genoScores.plots.p2, aes(x=FREEMIX, y=CHIPMIX, color=qcpass)) +
   geom_point(size=2) +
-  geom_hline(yintercept=0.1) +
+  geom_hline(yintercept=0.1,color = "red") +
+  geom_vline(xintercept=0.1,color = "red") +
   scale_color_manual(values = col_vals_pass) +
-  labs(x="FREEMIX", y="CHIPMIX", title = "B",color="PASS QC")  +
+  labs(x="FREEMIX", y="CHIPMIX", title = "B",color="PASS")  +
   pub_theme
  
 combined_fig5 <- (a1 + a2 + 
@@ -180,7 +227,7 @@ combined_fig5 <- (a1 + a2 +
 
 combined_fig52 <- (p3 + 
   plot_layout( guides = "collect", nrow = 1))& theme(
-  legend.position = "right"
+  legend.position = "bottom"
 )
 
 design <- "AAAAAA
@@ -189,18 +236,18 @@ design <- "AAAAAA
            #BBBB#
            "
            
-combFig5 <- combined_fig5 / free(combined_fig52) + plot_layout( design = design)
+combFig5 <- combined_fig5 / free(combined_fig52) + plot_layout( design = design, height= c(1,2))
  
 ggsave(
-  filename = paste0("/lustre/home/mf662/SupplementaryFig_4.png"),
+  filename = paste0(outputDir, "SupplementaryFig_4.png"),
   plot = combFig5,
   width = 10,
-  height = 10
+  height = 12
 )
 
 ggsave(
-  filename = paste0("/lustre/home/mf662/SupplementaryFig_4.pdf"),
+  filename = paste0(outputDir, "SupplementaryFig_4.pdf"),
   plot = combFig5,
   width = 10,
-  height = 10
+  height = 12
 )
