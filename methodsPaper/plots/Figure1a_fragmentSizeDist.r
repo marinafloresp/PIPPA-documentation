@@ -27,7 +27,33 @@ pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
 pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
 pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
 
-## gather fragment size distribution files produced at STEP 2 of QC pipeline ##
+col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
+
+
+pub_theme <- theme_classic(base_size = 12) +
+  theme(
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10),
+    strip.text = element_text(size = 11 ),
+    plot.title = element_text(face = "bold", size = 14),
+    legend.position = "bottom",
+    legend.key.width = unit(2.2, "cm")
+  )
+  
+  
+passQC1 <- read.csv(qc1stats,header = TRUE, sep = ',', stringsAsFactors = FALSE)
+pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
+pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
+pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
+pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
+pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
+
+qc1 <- read.csv(file.path(qc1pass), sep = ",",stringsAsFactors = FALSE)
+qc1$QCPASS <- as.factor(qc1$QCPASS)
+pheno$qcpass1 <- qc1[match(pheno$sampleID,qc1$sampleID),]$QCPASS
+
 processSum <- pheno
 propNucleosomesAll<-NULL
 diptestStatsAll<-NULL
@@ -37,78 +63,105 @@ for(each in filePaths){
   propNucleosomesAll<-rbind(propNucleosomesAll, propNucleosomes)
   diptestStatsAll<-rbind(diptestStatsAll, diptestStats)
 }
+
+#diptestStatsAll<-as.data.frame(diptestStatsAll)
 propNucleosomesAll<-propNucleosomesAll[match(processSum$sampleID, rownames(propNucleosomesAll)),]
 diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll))),]
 rownames(diptestStatsAll)<-processSum$sampleID
 diptestStatsAll <- as.data.frame(diptestStatsAll)
 diptestStatsAll$sampleCode <- processSum$sampleCode
 propNucleosomesAll <-as.data.frame(propNucleosomesAll)
-propNucleosomesAll$fraction <- pheno[match(rownames(propNucleosomesAll), pheno$sampleID),]$fraction
 
-## Plot ##
+## plot nucleosome periodicity
+propNucleosomesAll.2 <-as.data.frame(propNucleosomesAll)
+colnames(propNucleosomesAll.2) <- c("NFR", "Mono", "Di", "Tri", "Quad")
+propNucleosomesAll.2$fraction <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$fraction
+propNucleosomesAll.2$cohort <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$cohort
+propNucleosomesAll.2$sequencingBatch <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$sequencingBatch
+propNucleosomesAll.2$passQC1 <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$qcpass1
+
 setwd(outputDir)
-pdf(paste0("fragSize.pdf"), width = 10, height = 10)
-head(propNucleosomesAll)
-
-## For only NEUN,SOX10, split by pass/fail
-propNucleosomesAll.1<- propNucleosomesAll[propNucleosomesAll$fraction %in% c("NeuN+","Sox10+"),]
-propNucleosomesAll.1$passQC1 <- as.factor(propNucleosomesAll.1$passQC1)
-head(propNucleosomesAll.1)
-melt.df  <- propNucleosomesAll.1 %>%
-pivot_longer(
-    cols = 1:5,                     # first 4 columns
-    names_to = "FragSize",     # new column for fragment names
-    values_to = "percentage"        # new column for values
-  )
-head(melt.df)
-
-ggplot(melt.df,aes(x=as.factor(FragSize), y=percentage))+
-   geom_violin(aes(fill = passQC1),scale = "width",
-            position = position_dodge(width = 0.9),
-            trim = FALSE) +
-  geom_boxplot(width = 0.15,
-             position = position_dodge(width = 0.9),
-             outlier.shape = NA)+
-    facet_grid(fraction ~ passQC1)+
-    scale_fill_manual(values = c("FALSE" = "#CD5555","TRUE" = "#008B00")) +
-    labs(y = "Proportion of reads", x = "Fragment size classification", fill = "Pass Periodicity (Stage 1)")+
-    stat_summary(fun="median", geom="point", color="white")+
-    scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
-    theme_bw(base_size = 14) +
-  theme(
-    axis.text = element_text(size = 12),
-    axis.title = element_text(size = 15, face = "bold"),
-    legend.position = "bottom",
-    plot.title = element_text(size = 16, face = "bold")
-  )
-
-## For all cell-types, split only by pass/fail
-propNucleosomesAll.2<- propNucleosomesAll[propNucleosomesAll$fraction %in% c("NeuN+","Sox10+"),]
+pdf(paste0("Fig1a.pdf"), width = 12, height = 10)
 propNucleosomesAll.2$passQC1 <- as.factor(propNucleosomesAll.2$passQC1)
+
 melt.df  <- propNucleosomesAll.2 %>%
 pivot_longer(
     cols = 1:5,                     # first 4 columns
     names_to = "FragSize",     # new column for fragment names
     values_to = "percentage"        # new column for values
   )
-ggplot(melt.df,aes(x=as.factor(FragSize), y=percentage))+
-   geom_violin(aes(fill = passQC1),scale = "width",
+melt.df$FragSize <- as.factor(melt.df$FragSize)
+
+melt.df$FragSize <- factor(
+  melt.df$FragSize,
+  levels = c("NFR", "Mono", "Di", "Tri", "Quad")
+)
+cb <- c(
+  "#0072B2",  # blue
+  "#E69F00",  # orange
+  "#009E73",  # green
+  "#CC79A7",  # purple
+  "#D55E00",  # vermillion
+  "#56B4E9"   # sky blue
+)
+
+pass_fail_cols <- c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
+)
+
+p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
+   geom_violin(scale = "width",
             position = position_dodge(width = 0.9),
             trim = FALSE) +
   geom_boxplot(width = 0.15,
              position = position_dodge(width = 0.9),
              outlier.shape = NA)+
-    facet_grid(rows = vars(passQC1))+
-    scale_fill_manual(values = c("FALSE" = "#CD5555","TRUE" = "#008B00")) +
-    labs(y = "Proportion of reads", x = "Fragment size classification", fill = "Pass Periodicity (Stage 1)")+
-    stat_summary(fun="median", geom="point", color="white")+
-    scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
-    theme_bw(base_size = 14) +
+    labs(y = "Proportion of reads", x = "Fragment size classification", title = "A")+
+   stat_summary(
+    fun = median,
+    geom = "point",
+    color = "white",
+    size = 2
+  )+scale_fill_manual(values = cb)+
+   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
+      pub_theme +
   theme(
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 15, face = "bold"),
+    axis.title = element_text(size = 15),
+    legend.position = "none",
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+
+p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
+   geom_violin(scale = "width",
+            position = position_dodge(width = 0.9),
+            trim = FALSE) +
+  geom_boxplot(width = 0.15,
+             position = position_dodge(width = 0.9),
+             outlier.shape = NA)+
+  #  facet_grid(rows = vars(passQC1))+
+    scale_fill_manual(values = pass_fail_cols)+ #c("FALSE" = "#CD5555","TRUE" = "#008B00")) +
+    labs(y = "Proportion of reads", x = "Fragment size classification", title = "B",fill = "Pass QC stage 1")+
+   stat_summary(
+    fun = median,
+    geom = "point",
+    position = position_dodge(width = 0.9),
+    color = "white",
+    size = 2
+  )+
+   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
+      pub_theme +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 15),
     legend.position = "bottom",
     plot.title = element_text(size = 16, face = "bold")
   )
+  
+combined_figall <- p1 / p2
+
+combined_figall
+
 dev.off()
-propNucleosomesAll$passQC1 <- passQC1[match(rownames(propNucleosomesAll), passQC1$sampleID),]$Periodicity
