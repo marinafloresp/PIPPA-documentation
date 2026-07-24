@@ -1,3 +1,4 @@
+# TO BE UPDATED #
 # ATAC-seq analysis pipeline 
 
 The Assay for Transposase-Accessible Chromatin followed by sequencing (ATAC-seq) experiment provides genome-wide profiles of chromatin accessibility. This pipeline has been developed to provide end-to-end quality control, processing and analysis of paired-end ATAC-seq datasets. This pipeline has been developed so that can be run end-to-end, starting from raw FASTQ files all the way to peak calling and perform differential accessibility analysis. 
