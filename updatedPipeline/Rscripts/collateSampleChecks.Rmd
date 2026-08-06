@@ -311,6 +311,9 @@ colnames(QCPASS)<-c("sexCheck", "genoCheck")
 pheno <- pheno[match(sexPredict$sampleID, pheno$sampleID),]
 passStage2<- cbind(pheno, QCPASS)
 passStage2$genoCheck[is.na(passStage2$genoCheck)& passStage2$sexCheck == TRUE]<- TRUE
+passStage2$genoCheck[is.na(passStage2$genoCheck) & passStage2$sexCheck == FALSE]<- FALSE
+passStage2$genoCheck[is.na(passStage2$genoCheck) & is.na(passStage2$sexCheck)]<- FALSE
+passStage2$sexCheck[is.na(passStage2$sexCheck)] <- FALSE
 
 passStage2<-cbind(passStage2, "QCPASS" = rowSums(QCPASS) == ncol(QCPASS))
 passStage2 <- as.data.frame(passStage2)
