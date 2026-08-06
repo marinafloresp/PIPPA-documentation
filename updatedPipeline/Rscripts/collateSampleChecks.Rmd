@@ -318,6 +318,7 @@ passStage2$sexCheck[is.na(passStage2$sexCheck)] <- FALSE
 passStage2<-cbind(passStage2, "QCPASS" = rowSums(QCPASS) == ncol(QCPASS))
 passStage2 <- as.data.frame(passStage2)
 passStage2$QCPASS[passStage2$genoCheck == TRUE & passStage2$sexCheck == TRUE]<- TRUE
+passStage2$QCPASS[passStage2$genoCheck == FALSE & passStage2$sexCheck == FALSE]<- FALSE
 passStage2$QCPASS[is.na(passStage2$genoCheck)& passStage2$sexCheck == TRUE]<- TRUE
 passStage2$QCPASS[is.na(passStage2$genoCheck)& passStage2$sexCheck == FALSE]<- FALSE
 passStage2$QCPASS[is.na(passStage2$sexCheck)& passStage2$genoCheck == FALSE]<- FALSE
