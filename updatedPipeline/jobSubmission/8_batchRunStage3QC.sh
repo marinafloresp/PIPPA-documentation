@@ -6,8 +6,8 @@
 #SBATCH --nodes=1 # specify number of nodes.
 #SBATCH --ntasks-per-node=16 # specify number of processors per node
 #SBATCH --mail-type=END # send email at job completion 
-#SBATCH --output=ATACGroupPeakCallingS8-%A-%a.log
-#SBATCH --error=ATACGroupPeakCallingS8-%A-%a.err
+#SBATCH --output=ATACGroupPeakCallingS8-%A.log
+#SBATCH --error=ATACGroupPeakCallingS8-%A.err
 #SBATCH --job-name=ATACGroupPeakCallingS8
 
 ## ===================================================================================================================##
@@ -17,12 +17,13 @@
 ## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs peak calling by grouping samples of the same cell type. This includes selecting  ||
-## samples that passed both stages 1 and 2 of quality control. Next, peak calling is performed (PEAKS).               ||
-## Counts in this peaks are obtained for advanced analysis (COUNTS) and the assigned cell-type of samples is confirmed||
+## samples that passed both stages 1 and 2 of quality control. Next, peak calling is performed (PEAKS). Counts in     ||
+## this peaks are obtained for advanced analysis (COUNTS). Samples are clustered based on their cell-type assigned to ||
+## detect potential failed FANS samples (CTCHECK).                                                                    ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <project directory> directory of project, location of config.txt file                                        ||
-## $2 -> <STEP> Specify step to run: PEAKS, MERGE, COUNTS, and CTCHECK. Can be combined.                              ||
+## $2 -> <STEP> Specify step to run: PEAKS, FILT, COUNTS, DIFFCOUNTS and CTCHECK. Can be combined.                    ||
 ##  Default is to run all                                                                                             ||
 ## $3 -> <GROUP> Specify cell group to run FILT or PEAKS steps. Not needed for other steps.                           ||
 ##                                                                                                                    ||
