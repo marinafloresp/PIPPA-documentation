@@ -10,6 +10,7 @@ params:
   configFile: !r commandArgs(trailingOnly=TRUE)[1]
 ---
 
+
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.align='center', echo = TRUE)
@@ -27,6 +28,7 @@ library(ggpubr)
 library(DESeq2)
 library(ggplot2)
 library(pheatmap)
+library(RColorBrewer)
 library(dplyr)
 library(cluster)
 library(BSgenome.Hsapiens.UCSC.hg38)
@@ -273,6 +275,7 @@ counts_to_plot <- counts.dif
 
 ### 3.1 Clustering of samples
 
+
 #### Principal component analysis
 
 We perform PCA to investigate the clustering of samples based on cell-types for the top `r diffN` differential peaks.
@@ -313,8 +316,7 @@ my_palette <- colorRampPalette(c("blue", "white", "red"))(50)
 breaks <- seq(-2, 2, length.out = 51)
 annotation_colors <- list("Cell Fraction" = col_vals)
 
-pheatmap(cm, annotation_col = anno,cluster_cols=TRUE,color = my_palette, annotation_colors  = annotation_colors,cluster_rows=FALSE,scale="row",show_rownames=FALSE,show_colnames = FALSE,fontsize_col = 2,
-cutree_cols = 4,breaks = breaks)
+pheatmap(cm, annotation_col = anno,cluster_cols=TRUE,color = my_palette, annotation_colors  = annotation_colors,cluster_rows=FALSE,scale="row",show_rownames=FALSE,show_colnames = FALSE,fontsize_col = 2,cutree_cols = 4,breaks = breaks)
 ```
 
 #### Sample-to-Sample distance
@@ -375,7 +377,7 @@ knitr::kable(counts)
 
 #### Principal component analysis
 
-```{r fig.height = 10, fig.width = 8} 
+```{r fig.height = 8, fig.width = 8} 
 ggplotly(pca_qcs3(counts_to_plot,pheno.filt),tooltip="label")
 ```
 
@@ -411,24 +413,55 @@ DT::datatable(wrongCT)
 ```{r}
 ## collate results Stage 3 QC
 passSamples$QCS3 <- pheno.filt[match(pheno.filt$sampleCode,passSamples$sampleCode),]$QCS3
-write.csv(passSamples, file = qc3pass, row.names = FALSE)
+#write.csv(passSamples, file = qc3pass, row.names = FALSE)
 
 ##list of samples
 samplesPassAll <- passSamples[passSamples$QCS3 == TRUE,]$sampleID
-write.table(samplesPassAll,file = qc3passList, row.names = FALSE, col.names = FALSE)
+
+#write.table(samplesPassAll,file = qc3passList, row.names = FALSE, col.names = FALSE)
 ```
 
 ```{r}
 ## Collate results from previous Stage 1 and 2, and new Stage 3 results in a single table
 
-allQC <- pheno.filt
+allQC <- metadata
 qc1 <- read.csv(file.path(qc1pass), sep = ",",stringsAsFactors = FALSE)
 qc1$QCPASS <- as.factor(qc1$QCPASS)
 allQC$QCS1 <- qc1[match(allQC$sampleID,qc1$sampleID),]$QCPASS
+
 qc2 <- read.csv(file.path(qc2pass), sep = ",",stringsAsFactors = FALSE)
 qc2$QCPASS <- as.factor(qc2$QCPASS)
 allQC$QCS2 <- qc2[match(allQC$sampleID,qc2$sampleID),]$QCPASS
 
+allQC$QCS3 <- pheno.filt[match(allQC$sampleID,pheno.filt$sampleID),]$QCS3
+allQC$QCS3[is.na(allQC$QCS3)] <- FALSE
+
 allQC$PASSALL <- ifelse(allQC$QCS1 == TRUE & allQC$QCS2 == TRUE & allQC$QCS3 == TRUE, TRUE, FALSE)
 write.csv(allQC, file = allQCresults, row.names = FALSE)
+
+```
+
+
+```{r}
+## Collate results from previous Stage 1 and 2, and new Stage 3 results in a single table
+
+allQC <- metadata
+qc1 <- read.csv(file.path(qc1pass), sep = ",",stringsAsFactors = FALSE)
+qc1$QCPASS <- as.factor(qc1$QCPASS)
+qc1 <- qc1[match(allQC$sampleID,qc1$sampleID),]
+allQC <- cbind(allQC, qc1[,c("AlignmentRate","UniqueReads", "NRF", "PBC1", "PBC2", "NFR", "MNC")])
+allQC$QCS1 <- qc1[match(allQC$sampleID,qc1$sampleID),]$QCPASS
+
+qc2 <- read.csv(file.path(qc2pass), sep = ",",stringsAsFactors = FALSE)
+qc2$QCPASS <- as.factor(qc2$QCPASS)
+qc2 <- qc2[match(allQC$sampleID,qc2$sampleID),]
+allQC <- cbind(allQC, qc2[,c("sexCheck","genoCheck")])
+allQC$QCS2 <- qc2[match(allQC$sampleID,qc2$sampleID),]$QCPASS
+
+allQC$QCS3 <- pheno.filt[match(allQC$sampleID,pheno.filt$sampleID),]$QCS3
+allQC$QCS3[is.na(allQC$QCS3)] <- FALSE
+
+allQC$PASSALL <- ifelse(allQC$QCS1 == TRUE & allQC$QCS2 == TRUE & allQC$QCS3 == TRUE, TRUE, FALSE)
+write.csv(allQC, file = allQCstats, row.names = FALSE)
+
 ```
