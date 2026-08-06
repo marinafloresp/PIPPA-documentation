@@ -114,17 +114,17 @@ This script checks for required files, packages or libraries that are needed lat
 - installs R libraries.
 
 
-### 1. Pre-analysis (QC and alignment)
+### 1. Pre-analysis (stage 1 QC) 
 
  `sbatch --array=<number of batch jobs> ./jobSubmission/1_batchRunPreAnalysis.sh (project directory) [STEPS]`
 
 Performs pre-analysis of ATAC-seq data, including pre-alignment quality control, alignment and post-alignment quality control of samples. 
 
 ##### -scripts executed-
-- ./subScripts/fastqc.sh : FastQC for pre-alignment quality control.
-- ./subScripts/fastp.sh : FastP for trimming samples.
-- ./subScripts/alignment.sh : Alingment of samples to reference genome using Bowtie2.
-- ./subScripts/calcENCODEQCMetrics.sh : ENCODE QC metrics are calculated on aligned samples.
+- ./subScripts/fastqc.sh (array-number): FastQC for pre-alignment quality control.
+- ./subScripts/fastp.sh (array-number): FastP for trimming samples.
+- ./subScripts/alignment.sh (array-number): Alingment of samples to reference genome using Bowtie2.
+- ./subScripts/calcENCODEQCMetrics.sh (array-number): ENCODE QC metrics are calculated on aligned samples.
   
 ##### -parameters-
 - `--array`: number of batch jobs, each number matches a sample.
@@ -136,140 +136,169 @@ Performs pre-analysis of ATAC-seq data, including pre-alignment quality control,
   - `ALIGN`: Align samples. Run only alignment.sh on samples.
   - `ENCODE`: Calculation of ENCODE QC metrics.
 
-### 2. Post-alignment processing
+### 2. ATAC-seq QC metrics (stage 1 QC)
 
- `sbatch --array=<number of batch jobs/10> ./jobSubmission/2_batchCalcQCMetrics.sh  (project directory)`
+ `sbatch --array=<number of batch jobs/10> ./jobSubmission/2_batchCalcQCMetrics.sh  (project directory) [STEPS]`
 
-This script uses the ATACseqQC R package to generate the fragment distribution and calculate some summary statistics. It splits the samples into groups of 10 to run in parallel
-If the number of samples is less than 10, set batch number to 0.
+Performs analysis of ATAC-seq-specific characteristics, including fragment size distribution and TSS enrichment scores.
 
 ##### -scripts executed-  
-- ./Rscripts/fragmentDistribution.r (R config file) (array-number) : fragment distribution of samples specified by array. 
-- ./subScripts/prepareBigWig.sh (R config file) (array-number) : fragment distribution of samples specified by array. 
+- ./Rscripts/fragmentDistribution.r (R config file) (array-number) : Calculation of fragment distribution of samples specified by array. 
+- ./subScripts/prepareBigWig.sh (array-number) : Coversion of sample bam file to bigWig format and shift.
+- ./subScripts/calcTssEnrich.sh (array-number) : Calculation of TSS enrichment score of sample.
+- ./subScripts/collateTssScores.sh (array-number) : Collation of TSS enrichment score of all samples.
 
 ##### -parameters-
-- `--array`: for step `FRAG` number of batch jobs, should be the number of samples divided by 10. e.g. If there are 50 samples, batch number should be 0-5, producing 5 batches of 10 samples each. For other steps, the number of batch jobs, each number matches a sample. Not required for last step
+- `--array`: for step `FRAG` number of batch jobs, should be the number of samples divided by 10. e.g. If there are 50 samples, batch number should be 0-5, producing 5 batches of 10 samples each. For other steps, the number of batch jobs, each number matches a sample. Not required for last step.
 - `(project-name)` project's directory.
-- `(R config file)` directory of R config file
 - `[STEPS]` Option to combine steps with desired steps included as single string, i.e. `FASTQC,TRIM`. Default if left blank is to run all steps. Options:
-  - `FRAG`: to generate the fragment distribution and calculate some summary statistics. Run fragmentDistribution.r .
-  - `BW`: Perform only trimming on samples. Run only fastp.sh on samples.
-  - `ALIGN`: Align samples. Run only alignment.sh on samples.
-  - `ENCODE`: Calculation of ENCODE QC metrics.
+  - `FRAG`: generate the fragment distribution and calculate some summary statistics. Run fragmentDistribution.r on group of 10 samples.
+  - `BW`: Transform bam file to bigwig format and shift. Run only prepareBigWig.sh on samples.
+  - `SCORE`: Calculate TSS enrichment score. Run only calcTssEnrich.sh on samples.
+  - `COLLATE`: Collate TSS enrichment scores of all samples. Run only collateTSSscores.
 
-
-### 3. Peak calling
+### 3. Samples peak calling (stage 1 QC)
 
   `sbatch --array=<number of batch jobs> ./jobSubmission/3_batchRunPeakCalling.sh (project directory) [STEPS]`
 
-This script performs the core part of the ATACseq pipeline: calling peaks. In this stage, peak calling is performed at sample level using the Paired-end mode of MACS3. After this, FRIP statistics are calculated and collated in a single file.
+This script performs the core part of the ATACseq pipeline: calling peaks. In this stage, peak calling is performed at sample level using the Paired-end mode of MACS3. After this, FRIP statistics are calculated and collated in a single csv file.
 
 ##### -scripts executed-
-- ./subScripts/shiftAlignedReads.sh : takes a filtered bam file converts to a tagalign file, calculate CC scores and shifts reads ready for peak calling
-    * This step is not needed if peak calling is performed using PE mode or with HMMRATAC
-- ./subScripts/samplePeaks.sh : runs MAC version 3 peak calling with BAM files paired end reads
-    * it then filters the peaks to exclude those that overlap with blacklisted regions
-    * peaks are sorted by chromosome
-- ./subScripts/collateCalcFrip.sh : calculates fraction of reads in peaks, number of reads and peaks for peak calling at sample level
-    * a single --array job number should be specified.
+
+- ./subScripts/samplePeaks.sh (array-number): MACS version 3 peak calling with BAM files paired-end reads
+    * it then filters the peaks to exclude those that overlap with blacklisted regions and sex chromosomes.
+    * peaks are sorted by chromosome.
+- ./subScripts/collateCalcFrip.sh (array-number): Calculation of fraction of reads in peaks, number of reads and peaks for peak calling at sample level
+    * a single --array job number should be specified (any number).
 
 ##### -parameters-
 - `--array`: number of batch jobs, each number matches a sample.
 - `(project-name)` project's directory.
 -optional-
 - `[STEPS]` Option to combine steps with desired steps included as single string, i.e. `FASTQC,TRIM`. Default if left blank is to run all steps. Options:
-  - `SHIFT`: Perform only shifting of reads.
-  - `PEAKS`: Perform only peak calling on samples. 
-  - `FRIP`: Calculate peak calling results for all samples.
+  - `PEAKS`: Perform only peak calling on samples. Run only samplePeaks.sh
+  - `FRIP`: Calculate peak calling results for all samples. Run only collateCalcFrip.sh
   
 ### 4. Stage 1 QC metrics summary
 
-   `sbatch ./jobSubmission/4_collateStage1QCMetrics.sh  (project directory) [STEPS]`
+   `sbatch ./jobSubmission/4_collateStage1QCMetrics.sh (project directory) [STEPS]`
 
-This scripts uses MultiQC to collate the output of fastqc and bowtie2 alginment, as well as peak calling results. 
+This scripts collates results of Stage 1 of QC pipeline to confirm data quality. It uses MultiQC to collate the output of fastqc, bowtie2 alignment, ATAC-seq QC metrics and sample peak calling results. 
 
 ##### -scripts executed-
-- ./subScripts/progressReport.sh : identifies how many samples have been successful at each stage of the processing pipeline and for each fastq file, how far through the process it has progressed.
-- ./subScripts/countMTcollateFS.sh : collates counts of the number of reads aligned to MT chromosome and collates flagstat summary of- aligned sorted reads.
-- ./Rscripts/collateDataQualityStats.Rmd : generates Rmarkdown report summarising stage 1 qc metrics: raw reads metrics, trimming, alignment and peak calling
-    * outputs a list of samples that pass Stage 1 of QC: passStage1SampleList.txt
+- ./subScripts/progressReport.sh : Identification of samples that have been successful at each stage of the processing pipeline and for each fastq file, how far through the process it has progressed.
+- ./subScripts/countMTcollateFS.sh : Counting of the number of reads aligned to MT chromosome and collates flagstat summary of- aligned sorted reads.
+- ./Rscripts/collateDataQualityStats.Rmd (R config file): Output Rmarkdown report summarising stage 1 qc metrics: raw reads metrics, trimming, alignment and peak calling.
 
 ##### -parameters-
-- `--array` : a single job number should be specified.
+- `--array` : no need to be specified.
 - `(project-name)` project's directory.
 -optional-
 - `[STEPS]` They may be combined, with desired steps included as single string, i.e. MULIQC,COLLATE. Default if left blank is to run all of them.
-  - `MULTIQC`: Collates fastqc and alignment statistics in a single report.
-  - `COLLATE`: Collate results from all samples to show progress of each sample through the pipeline in order to avoid missing steps.
-  - `SUMMARY`: Collates stage 1 QC and peak calling results in a single Rmarkdown report.
+  - `MULTIQC`: Collates fastqc and alignment statistics in a single report. Run multiqc to collate fastqc, trimming and alignment results.
+  - `COLLATE`: Collate results from all samples to show progress of each sample through the pipeline in order to avoid missing steps. Run only progressReport.sh and countMTcollateFS.sh.
+  - `SUMMARY`: Collates stage 1 QC and peak calling results in a single Rmarkdown report. Run only collateDataQualityStats.Rmd.
 
-### 5. Sex chromosomes 
+### 5. Sex check (stage 2 QC)
 
-  `sbatch --array=<number of batch jobs> ./jobSubmission/5_batchFormatSexChrs.sh (project directory) [STEPS]`
+  `sbatch --array=<number of batch jobs> ./jobSubmission/5_batchPeaksSexChrs.sh (project directory) [STEPS]`
   
-This script creates bam files for each sample containing only reads aligned to sex chromosomes, perform peak calling on these and output results.
+This script checks the sex of samples as part of their identity check by creating bam files for each sample containing only reads aligned to sex chromosomes and performing peak calling on these.
 
 ##### -scripts executed-
-- ./subScripts/subsetSexChrs.sh : subsets reads of only X and Y chromosomes for input sample in bam file. 
-- ./subScripts/sexChrPeaks.sh : performs peak calling on the sex chromomes, filter and read counts using MACS3 in Single-end mode.
-- ./Rscripts/collateSexChecks.r : collates peak calling results on sex chromosomes and uses it to check the assigned sex of the sample.
+- ./subScripts/subsetSexChrs.sh (array-number): Subsetting reads of only X and Y chromosomes in bam file for input sample . 
+- ./subScripts/sexChrPeaks.sh : Peak calling on the sex chromomes, filtering and read counts using MACS3 in paired-end mode.
+
+##### -parameters-
+- `--array` : number of batch jobs, each number matches a sample. No needed for step 5.2 `PEAKS`.
+- `(project-directory)` project's directory.
+-optional-
+- `[STEPS]` They may be combined, with desired steps included as single string, i.e. MULIQC,COLLATE. Default if left blank is to run all of them.
+  - `SPLIT`: Generate only samples with X and Y chromosomes reads. Run only subsetSexChrs.sh.
+  - `PEAKS`: Perform only peak calling on sex chromosomes reads. Run only sexChrPeaks.sh.
+
+### 6. Genotype check (stage 2 QC)
+
+  `sbatch --array=<number of batch jobs> ./jobSubmission/6_batchRunGenotypeCheck.sh (project directory) [STEPS]`
+
+This script checks the genotype of the samples as part of their identity check by detecting possible DNA contamination in order to ensure high quality sequence reads. If any contamination is detected, possible swaps will be suggested. 
+
+##### -scripts executed-
+- ./subScripts/compareBamWithGenotypes.sh (array-number): Preparation of bam file for comparison of assigned genotype of each sample and runs verifyBamID 
+  * requires a file in METADATA folder called matchedVCFIDs.txt which lists the samples with their matched vcfID.
+- ./subScripts/searchBestGenoMatch.sh : Output a summary of stats from previous step and finds any sample that might be contaminated.
+  * Contaminated samples will go to a created file potentialSwitches.txt. If this file is not empty, searchBestGenoMatch.sh is executed and an alternative Genotype search is done for the sample.
 
 ##### -parameters-
 - `--array` : number of batch jobs, each number matches a sample.
 - `(project-directory)` project's directory.
 -optional-
-- `[STEPS]` They may be combined, with desired steps included as single string, i.e. MULIQC,COLLATE. Default if left blank is to run all of them.
-  - `SPLIT`: Generate only samples with X and Y chromosomes reads.
-  - `PEAKS`: Perform only peak calling on new sex chromosomes reads samples.
-  - `CHECK`: Collate peak calling on sex chromosomes results and check assigned sex of each sample.
-
-### 6. Genotype check and Stage 2 QC metrics summary
-
-  `sbatch --array=<number of batch jobs> ./jobSubmission/6_batchRunGenotypeCheck.sh (project directory) [STEPS]`
-
-This script will detect possible DNA contamination in order to ensure high quality sequence reads. If any contamination is detected, possible swaps will be suggested. It will also collate results from stage 2 of QC.
-
-##### -scripts executed-
-- ./subScripts/compareBamWithGenotypes.sh  : prepares bam file for comparison of assigned genotype of each sample and runs verifyBamID 
-  * requires a file in METADATA folder called matchedVCFIDs.txt which lists the samples with their matched vcfID.
-- ./Rscripts/collateSampleChecks.Rmd : collates results from previous steps (sex and genotype check).
-- ./subScripts/searchBestGenoMatch.sh : Outputs a summary of stats from previous step and finds any sample that might be contaminated.
-  * Contaminated samples will go to a created file potentialSwitches.txt. If this file is not empty, searchBestGenoMatch.sh is executed and an alternative Genotype search is done for the sample.
-- ./subScripts/progressReportS2.sh : identifies what samples have been through stage 2 of QC in order to avoid missing processing samples
-
-##### -parameters-
-- `--array` : number of batch jobs, each number matches a sample. Starting from 2
-- `(project-directory)` project's directory.
--optional-
 - `[STEPS]` They may be combined, with desired steps included as single string, i.e. GENCHECK,COMPARE. Default if left blank is to run all of them.
-  - `COMPARE`: Compare only samples genotype with matched VCF file genotype.
-  - `COLLATE`: Collate results from all samples to show progress of each sample through stage 2 of QC pipeline in order to avoid missing steps or samples.
-  - `GENCHECK`: Sex and gencheck results are collated in a report.
-  - `SWITCH`: Indentify only mismatched genotype samples and output potential switches and seach for alternative genotype.
+  - `COMPARE`: Compare only samples genotype with matched VCF file genotype. Run only compareBamWithGenotypes.sh
+  - `SWITCH`: Indentify only mismatched genotype samples and output potential switches and seach for alternative genotype. Run only searchBestGenoMatch.sh.
 
+### 7. Genotype check (stage 2 QC)
 
-### 7. Group peak calling
+   `sbatch ./jobSubmission/7_collateStage2QCMetrics.sh (project directory) [STEPS]`
 
- `sbatch ./jobSubmission/7_batchPeakCallingByGroup.sh (project directory) [STEPS] [GROUP]`
-
-This script groups samples per cell type, performs group level peak calling and gets read counts in peaks called. Samples used are those that have passed previous quality control stages 1 and 2. Cell fractions to which samples belong to need to be specified in the *config.txt* file.
+This scripts collates results of Stage 2 of QC pipeline to confirm samples identity. Sex and genotype check results are collated.
 
 ##### -scripts executed-
-- ./Rscripts/samplesForGroupAnalysis.r: creates a file with samples of cell group input.
-- ./subScripts/groupPeaks.sh : performs peak calling on samples that belong to the cell group chosen by the user.
-- ./Rscripts/filtGroupPeaks.r: : filter peaks called on cell-groups.
-- ./Rscripts/countsInPeaksGroup.r : gets read counts in peaks called on each cell group.
-- ./Rscripts/diffPeakGroupsCounts.r : performs differential accessible regions analysis between cell-types based on read counts.
-- ./Rscripts/collateCellTypeCheck.Rmd : collates cell-groups peak calling and counts in peaks results to perform cell-type check.
 
+- ./subScripts/progressReportS2.sh : Identification of samples that have been through stage 2 of QC in order to avoid missing processing samples
+- ./Rscripts/collateSampleChecks.Rmd (R config file): Output results from sex and genotype check in a Rmarkdown report.
+
+##### -parameters-
+- `--array` : no need to be specified.
+- `(project-name)` project's directory.
+-optional-
+- `[STEPS]` They may be combined, with desired steps included as single string, i.e. MULIQC,COLLATE. Default if left blank is to run all of them.
+  - `COLLATE`: Collate results from all samples to show progress of each sample through stage 2 of QC pipeline in order to avoid missing steps or samples.
+  - `SUMMARY`: Collates stage 2 QC and peak calling results in a single Rmarkdown report. Run only collateSampleChecks.Rmd.
+
+### 8. Group peak calling (Stage 3 QC)
+
+ `sbatch ./jobSubmission/8_batchRunGroupPeakCalling.sh (project directory) [STEPS] [GROUP]`
+
+This script performs stage 3 of QC to check cell-type of samples by grouping samples per cell type, performing group level peak calling and gets read counts in peaks called. Samples used are those that have passed previous QC stages 1 and 2. Cell fractions to which samples belong to need to be specified in the *config.txt* file.
+
+##### -scripts executed-
+- ./Rscripts/samplesForGroupAnalysis.r (R config file) (GROUP): Creation of a file with a list of samples of cell group input.
+- ./subScripts/groupPeaks.sh (GROUP): Peak calling on merged bam file for cell-type group or on samples that belong to the cell group.
+- ./Rscripts/countsInPeaksGroup.r (R config file): Obtain read counts in peaks called on each cell group and performs differential analysis to find topmost differential peaks.
+- ./Rscripts/collateCellTypeCheck.Rmd (R config file): Output results of cell-groups peak calling and counts in peaks to perform cell-type check.
 
 ##### -parameters-
 - `(project-directory)` project's directory.
+- `(GROUP)` Select cell-type of group of samples to perform peak calling on. This is needed for the `PEAKS` and `MERGE` steps.
 -optional-
 - `[STEPS]` They may be combined, with desired steps included as single string, i.e. FRAGSIZE,PEAKS. Default if left blank is to run all of them.
-  - `PEAKS`: Performs peak calling on samples chosen for peak calling using MACS3 in paired-end mode.
-  - `FILT`: Filter peaks called on cell-groups based on their overlap with peaks called at sample level (STEP 3.2)
-  - `COUNTS`: Gets read counts in peaks called at cell group level.
-  - `DIFFCOUNTS`: Differential accessible regions analysis between cell groups based on read counts.
-  - `CTCHECK` : Collates results from before in a Rmarkdown report and identifies samples that fail cell-type identity check.
-- `[GROUP]` Select cell-type of group of samples to perform peak calling on. This is needed for the `PEAKS` and `FILT` steps.
+  - `MERGE`: Collates samples bam files and creates a sorted, merged bam file for cell-type group.
+  - `PEAKS`: Performs peak calling on bam file or samples for chosen cell-type using MACS3 in paired-end mode. Run only groupPeaks.sh.
+  - `COUNTS`: Gets read counts in peaks called at cell group level and analysis for topmost differential peaks. Run only countsInPeaksGroup.r.
+  - `CTCHECK` : Collates results from before in a Rmarkdown report and identifies samples that fail cell-type identity.
+
+### 9. Peak set curation 
+
+ `sbatch ./jobSubmission/9_batchPeakSetCuration.sh (project directory) [STEPS] [GROUP] [THRES]`
+
+This script performs the analysis and curation of peak sets using high-quality samples in order to produce a peak set that can be used for downstream analyses. Cell fractions to which samples belong to need to be specified in the *config.txt* file.
+
+##### -scripts executed-
+
+- ./Rscripts/samplesForDownAnalysis.r (R config file) (GROUP): Creation of a file with a list of samples of cell group input.
+- ./subScripts/peaksForCuration.sh (GROUP): Peak calling on merged bam file for cell-type group or on samples that belong to the cell group.
+- ./Rscripts/cutoffAnalysis.r (R config file) (GROUP): Perform segmented analysis to decide optimal peak calling threshold.
+- ./subScripts/peaksStrThres.sh (GROUP) (THRES): Peak calling on merged bam file for cell-type group or on samples that belong to the cell group with a chosen stringent significance threshold.
+
+##### -parameters-
+- `(project-directory)` project's directory.
+- `(GROUP)` Select cell-type of group of samples to perform peak calling on. This is needed for the `PEAKS`, `STRPEAKS`, and `MERGE` steps.
+- `(THRES)` Select significance threshold for peak calling in step 9.5 `STRPEAKS` as suggested by results in `CUTOFF` step 9.4.
+-optional-
+- `[STEPS]` They may be combined, with desired steps included as single string, i.e. FRAGSIZE,PEAKS. Default if left blank is to run all of them.
+  - `MERGE`: Collates samples bam files and creates a sorted, merged bam file for cell-type group.
+  - `BW`: Converts merged bam file into bigwig file for genome visualisation.
+  - `PEAKS`: Performs peak calling on bam file or samples for chosen cell-type using MACS3 in paired-end mode. Run only peaksForCuration.sh.
+  - `CUTOFF`: Performs segmented analysis to decide an optimal peak calling significance threshold. Run only cutoffAnalysis.r.
+  - `PEAKSTR` : Performs peak calling on bam file or samples for chosen cell-type using MACS3 in paired-end mode with a stringent significance threshold. Run only peaksStrThres.sh.
