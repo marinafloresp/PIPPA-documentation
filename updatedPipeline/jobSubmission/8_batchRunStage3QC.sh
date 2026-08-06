@@ -23,9 +23,9 @@
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <project directory> directory of project, location of config.txt file                                        ||
-## $2 -> <STEP> Specify step to run: PEAKS, FILT, COUNTS, DIFFCOUNTS and CTCHECK. Can be combined.                    ||
+## $2 -> <STEP> Specify step to run: MERGE, PEAKS, COUNTS and CTCHECK. Can be combined.                               ||
 ##  Default is to run all                                                                                             ||
-## $3 -> <GROUP> Specify cell group to run FILT or PEAKS steps. Not needed for other steps.                           ||
+## $3 -> <GROUP> Specify cell group to run MERGE or PEAKS steps. Not needed for other steps.                          ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
 ## - File in ${META_DIR}/samples.txt that lists sample names.                                                         ||
