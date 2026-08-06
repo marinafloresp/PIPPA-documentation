@@ -22,8 +22,8 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
     - Specify the modules versions to be loaded and the full paths to the softwares used in the pipeline (e.g. picard).
   - An alphabetically ordered array of cell types to which samples belong to: `CELLTYPES`. 
   - Cutoff values for peak calling should be specified by the user. If not specified, default will be used (0.05). For more information about what values to choose: [MACS documentation](https://macs3-project.github.io/MACS/docs/cutoffanalysis.html)
-    - `macs_sample_thres` : Sample-level Peak calling q-value cutoff
-    - `macs_group_thres` : Cell fraction-level Peak calling q-value cutoff
+    - `macs_sample_thres` : Sample-level peak calling q-value cutoff
+    - `macs_group_thres` : Cell fraction-level peak calling q-value cutoff
     - `macs_chr_thres` : Peak calling on sex chromosomes q-value cutoff
 - config.r: This is the configuration file for running R scripts.
   - The `dir` variable should be changed to be the full path to the project's directory. This should match `MAIN_DIR` variable in the config.txt file.
@@ -43,7 +43,7 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
 - Requires a samples.txt file in the META_DATA (0_metadata) folder with the names of the samples that will be used to run the pipeline.
 - Requires a sampleSheet.csv file in the META_DATA (0_metadata) folder with information about the samples. More information below.
 - Samples need to be in the RAWDATADIR folder in the project folder (1_raw)
-- An alphabetically ordered array of cell types to which samples belong to needs to be specified in the *config.txt* file as `CELLTYPES` in order to perform peak calling by cell group (STEP 7). This also required in the *config.r* file.
+- An alphabetically ordered array of cell types to which samples belong to needs to be specified in the *config.txt* file as `CELLTYPES` in order to perform peak calling by cell group (STEP 8). This also required in the *config.r* file.
 - A Reference folder is needed with the following resources:
   - Reference genome in .fa format (hg38): [UCSC](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/)
   - Index for Bowtie2 alignment: [Bowtie index](https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#the-bowtie2-build-indexer)
@@ -145,6 +145,7 @@ If the number of samples is less than 10, set batch number to 0.
 
 ##### -scripts executed-  
 - ./Rscripts/fragmentDistribution.r (R config file) (array-number) : fragment distribution of samples specified by array. 
+- ./subScripts/prepareBigWig.sh (R config file) (array-number) : fragment distribution of samples specified by array. 
 
 ##### -parameters-
 - `--array`: for step `FRAG` number of batch jobs, should be the number of samples divided by 10. e.g. If there are 50 samples, batch number should be 0-5, producing 5 batches of 10 samples each. For other steps, the number of batch jobs, each number matches a sample. Not required for last step
