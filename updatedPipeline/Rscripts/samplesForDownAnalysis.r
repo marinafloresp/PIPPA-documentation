@@ -1,7 +1,7 @@
 ## ===============================================================================================================##
 ##             ATAC-seq pipeline STEP 9.0: Sample list for downstream analyses                                    ##
 ## ===============================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForDownAnalysis.r <project> <cell-group>                ||
+## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForDownAnalysis.r <project> <cell-group>               ||
 ## - execute from scripts directory                                                                               ||
 ##                                                                                                                ||
 ## DESCRIPTION: This scripts creates a file with samples that passed all stages of the QC and selects             ||
@@ -25,7 +25,16 @@ configFile <-args[1]
 source(configFile)
 cf <- args[2]
 
+pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
 passAllQC <- read.csv(file.path(allQCresults), stringsAsFactors = FALSE, strip.white = TRUE)
-samples <- passAllQC[passAllQC$fraction == cf & passAllQC$PASSALL == TRUE,]$sampleID
+passAllQC <- passAllQC[passAllQC$PASSALL == TRUE ,]
+phenoAllQC <- pheno[pheno$sampleCode %in% passAllQC$sampleCode,]
+
+print(table(phenoAllQC$fraction))
+print(table(phenoAllQC$cohort))
+
+write.csv(phenoAllQC, file = file.path(downAnalysisSamples), row.names = FALSE)
+
+samples <- phenoAllQC[phenoAllQC$fraction == cf, ]$sampleID
 samples <- na.omit(samples)
 write.table(samples, file = file.path(paste0(metaDir, "/downAnalysisSamples_",cf,".txt")), row.names = FALSE,quote = FALSE, col.names=FALSE)
