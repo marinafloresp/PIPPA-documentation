@@ -55,6 +55,8 @@ source(configFile)
 col_vals <- c("SOX" = "#6B8E23","TN" = "#C77CFF","NEUN" = "hotpink","IRF8" = "orange")
 
 plot_colour <- col_vals[cf]
+
+## get peaks called with q5e-2, only blacklisted regions peaks filtered
 peakFile <- paste0(peaksAnalysis,"/", cf,"/", cf,"_",macs_thres_group,".narrowPeak.filt")
 peaks.gr<-makeGRangesFromDataFrame(read.table(file.path(peakFile)), keep.extra.columns=TRUE, seqnames.field="V1",
                                    start.field="V2",
@@ -120,7 +122,7 @@ seg_y <- seq(ymax * 0.95,ymax * 0.80,length.out = length(seg_breaks))
 ci_low_y <- seq(ymax * 0.75,ymax * 0.65,length.out = length(ci_lower))
 ci_up_y <- seq(ymax * 0.60,ymax * 0.50,length.out = length(ci_upper))
 
-pdf(file.path(paste0(peaksCutoff, "/cutoffAnalysis_", cf,"_2.pdf")), width = 10, height = 5)
+pdf(file.path(paste0(peaksCutoff, "/cutoffAnalysis_", cf,".pdf")), width = 10, height = 5)
 
 p <- ggplot(df,aes(x = logQ, y = count)) +
   geom_point(size = 1.3,color = plot_colour) +
