@@ -267,11 +267,11 @@ for (x in 1:4){
 ## add thresholds
 p[[1]]<-p[[1]]+ geom_vline(xintercept = median(mergeStats$Total.Sequences_R1, na.rm = TRUE), color = "orange") +
   geom_vline(xintercept = c(25000000,50000000), color = "black") +
-  geom_vline(xintercept = uniqReads*10^6, color = "red")+
+  geom_vline(xintercept = numReads*10^6, color = "red")+
 	scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-6))
 p[[3]]<-p[[3]]+ geom_vline(xintercept = median(mergeStats$Total.Sequences_R2, na.rm = TRUE), color = "orange") +
   geom_vline(xintercept = c(25000000,50000000), color = "black")+
-  geom_vline(xintercept = uniqReads*10^6, color = "red")+
+  geom_vline(xintercept = numReads*10^6, color = "red")+
 	scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-6))
 
 grid.arrange(grobs = p,ncol=2)
@@ -387,7 +387,7 @@ for (j in 1:length(colsX)){
     if (colsY[i] == "overall_alignment_rate"){
           p[[x]]<-p[[x]]+geom_hline(yintercept = 80, alpha=0.7, linetype="dashed", show.legend =FALSE)
     } else if(colsY[i] == "BAMTotalReads") {
-      p[[x]]<-p[[x]]+geom_hline(yintercept = uniqReads*10^6, alpha=0.7, linetype="dashed", show.legend =FALSE) +
+      p[[x]]<-p[[x]]+geom_hline(yintercept = numReads*10^6, alpha=0.7, linetype="dashed", show.legend =FALSE) +
        scale_y_continuous(labels = label_number(suffix = "M", scale = 1e-6))
     } else {
        p[[x]]<-p[[x]]+
@@ -737,7 +737,7 @@ grid.arrange(grobs = p, ncol=1)
 ```{r samplePASS}
 # generate a txt file of passed samples
 QCPASS<-cbind(mergeStats$overall_alignment_rate > alignThres, #alignment rate 
-              mergeStats$BAMTotalReads > uniqReads*10^6,#total filtered & aligned reads
+              mergeStats$BAMTotalReads > numReads*10^6,#total filtered & aligned reads
               mergeStats$NRF > nrfThres, #encode
               mergeStats$PBC1 > pbc1Thres, #encode
               mergeStats$PBC2 > pbc2Thres, #encode,
@@ -745,16 +745,16 @@ QCPASS<-cbind(mergeStats$overall_alignment_rate > alignThres, #alignment rate
               mergeStats$Mono > monoThres
               ) 
 QCPASS[is.na(QCPASS)] <- FALSE
-colnames(QCPASS)<-c("AlignmentRate", "UniqueReads", "NRF", "PBC1", "PBC2","NFR", "MNC")
-keep<-rowSums(QCPASS, na.rm=TRUE) == rowSums(!is.na(QCPASS))
+colnames(QCPASS)<-c("AlignmentRate", "TotalNumReads", "NRF", "PBC1", "PBC2","NFR", "MNC")
+keep<-rowSums(QCPASS) == ncol(QCPASS)
 QCPASS.df<-cbind(QCPASS, "QCPASS" = keep)
 QCPASS.df <- cbind(mergeStats[,c("sampleID","sampleCode","fraction","cohort","sequencingBatch")],QCPASS.df)
 write.csv(QCPASS.df, file = file.path(qc1pass))
 
-write.table(names(keep[keep==TRUE]), file = file.path(qc1passList),row.names = FALSE, col.names = FALSE, quote = FALSE)
+write.table(mergeStats$sampleID[keep], file = file.path(qc1passList), 
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
 
-qcStats <- cbind(mergeStats[,c("sampleID","sampleCode","cohort","fraction","sequencingBatch")],
-                 mergeStats$overall_alignment_rate, #alignment rate 
+qcStats <- cbind(mergeStats[,c("sampleID","sampleCode","cohort","fraction","sequencingBatch")],mergeStats$overall_alignment_rate, #alignment rate 
               mergeStats$BAMTotalReads, #total filtered & aligned reads
               mergeStats$NRF, #encode
               mergeStats$PBC1, #encode
@@ -768,8 +768,8 @@ qcStats <- cbind(mergeStats[,c("sampleID","sampleCode","cohort","fraction","sequ
                      #multimodality
               ) 
 
-colnames(qcStats) <- c("sampleID","sampleCode","cohort","fraction","sequencingBatch", "AlignmentRate", "UniqueReads", "NRF", "PBC1", "PBC2","NFR", "MNC", "Periodicity","Peaks", "FRIP", "Multimodality", "TSS_score")
-#write.csv(qcStats, file = file.path(qc1stats),row.names = FALSE)
+colnames(qcStats) <- c("sampleID","sampleCode","cohort","fraction","sequencingBatch", "AlignmentRate", "TotalNumReads", "NRF", "PBC1", "PBC2","NFR", "MNC", "Periodicity","Peaks", "FRIP", "Multimodality", "TSS_score")
+write.csv(qcStats, file = file.path(qc1stats),row.names = FALSE)
 ```
 
 Samples will now be filtered based on thresholds defined in the config file. The table below, summarises the number of samples that pass each QC step.
@@ -780,7 +780,7 @@ kbl(colSums(QCPASS, na.rm = TRUE))
 
 The table below, summarises the number of samples that fail each QC step.
 ```{r, echo = FALSE}
-QCPASS.df2 <- QCPASS.df[,c("AlignmentRate", "UniqueReads", "NRF", "PBC1", "PBC2","NFR", "MNC", "QCPASS")]
+QCPASS.df2 <- QCPASS.df[,c("AlignmentRate", "TotalNumReads", "NRF", "PBC1", "PBC2","NFR", "MNC", "QCPASS")]
 
 # create cross tab table
 xTab<-matrix(data = NA, ncol = ncol(QCPASS.df2), nrow = ncol(QCPASS.df2))
@@ -818,7 +818,8 @@ Below there is a summary of the QC metrics that samples failed the most and the 
 ```{r fig.width = 12, fig.height= 10}
 
 qc_cols <- names(QCPASS.df2)
-qc_cols <- qc_cols[-c("QCPASS")]
+qc_cols <- qc_cols[!qc_cols == "QCPASS"]
+
 fail_long <- QCPASS.df2 %>%
   mutate(sample_id = row_number()) %>%
   pivot_longer(all_of(qc_cols),
