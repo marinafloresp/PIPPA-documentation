@@ -317,8 +317,8 @@ for (j in 1:length(colsX)){
       geom_boxplot(width = 0.05, fill = "black", alpha = 0.3) +
       stat_summary(fun = median, geom = "point", color = "white") +
       labs(x = labsX[j], y = labsY[i])+
-      scale_color_manual(values = rep(colorBlindGrey8,
-               ceiling(x / length(colorBlindGrey8)))[1:x])+
+      scale_fill_manual(values = rep(colorBlindGrey8,
+               ceiling(length(unique(df$x)) / length(colorBlindGrey8)))[1:length(unique(df$x))])+
       theme_bw() +
       theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
@@ -599,12 +599,17 @@ We need to apply thresholds to satisfy the following criteria
 p <-ggplot(mergeStats, aes(x=Mono, y=NFR, color = factor(fraction)))+
     geom_point()+
     theme_bw()+
-    labs(x= "Proportion fragments classed as mono", y = "Proportion fragments class as nucleosome free", color = "Cell-fraction")+
+    labs(x= "Proportion fragments classed as mono", y = "Proportion fragments class as nucleosome free", 
+         color = "Cell-fraction")+
     geom_abline(intercept = 0, slope = 1)+
+  scale_color_manual(values = rep(colorBlindGrey8,
+               ceiling(length(unique(mergeStats$fraction)) / length(colorBlindGrey8)))[1:length(unique(mergeStats$fraction))])+
     ylim(c(0,1))+
     xlim(c(0,max(propNucleosomesAll[,2])))+
     geom_hline(yintercept = c(nucfThres))+
-    geom_vline(xintercept = c(monoThres)) + theme(
+  
+    geom_vline(xintercept = c(monoThres)) + 
+  theme(
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 13),
     legend.position = "bottom",
