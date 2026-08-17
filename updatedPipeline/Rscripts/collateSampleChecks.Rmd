@@ -234,6 +234,7 @@ genoScores$fraction <- fraction
 genoScores$cohort <- pheno[match(genoScores$sampleID, pheno$sampleID),]$cohort
 genoScores$batch <- pheno[match(genoScores$sampleID, pheno$sampleID),]$sequencingBatch
 genoScores$sampleCode <- pheno[match(genoScores$sampleID, pheno$sampleID),]$sampleCode
+genoScores$batch <- as.factor(genoScores$batch)
 genoScores.plots <- genoScores %>% drop_na(sampleID)
 ```
 
@@ -243,28 +244,72 @@ Aligned ATAC bam files were compared to imputed genotype data using verifyBamID.
 Firstly this software looks for evidence of contamination, using genotypes from within the ATAC bam file.The distribution of this metric is shown below. It is bounded between 0 and 1, with 0 reflecting no contamination. This value can be roughly interpreted as representing the proportion of non-reference bases that are observed in reference sites. 
 
 ```{r}
-hist(genoScores$FREEMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Proportion contamination (FREEMIX)", main = "")
-abline(v = 0.02)
+#hist(genoScores$FREEMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Proportion contamination (FREEMIX)", main = "")
+#abline(v = 0.02)
+
+ggplot(genoScores, aes(x = FREEMIX))+ # select x values based on column index rather than name
+          geom_histogram(bins = 50,fill ='gray')+
+  geom_vline(xintercept=0.1, color = "orange")+ 
+  geom_vline(xintercept=0.9, color = "red")+ 
+          labs(x = "Proportion contamination (FREEMIX)", y = 'Number of Samples')+
+          theme_bw()
 
 ```
 
 Secondly, it compares the sequence in the bam file to genotypes for that individual and calculates a contamination score that incorporates the genotype data for that sample. Here a value of ~ 0 indicates no contamination and therefore this matches the provided genotype data. A value of ~ 1 indicates that the sample does not have any contamination but it does not match the genotype data.   
 
 ```{r}
-hist(genoScores$CHIPMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Potential swap (CHIPMIX)", main = "")
+#hist(genoScores$CHIPMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Potential swap (CHIPMIX)", main = "")
 
+ggplot(genoScores, aes(x = CHIPMIX))+ # select x values based on column index rather than name
+          geom_histogram(bins = 50,fill ='lightgray')+
+  geom_vline(xintercept=0.1, color = "orange")+ 
+  geom_vline(xintercept=0.9, color = "red")+ 
+          labs(x = "Potential swap (CHIPMIX)", y = 'Number of Samples')+
+          theme_bw()
 ```
 
 ```{r fig.height = 10, fig.width = 10}
 p <- NULL
-p[[1]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=fraction,label=sampleCode))+geom_point(size=2)+ geom_vline(xintercept=0.1) + geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) + labs( x= "Proportion contamination (seq only) (FREEMIX)", y ="Proportion contamination (given genotypes) (CHIPMIX)", color = "Cell-fraction") + theme(legend.title = element_blank(), 
-          legend.position = 'bottom')+theme_bw()
+p[[1]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=fraction,label=sampleCode))+
+  geom_point(size=2)+ geom_vline(xintercept=0.1) + 
+  geom_hline(yintercept=0.1)+ 
+  geom_hline(yintercept=0.9) + 
+  scale_color_manual(values = rep(colorBlindGrey8,
+               ceiling(length(unique(genoScores.plots$fraction)) / length(colorBlindGrey8)))[1:length(unique(genoScores.plots$fraction))])+
+  labs( x= "Proportion contamination (seq only) (FREEMIX)", 
+        y ="Proportion contamination (given genotypes) (CHIPMIX)", 
+        color = "Cell-fraction") + 
+  theme(legend.title = element_blank(), 
+          legend.position = 'bottom')+
+  theme_bw()
 
-p[[2]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=cohort, label=sampleCode))+geom_point(size=2)+ geom_vline(xintercept=0.1) + geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) + labs( x ="Proportion contamination (seq only) (FREEMIX)", y ="Proportion contamination (given genotypes) (CHIPMIX)", color = "Brain bank")+ theme(legend.title = element_blank(), 
-          legend.position = 'bottom')+theme_bw()
+p[[2]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=cohort, label=sampleCode))+
+  geom_point(size=2)+ 
+  geom_vline(xintercept=0.1) + 
+  geom_hline(yintercept=0.1)+ 
+  geom_hline(yintercept=0.9) + 
+  scale_color_manual(values = rep(colorBlindGrey8,
+               ceiling(length(unique(genoScores.plots$cohort)) / length(colorBlindGrey8)))[1:length(unique(genoScores.plots$cohort))])+
+  labs( x ="Proportion contamination (seq only) (FREEMIX)", 
+        y ="Proportion contamination (given genotypes) (CHIPMIX)",
+        color = "Brain bank")+ 
+  theme(legend.title = element_blank(), 
+          legend.position = 'bottom')+
+  theme_bw()
 
-p[[3]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=as.factor(batch), label=sampleCode))+geom_point(size=2)+ geom_vline(xintercept=0.1) + geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) + labs( x ="Proportion contamination (seq only)", y = "Proportion contamination (given genotypes)", color = "Sequencing Batch")+ theme(legend.title = element_blank(), 
-          legend.position = 'bottom')+theme_bw()
+p[[3]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=as.factor(batch), label=sampleCode))+
+  geom_point(size=2)+ 
+  geom_vline(xintercept=0.1) + 
+  geom_hline(yintercept=0.1)+ 
+  geom_hline(yintercept=0.9) + 
+   scale_color_manual(values = rep(colorBlindGrey8,
+               ceiling(length(unique(genoScores.plots$batch)) / length(colorBlindGrey8)))[1:length(unique(genoScores.plots$batch))])+
+  labs( x ="Proportion contamination (seq only)", y = "Proportion contamination (given genotypes)", 
+        color = "Sequencing Batch")+ 
+  theme(legend.title = element_blank(), 
+          legend.position = 'bottom')+
+  theme_bw()
 ```
 
 ```{r, fig.width = 8}
