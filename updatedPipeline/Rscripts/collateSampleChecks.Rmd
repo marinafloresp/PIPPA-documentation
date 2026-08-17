@@ -21,6 +21,7 @@ library(tidyverse)
 library(kableExtra)
 library(gridExtra)
 library(plotly)
+library(scales)
 
 source(params$configFile)
 
@@ -29,6 +30,21 @@ pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALS
 s1Pass <- read.csv(file.path(qc1pass),header = TRUE)
 s1Pass <- s1Pass[match(pheno$sampleID, s1Pass$sampleID),]
 
+col_vals_sex <- c(
+  "Female" = "#CC79A7",  # reddish purple
+  "Male"   = "#0072B2"   # blue
+)
+
+pub_theme <- theme_classic(base_size = 12) +
+  theme(
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size = 15),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    strip.text = element_text(size = 11 ),
+    plot.title = element_text(face = "bold", size = 14),
+    legend.key.height = unit(1, "cm")
+  )
 ```
 
 ## Overview
@@ -109,7 +125,6 @@ xPeaksWide$YTot<-rowSums(yPeaksWide[,-1])
 xPeaksWide$sex<-pheno$gender
 xPeaksWide$sampleCode <- pheno[match(xPeaksWide$sampleID,pheno$sampleID),]$sampleCode
 
-
 ## determine threshold as a line to bisect the two groups 
 ratioF<-xPeaksWide$YTot/xPeaksWide$FIRRE
 ratioF[!is.finite(ratioF)]<-NA
@@ -121,27 +136,47 @@ ratioX[!is.finite(ratioX)]<-NA
 sexMeans<-aggregate(ratioX, by = list(xPeaksWide$sex), mean, na.rm = TRUE)[,2]
 thresX<-min(sexMeans)+ 0.5*abs(diff(sexMeans))
 
-a1<-ggplot(xPeaksWide, aes(x=FIRRE, y=YTot, color=sex, label= sampleCode)) + 
+xPeaks.plot <- xPeaksWide
+xPeaks.plot$sex[xPeaks.plot$sex == "F"] <- "Female"
+xPeaks.plot$sex[xPeaks.plot$sex == "M"] <- "Male"
+
+a1<-ggplot(xPeaks.plot, aes(x=FIRRE, y=YTot, color=sex, label= sampleCode)) + 
   geom_point() + 
   labs(
     x = "Counts in FIRRE associated peak",
-    y = "Counts across all Y chr peaks"
-  ) + theme_bw() + geom_abline(intercept = 0, slope = thresF)
+    y = "Counts across all Y chr peaks", color = "Sex"
+  ) +
+  scale_color_manual(values = col_vals_sex)+
+   scale_y_continuous(
+    labels = label_number(suffix = "k", scale = 1e-3))+
+    guides(
+    color = guide_legend(
+      override.aes = list(size = 4)
+    ),
+    shape = guide_legend(
+      override.aes = list(size = 4)
+    )
+  )+
+ pub_theme + geom_abline(intercept = 0, slope = thresF,color = "red") 
   
-a2 <- ggplot(xPeaksWide, aes(x=XIST, y=YTot, color=sex,label= sampleCode)) + 
+a2 <- ggplot(xPeaks.plot, aes(x=XIST, y=YTot, color=sex, label= sampleCode)) + 
   geom_point() + 
   labs(
     x = "Counts in XIST associated peak",
-    y = "Counts across all X chr peaks"
-  ) + theme_bw() + geom_abline(intercept = 0, slope = thresX)
-
-figa<-ggarrange(a1, a2,  
-          ncol = 2, nrow = 1)
-
-pdf(file.path(dir, "3_aligned", "QCOutput", "sexPredictions.pdf"), width = 10, height = 5)
-print(figa)
-dev.off()
-		  
+    y = "Counts across all X chr peaks",color = "Sex"
+  ) +
+  guides(
+    color = guide_legend(
+      override.aes = list(size = 4)
+    ),
+    shape = guide_legend(
+      override.aes = list(size = 4)
+    )
+  )+
+  scale_color_manual(values = col_vals_sex)+
+   scale_y_continuous(labels = label_number(suffix = "k", scale = 1e-3))+
+   pub_theme + geom_abline(intercept = 0, slope = thresX, color = "red")
+	  
 ## predict sex
 
 sexPredict<-data.frame("sampleID" = xPeaksWide$sampleID,"LabelledSex" = xPeaksWide$sex, "FIRREratio" = ratioF > thresF,"XISTratio" = ratioX > thresX)
@@ -158,17 +193,15 @@ sexPredict$sampleCode <- pheno[match(sexPredict$sampleID,pheno$sampleID),]$sampl
 Sex was predicted from the ATAC data as follows. Peak calling was performed with MACS3 on the X and Y chromsome. Three metrics were then generated for each sample. The read counts of OCRs adjacent to FIRRE and XIST, which are only, or predominantly, accessible in females and aggregate read counts in OCRs on chromosome Y outside the pseudoautosomal region. Sex predictions were made by plotting each of the two X chromosome counts against the single Y chromosome counts. The samples then cluster into two groups, representing each sex (see below). Females are then predicted where the X chromosome counts are greater than the Y chromosome counts. 
 
 ```{r, fig.width = 8}
-#ggplotly(a1, tooltip = c("label"))
+ggplotly(a1, tooltip = c("label"))
 ```
 
 ```{r, fig.width = 8}
-#ggplotly(a2, tooltip = c("label"))
+ggplotly(a2, tooltip = c("label"))
 ```
 
 
 Sex predictions were made for `r sum(is.na(sexPredict$FIRREratio))` samples. `r sum(sexPredict$concordantPredictions, na.rm = TRUE)` samples were predicted the same sex using both X chromosome metrics. 
-
-
 
 ```{r}
 table(sexPredict$FIRREratio, sexPredict$XISTratio)
@@ -210,16 +243,15 @@ Aligned ATAC bam files were compared to imputed genotype data using verifyBamID.
 Firstly this software looks for evidence of contamination, using genotypes from within the ATAC bam file.The distribution of this metric is shown below. It is bounded between 0 and 1, with 0 reflecting no contamination. This value can be roughly interpreted as representing the proportion of non-reference bases that are observed in reference sites. 
 
 ```{r}
-hist(genoScores$FREEMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Proportion contamination", main = "")
+hist(genoScores$FREEMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Proportion contamination (FREEMIX)", main = "")
 abline(v = 0.02)
 
 ```
 
-
-Secondly, it compares the sequence in the bam file to genotypes for that individual and calculates a contaminination score that incorporates the genotype data for that sample. Here a value of ~ 0 indicates no contamination and therefore this matches the provided genotype data. A value of ~ 1 indicates that the sample does not have any contamination but it does not match the genotype data.   
+Secondly, it compares the sequence in the bam file to genotypes for that individual and calculates a contamination score that incorporates the genotype data for that sample. Here a value of ~ 0 indicates no contamination and therefore this matches the provided genotype data. A value of ~ 1 indicates that the sample does not have any contamination but it does not match the genotype data.   
 
 ```{r}
-hist(genoScores$CHIPMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Proportion contamination", main = "")
+hist(genoScores$CHIPMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Potential swap (CHIPMIX)", main = "")
 
 ```
 
@@ -236,52 +268,15 @@ p[[3]] <- ggplot(genoScores.plots, aes(x=FREEMIX, y=CHIPMIX, color=as.factor(bat
 ```
 
 ```{r, fig.width = 8}
-#ggplotly(p[[1]], tooltip = "label")
-```
-```{r, fig.width = 8}
-#ggplotly(p[[2]],tooltip = "label")
-```
-```{r, fig.width = 8}
-#ggplotly(p[[3]],tooltip = "label")
-```
-Let's compare the contamination statistics against other metrics of data quality.
-
-```{r fig.height = 7, fig.width = 10}
-
-p <- NULL
-p[[1]] <- ggplot(genoScores.plots, aes(x=nREADS/1e6, y=FREEMIX, color=fraction,label=sampleCode))+geom_point(size=2)+ geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) +labs( x ="Number of reads (M)", y ="Proportion contamination (seq only (FREEMIX))", color = "Cell-fraction") +theme_bw()
-
-p[[2]] <- ggplot(genoScores.plots, aes(x=nREADS/1e6, y=CHIPMIX, color=fraction,label=sampleCode))+geom_point(size=2)+ geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) +labs( x ="Number of reads (M)", y = "Proportion contamination (seq only (CHIPMIX)", color = "Cell-fraction")+theme_bw()
-
-p[[3]] <- ggplot(genoScores.plots, aes(x=nREADS/1e6, y=FREEMIX, color=cohort,label=sampleCode))+geom_point(size=2)+ geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) +labs( x ="Number of reads (M)", y ="Proportion contamination (seq only (FREEMIX))", color = "Brain bank") +theme_bw()
-
-p[[4]] <- ggplot(genoScores.plots, aes(x=nREADS/1e6, y=CHIPMIX, color=cohort,label=sampleCode))+geom_point(size=2)+ geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) +labs( x ="Number of reads (M)", y = "Proportion contamination (seq only (CHIPMIX)", color = "Brain bank")+theme_bw()
-
-p[[5]] <- ggplot(genoScores.plots, aes(x=nREADS/1e6, y=FREEMIX, color=as.factor(batch),label=sampleCode))+geom_point(size=2)+ geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) +labs( x ="Number of reads (M)", y ="Proportion contamination (seq only (FREEMIX))", color = "Sequencing batch") +theme_bw()
-
-p[[6]] <- ggplot(genoScores.plots, aes(x=nREADS/1e6, y=CHIPMIX, color=as.factor(batch),label=sampleCode))+geom_point(size=2)+ geom_hline(yintercept=0.1)+ geom_hline(yintercept=0.9) +labs( x ="Number of reads (M)", y = "Proportion contamination (seq only (CHIPMIX)", color = "Sequencing batch")+theme_bw()
+ggplotly(p[[1]], tooltip = "label")
 ```
 
 ```{r, fig.width = 8}
-#ggplotly(p[[1]], tooltip = "label")
-```
-```{r, fig.width = 8}
-#ggplotly(p[[2]],tooltip = "label")
+ggplotly(p[[2]],tooltip = "label")
 ```
 
 ```{r, fig.width = 8}
-#ggplotly(p[[3]], tooltip = "label")
-```
-```{r, fig.width = 8}
-#ggplotly(p[[4]],tooltip = "label")
-```
-
-
-```{r, fig.width = 8}
-#ggplotly(p[[5]], tooltip = "label")
-```
-```{r, fig.width = 8}
-#ggplotly(p[[6]],tooltip = "label")
+ggplotly(p[[3]],tooltip = "label")
 ```
 
 
@@ -310,7 +305,7 @@ QCPASS<-cbind(sexPredict$concordantLabel, genoScores$genoCheck)
 colnames(QCPASS)<-c("sexCheck", "genoCheck")
 pheno <- pheno[match(sexPredict$sampleID, pheno$sampleID),]
 passStage2<- cbind(pheno, QCPASS)
-passStage2$genoCheck[is.na(passStage2$genoCheck)& passStage2$sexCheck == TRUE]<- TRUE
+passStage2$genoCheck[is.na(passStage2$genoCheck) & passStage2$sexCheck == TRUE]<- TRUE
 passStage2$genoCheck[is.na(passStage2$genoCheck) & passStage2$sexCheck == FALSE]<- FALSE
 passStage2$genoCheck[is.na(passStage2$genoCheck) & is.na(passStage2$sexCheck)]<- FALSE
 passStage2$sexCheck[is.na(passStage2$sexCheck)] <- FALSE
