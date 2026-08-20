@@ -49,7 +49,7 @@ echo "Cutoff for narrow peak calling is ${macs_sample_thres}"
 
 cd ${TMPDIR}
 macs3 callpeak -t "${INPUT_BAM}" --outdir "${PEAK_DIR_SAMPLES}" \
-  -n "${sampleName}" -f BAM -g 2.9e9 \
+  -n "${sampleName}" -f BAMPE -g 2.9e9 \
   -q "${macs_sample_thres}" --keep-dup all --nomodel
 
 ## exclude peaks aligned to blacklist regions, sorted by chromosome
