@@ -94,7 +94,7 @@ BAMFILES=($(ls *.filt.nodup.bam))
 echo "Number of aligned bam files: "" ""${#BAMFILES[@]}"""
 
 ## Collate all samples
-mapfile -t SAMPLEIDS < "${META_DIR}/samplesMissing.txt"
+mapfile -t SAMPLEIDS < "${META_DIR}/samples.txt"
 echo "Total number of samples: "" ""${#SAMPLEIDS[@]}"""
 
 ## ============ ##
