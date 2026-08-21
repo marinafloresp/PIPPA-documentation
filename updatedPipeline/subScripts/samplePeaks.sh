@@ -54,7 +54,6 @@ macs3 callpeak -t "${INPUT_BAM}" --outdir "${PEAK_DIR_SAMPLES}" \
 
 ## exclude peaks aligned to blacklist regions, sorted by chromosome
 bedtools intersect -v -a "${PEAK_DIR_SAMPLES}/${sampleName}_peaks.narrowPeak" -b "${BLACKLIST}" \
-| awk '!/^(chrY|chrX)/' \
 | sort -k1 \
 | awk 'BEGIN{OFS="\t"} {if ($5>1000) $5=1000; print $0}' > "${OUTPUT_PEAKS}"
 
