@@ -1,0 +1,18 @@
+## ===========================================================================##
+##       ATAC-seq pipeline: Example fasta file for adapters to be trimmed     ##
+## ===========================================================================##
+##                                                                            ||
+## This is an example config file for the ATAC-sequencing pipeline.           ||
+## This file is expected to be located in the project's directory.            ||
+## The full path to this file should be specified in the config.txt file.     ||
+## Add as many adapters to be trimmed as wanted. Otherwise, leave this file   ||
+## blank. This text should be removed when adapter sequences are added.       ||
+##                                                                            ||
+## ===========================================================================##
+
+>adapter1
+CTGTCTCTTATACACATCTCCGAGCCCACGAGAC
+>adapter2
+CTGTCTCTTATACACATCTGACGCTGCCGACGA
+>adapter3
+....
