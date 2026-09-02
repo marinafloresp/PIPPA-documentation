@@ -31,16 +31,7 @@ do
   echo "Calling peaks in ${chr} using MACS3 PE"
   mapfile -t SAMPLES < ${META_DIR}/samples.txt 
   
-  f_PE=()
-
-  for sample in ${SAMPLES[@]}
-  do
-    bam_sample="/lustre/projects/Research_Project-MRC190311/ATACSeq/methodsPaper/3_aligned/sexChr/sexChr/${sample}.${chr}.bam"
-   
-    f_PE+=( $bam_sample )
-  done
-
- # f_PE=($(ls ${ALIGNED_DIR}/sexChr/*.${chr}.bam))
+  f_PE=($(ls ${ALIGNED_DIR}/sexChr/*.${chr}.bam))
   
   echo "Number of BAM files found for chromosome ${chr}: ${#f_PE[@]}"
   cd "${PEAK_DIR_SEXCHR}"
