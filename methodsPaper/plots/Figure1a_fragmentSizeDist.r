@@ -21,6 +21,7 @@ alignedDir <- "/dir/to/aligned/dir"
 
 ## plotting colours/themes ##
 col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
+
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 14),
@@ -32,13 +33,14 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.position = "bottom",
     legend.key.width = unit(2.2, "cm")
   )
+  
 
 cb <- c(
   "#0072B2",  # blue
   "#E69F00",  # orange
-  "#009E73",  # green
+  "#F0E442",  # green
   "#CC79A7",  # purple
-  "#D55E00",  # vermillion
+  "#999999",  # vermillion
   "#56B4E9"   # sky blue
 )
 
@@ -61,6 +63,8 @@ qc1$QCPASS <- as.factor(qc1$QCPASS)
 pheno$qcpass1 <- qc1[match(pheno$sampleID,qc1$sampleID),]$QCPASS
 
 processSum <- pheno
+
+
 propNucleosomesAll<-NULL
 diptestStatsAll<-NULL
 filePaths <- list.files(file.path(alignedDir,"/QCOutput/"), pattern = "FragmentDistribution_Batch|FragmentDistribution_Batch_")
@@ -70,8 +74,12 @@ for(each in filePaths){
   diptestStatsAll<-rbind(diptestStatsAll, diptestStats)
 }
 
+#diptestStatsAll<-as.data.frame(diptestStatsAll)
 propNucleosomesAll<-propNucleosomesAll[match(processSum$sampleID, rownames(propNucleosomesAll)),]
+diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll))),]
 rownames(diptestStatsAll)<-processSum$sampleID
+diptestStatsAll <- as.data.frame(diptestStatsAll)
+diptestStatsAll$sampleCode <- processSum$sampleCode
 propNucleosomesAll <-as.data.frame(propNucleosomesAll)
 
 ## plot nucleosome periodicity
@@ -81,9 +89,6 @@ propNucleosomesAll.2$fraction <- pheno[match(rownames(propNucleosomesAll.2), phe
 propNucleosomesAll.2$cohort <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$cohort
 propNucleosomesAll.2$sequencingBatch <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$sequencingBatch
 propNucleosomesAll.2$passQC1 <- pheno[match(rownames(propNucleosomesAll.2), pheno$sampleID),]$qcpass1
-
-setwd(outputDir)
-pdf(paste0("Fig1a.pdf"), width = 12, height = 10)
 propNucleosomesAll.2$passQC1 <- as.factor(propNucleosomesAll.2$passQC1)
 
 melt.df  <- propNucleosomesAll.2 %>%
@@ -98,6 +103,9 @@ melt.df$FragSize <- factor(
   melt.df$FragSize,
   levels = c("NFR", "Mono", "Di", "Tri", "Quad")
 )
+
+setwd(outputDir)
+pdf(paste0("Fig1a.pdf"), width = 12, height = 10)
 
 # ########################## Fig 1.a ###########################################
 # Violin plot for fragment size % (y-axis)
@@ -117,10 +125,11 @@ p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
     color = "white",
     size = 2
   )+scale_fill_manual(values = cb)+
-       pub_theme +
+   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
+      pub_theme +
   theme(
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 14),
     legend.position = "none",
     plot.title = element_text(size = 16, face = "bold")
   )
@@ -137,22 +146,24 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
   geom_boxplot(width = 0.15,
              position = position_dodge(width = 0.9),
              outlier.shape = NA)+
+  #  facet_grid(rows = vars(passQC1))+
     scale_fill_manual(values = pass_fail_cols)+ #c("FALSE" = "#CD5555","TRUE" = "#008B00")) +
-    labs(y = "Proportion of reads", x = "Fragment size classification", title = "B",fill = "Pass QC stage 1")+
+    labs(y = "Proportion of reads", x = "Fragment size classification", fill = "Pass Stage 1 QC")+
    stat_summary(
     fun = median,
     geom = "point",
     position = position_dodge(width = 0.9),
     color = "white",
     size = 2
-  )+      pub_theme +
+  )+
+   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
+      pub_theme +
   theme(
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 15),
-    legend.position = "bottom",
+    axis.title = element_text(size = 14),
+    legend.position = "right",legend.key.size = unit(0.5, 'cm'),
     plot.title = element_text(size = 16, face = "bold")
   )
-  
 combined_figall <- p1 / p2
 
 combined_figall
