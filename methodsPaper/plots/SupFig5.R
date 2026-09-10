@@ -48,10 +48,10 @@ widthPeaks <- sapply(peaks, width)
 meanWidthPeaks<- sapply(widthPeaks, mean)
 
 
-## ########################## Sup Fig 5.a ###########################################
-#Line graph of number of genes annotated to any peak (y-axis) 
-# number of reads (x-axis) for default thresholds#
-# coloured by threshold
+# ########################## Supplementary Fig 5.a ###########################################
+# Line graph of number of peaks (y-axis)
+# number of reads (x-axis) 
+# coloured by default thresholds 
 
 df <- tibble(file = names(numPeaks)) %>%
   mutate(
@@ -83,11 +83,10 @@ p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
   )
 p1
 
-## ########################## Sup Fig 5.b ###########################################
-# Violin plot of the number of peaks annotated to each gene (y-axis)
-# number of reads (x-axis) for default thresholds. 
-# column panels for thresholds
-# row panels for cell-fractions
+## ########################## Sup Fig 5.c ###########################################
+# Box plot/violin plots of width of peaks (y-axis) 
+# number of reads (x-axis) 
+# only 5e-2 peaks for all read subsets
 
 peak_sets_sub <- peaks[grepl("5e-2", names(peaks))]
 widthPeaks_vec <- sapply(peak_sets_sub, width)
@@ -111,6 +110,11 @@ p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+
   ) 
 p2
 
+## ########################## Sup Fig 5.d ###########################################
+# Box plot/violin plots of gaps between peaks (y-axis) 
+# number of reads (x-axis) 
+# only 5e-2 peaks for all read subsets
+
 spacing_prev <- lapply(peak_sets_sub, function(x) {
   hits <- distanceToNearest(x, ignore.strand = TRUE)
   dist <- rep(NA_integer_, length(x))
@@ -118,7 +122,6 @@ spacing_prev <- lapply(peak_sets_sub, function(x) {
   
   dist
 })
-
 
 peaksAnno.all.df <- lapply(seq_along(peak_sets_sub), function(i) {
   df <- as.data.frame(peak_sets_sub[[i]])
@@ -142,6 +145,11 @@ p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)
     legend.position = "none", plot.title = element_text(size = 24)
   ) 
 p3
+
+## ########################## Sup Fig 5.b ###########################################
+# Line graph of number of peaks (y-axis)
+# number of reads (x-axis) 
+# coloured by width group of peaks 
 
 peaksAnno.all.df.space$group <- cut(
   peaksAnno.all.df.space$width,
@@ -175,21 +183,22 @@ p4 <-ggplot(plot_df, aes(x = set_num, y = n, group=group, color = group)) +
     legend.position = "bottom", plot.title = element_text(size = 24))
 p4
 
+## Gather plots and make Supplementary Figure 5 ##
 design <- "AAADDD
            AAADDD
            BBBCCC
            BBBCCC"
-combined_fig2 <- p1 + p2 + p3+ p4 +  plot_layout(design = design)
+combined_supfig5 <- p1 + p2 + p3+ p4 +  plot_layout(design = design)
 ggsave(
-  filename = "SupplementaryFig_4_dataset1_SOX.pdf",
-  plot = combined_fig2,
+  filename = "SupplementaryFig_5_dataset1_SOX.pdf",
+  plot = combined_supfig5,
   width = 15,
   height = 12
 )
 
 ggsave(
-  filename = "SupplementaryFig_4_dataset1_SOX.png",
-  plot = combined_fig2,
+  filename = "SupplementaryFig_5_dataset1_SOX.png",
+  plot = combined_supfig5,
   width = 15,
   height = 12
 )
