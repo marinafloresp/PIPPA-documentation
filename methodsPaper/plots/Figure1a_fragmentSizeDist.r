@@ -104,9 +104,6 @@ melt.df$FragSize <- factor(
   levels = c("NFR", "Mono", "Di", "Tri", "Quad")
 )
 
-setwd(outputDir)
-pdf(paste0("Fig1a.pdf"), width = 12, height = 10)
-
 # ########################## Fig 1.a ###########################################
 # Violin plot for fragment size % (y-axis)
 # fragment size group (x-axis)
@@ -125,7 +122,6 @@ p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
     color = "white",
     size = 2
   )+scale_fill_manual(values = cb)+
-   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
       pub_theme +
   theme(
     axis.text = element_text(size = 12),
@@ -146,7 +142,6 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
   geom_boxplot(width = 0.15,
              position = position_dodge(width = 0.9),
              outlier.shape = NA)+
-  #  facet_grid(rows = vars(passQC1))+
     scale_fill_manual(values = pass_fail_cols)+ #c("FALSE" = "#CD5555","TRUE" = "#008B00")) +
     labs(y = "Proportion of reads", x = "Fragment size classification", fill = "Pass Stage 1 QC")+
    stat_summary(
@@ -156,7 +151,6 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
     color = "white",
     size = 2
   )+
-   # scale_x_discrete(labels = c("NFR", "Mono", "Di", "Tri", "Quad"))+
       pub_theme +
   theme(
     axis.text = element_text(size = 12),
@@ -164,8 +158,22 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
     legend.position = "right",legend.key.size = unit(0.5, 'cm'),
     plot.title = element_text(size = 16, face = "bold")
   )
-combined_figall <- p1 / p2
 
-combined_figall
+## Load Figure 1.b-g made with script Figure1b_cellTypeCheck ##
+p3 <- readRDS("/fig1bg_ctCheck.rds")
 
-dev.off()
+combined_fig1 <- (p1 | p2) / p3 + plot_layout(height=c(1,1.5))
+
+ggsave(
+  filename = "Fig1a.pdf",
+  plot = combined_fig1,
+  width = 14,
+  height = 14
+)
+
+ggsave(
+  filename = "Fig1a.png",
+  plot = combined_fig1,
+  width = 14,
+  height = 14
+)
