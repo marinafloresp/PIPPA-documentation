@@ -22,10 +22,15 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.key.width = unit(2.2, "cm")
   )
 
+cf <- "NEUN"
+
 col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
-peakFiles<-list.files(groupsPeaks, pattern="NEUN_1e-2.*\\.narrowPeak\\.filt|NEUN_5e-2.*\\.narrowPeak\\.filt|NEUN_1e-5.*\\.narrowPeak\\.filt")
+peakFiles<-list.files(groupsPeaks, pattern=paste0(cf,"_1e-2.*\\.narrowPeak\\.filt|",cf,"_5e-2.*\\.narrowPeak\\.filt|",cf,"_1e-5.*\\.narrowPeak\\.filt"))
+files_readsAll <- peakFiles[grepl("_\\d+readsAll\\.narrowPeak\\.filt", peakFiles)]
+files_readsAll <- files_readsAll[grepl(cf, files_readsAll, ignore.case = TRUE)]
+
 print("Peaks files: ")
-print(peakFiles)
+print(files_readsAll)
 
 peaks<-list()
 for(each in peakFiles){
@@ -58,22 +63,25 @@ p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
   geom_line(size = 1) +
   scale_color_manual(values = col_vals) +
   scale_x_continuous(
-    breaks = sort(unique(df$reads)),
-    labels = scales::label_number( suffix = "M")
+    breaks = sort(unique(df$reads))
   ) +
-  scale_y_continuous(
-    labels = scales::label_number( suffix = "K",scale = 1e-3)
-  )+
   labs(
-    x = "Number of reads pairs",
+    x = "Read pairs (Million)",
     y = "Number of peaks",
     title = "A",
     color = "Q value threshold"
   ) +
   pub_theme +
   theme(
-    legend.position = "bottom"
+    legend.position = "bottom", plot.title = element_text(size = 24)
   )
+p1
+
+
+# ########################## Fig 2.b ###########################################
+# Box plot/violin plots of width of peaks (y-axis) 
+# number of reads (x-axis) 
+# only 5e-2 peaks for all read subsets
 
 # subset to only peak sets with 5e-2 q-value threshold
 peak_sets_sub <- peaks[grepl("5e-2", names(peaks))]
@@ -84,25 +92,23 @@ widthPeaks_df <- data.frame(
   width = unlist(widthPeaks_vec)
 )
 
-
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
-
-# ########################## Fig 2.b ###########################################
-# Box plot/violin plots of width of peaks (y-axis) 
-# number of reads (x-axis) 
-# only 5e-2 peaks for all read subsets
 
 p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
   geom_violin(scale = "width", fill = "#56B4E9") +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
-  labs(x = "Number of reads pairs", y = "base pairs (scale log10)", title = "B") +
+  labs(x = "Read pairs (Million)", y = "Peak width (bp, log10 scale)", title = "B") +
   pub_theme +
   theme(
-    legend.position = "none"
-  ) + scale_x_discrete(
-    labels = function(x) paste0(x, "M")
-  )
+    legend.position = "none", plot.title = element_text(size = 24)
+  ) 
+p2
+
+# ########################## Fig 2.c ###########################################
+# Box plot/violin plots of gaps between peaks (y-axis) 
+# number of reads (x-axis) 
+# only 5e-2 peaks for all read subsets
 
 spacing_prev <- lapply(peaks, function(x) {
   hits <- distanceToNearest(x, ignore.strand = TRUE)
@@ -124,22 +130,16 @@ peaksAnno.all.df.space <- bind_rows(peaksAnno.all.df)
 
 peaksAnno.all.df.space$set_num <- as.integer(str_extract(peaksAnno.all.df.space$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-# ########################## Fig 2.c ###########################################
-# Box plot/violin plots of gaps between peaks (y-axis) 
-# number of reads (x-axis) 
-# only 5e-2 peaks for all read subsets
-
 p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
   geom_violin(scale = "width", fill = "#56B4E9")+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
-  labs(x = "Number of reads pairs", y = "base pairs to nearest peak (scale log10)",title = "C") +
+  labs(x = "Read pairs (Million)", y = "Gap between peaks (bp, log10 scale)",title = "C") +
   pub_theme +
   theme(
-    legend.position = "none"
-  ) + scale_x_discrete(
-    labels = function(x) paste0(x, "M")
-  )
+    legend.position = "none", plot.title = element_text(size = 24)
+  ) 
+p3
 
 design <- "AAAAAA
            AAAAAA
@@ -151,7 +151,6 @@ combined_fig2 <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = des
 # Show combined plot
 combined_fig2
 
-pdf(file.path(paste0("Figure_2_dataset1.pdf")), width = 10, height = 10)
 ggsave(
   filename = "Figure_2_dataset1.pdf",
   plot = combined_fig2,
