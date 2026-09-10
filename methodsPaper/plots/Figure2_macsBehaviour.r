@@ -141,15 +141,14 @@ p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)
   ) 
 p3
 
+## Gather plots and make Figure 2 ##
+
 design <- "AAAAAA
            AAAAAA
            BBBCCC
            BBBCCC"
 
 combined_fig2 <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = design)
-
-# Show combined plot
-combined_fig2
 
 ggsave(
   filename = "Figure_2_dataset1.pdf",
