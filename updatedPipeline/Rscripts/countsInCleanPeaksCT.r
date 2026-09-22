@@ -12,7 +12,7 @@
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
 ## -  counts in peaks (all peaks) file: in 5_countPeaks folder "groupsCounts"                      ||
-## - consensus peak set file: consensusPeaks_5e-2_passAll.narrowPeak in 4_peaks                    ||
+## - consensus peak set file: "consensusPeaks_5e-2_passAll.narrowPeak.bed" in 4_calledPeaks folder ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
 ## - R/4.2.1-foss-2022a, R libraries: Rsubread, GenomicRanges                                      ||
