@@ -108,16 +108,33 @@ else
   echo "No cell group specified."
 fi
 
+if [ $# = 1 ] || [[ $2 == 'SUMMARY' ]]
+then
+
+cat <<EOF
+
+|| Running STEP 10.1 of ATAC-seq pipeline: SUMMARY ||
+
+Properties of curated peak sets generated across cell types are checked.
+Output directory is ${PEAK_DIR}/QCOutput
+
+EOF
+
+  Rscript -e "rmarkdown::render('${RSCRIPTS_DIR}/curatedPeaksChecks.Rmd', output_file='${PEAK_DIR}/QCOutput/curatedPeaksChecks.html')" "${CONFIGR}"
+
+fi
 
 if [ $# = 1 ] || [[ $2 == 'CTCLEAN' ]]
 then
   
 cat <<EOF
 
-|| Running STEP 10.1 of ATAC-seq pipeline: CTCLEAN ||
+|| Running STEP 10.2 of ATAC-seq pipeline: CTCLEAN ||
 
-Counts in curated peak sets for all cell types will be performed.
-Output directory is ${PEAKCOUNTS_DIR_CC}
+Counts in peak sets for all cell types will be performed.
+Only samples that passed every QC step will be used.
+Peaks generated for peaks curation will be used (STEP 9.3)
+Output directory is ${PEAKCOUNTS_DIR_GROUPS}
 
 EOF
 
@@ -132,7 +149,7 @@ then
  
 cat <<EOF
 
-|| Running STEP 10.2 of ATAC-seq pipeline: COUNTS ||
+|| Running STEP 10.3 of ATAC-seq pipeline: COUNTS ||
 
 Counts in curated peak sets on ${GROUP} will be performed.
 Peak set with cutoff ${THRES} is chosen
