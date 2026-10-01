@@ -41,7 +41,7 @@ fdsPlots <- function(listSamples){
 }
 
 samples2Plot <- read.table("list_of_samples.txt")[,1]
-qcMetrics <- read.csv("qc1Stats.csv")
+qcMetrics <- read.csv(file.path(qc1stats))
 qcMetrics <- qcMetrics[match(samples2Plot,qcMetrics$sampleID), ]
 qcMetrics$QC_status <- rep(c("PASS", "FAIL"), each = 3)
 
