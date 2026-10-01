@@ -1,9 +1,11 @@
+########################### Fig 3 ###########################################
+
 library(tidyr)
 library(dplyr)
 library(GenomicRanges)
 
 groupsPeaks <- "/dir/to/peak/sets/"
-## Format q-values
+
 format_q_label <- function(q) {
   
   exponent <- round(log10(q))
@@ -31,9 +33,13 @@ pub_theme <- theme_classic(base_size = 12) +
 #color blind friendly palette for multiple colours
 colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999", 
                        "#F0E442", "#0072B2",  "#E69F00", "#56B4E9")
+
+
 col_vals <- c("SOX10+" = "#6B8E23","NeuN+" = "hotpink")
 
-## load peak sets ##
+# ########################## Fig 3.a ###########################################
+
+
 peakFiles2 <- c("NEUN_5e-2.narrowPeak.filt","SOX_5e-2.narrowPeak.filt",
                 "neun_q5e-2.narrowPeak.filt","sox10_q5e-2.narrowPeak.filt"
 )
@@ -49,6 +55,7 @@ for(file in allPeakFiles){
 
 names(peaks) <- gsub(groupsPeaks, "", names(peaks))
 names(peaks) <- gsub(paste0(groupsPeaks, "/"), "", names(peaks))
+lapply(peaks, nrow)
 width <- lapply(peaks, width)
 totalwidth <- lapply(width, sum)
 
@@ -65,14 +72,16 @@ peaks <- lapply(peaks, function(df) {
   df
 })
 
-exponents <- seq(-10, -100, by = -10)
+exponents <- seq(-2, -100, by = -2)
 thresholds <- c(0.05,10^exponents)
 order_levels.og <- as.character(thresholds)
+
 
 counts_list <- lapply(peaks, function(gr) {
   qvals <- gr$qvals
   sapply(thresholds, function(t) sum(qvals < t, na.rm = TRUE))
 })
+
 
 df <- do.call(rbind, lapply(seq_along(peaks), function(i) {
   data.frame(
@@ -87,13 +96,6 @@ df[c("Cell-fraction", "Dataset")] <- do.call(
   strsplit(df$set, "_")
 )
 df$threshold_log <- -log10(df$threshold)
-  
-# ########################## Fig 3b.a ###########################################
-# Line graph of number of peaks (y-axis)
-# q-value threshold (x-axis) 
-# with one line per cell-type (color)
-# and dataset (shape line)
-  
 p1 <- ggplot(df, aes(
   x = threshold_log,
   y = count,
@@ -102,16 +104,18 @@ p1 <- ggplot(df, aes(
   group = interaction(`Cell-fraction`, Dataset)
 )) + scale_color_manual(values= col_vals)+
   scale_x_continuous(
-    breaks = c(-log10(0.05), seq(10, 100, by = 5)),
+    breaks = c(1.3, seq(10, 100, by = 5)),
     labels = c("1.3", seq(10, 100, by = 5)),
     name = expression("Q value threshold (" * 10^{-n} * ")")
   )+
+  # geom_point() +
   geom_line(linewidth = 1) +
   labs(
     x = "Q value",
     y = "Number of peaks",
     title = "A", color = "Cell type"
   ) +
+  # scale_x_discrete(limits = order_levels.og) +
   theme_minimal(base_size = 14) +
   pub_theme +
   theme(
@@ -123,11 +127,10 @@ p1
 # q-value threshold (x-axis) 
 # with one line per “peak size group”.  
 
-peaks.df <- peaks$`NeuN+_Dataset1`
-exponents <- seq(-10, -100, by = -5)
-thresholds <- sort(c(0.05, 10^exponents))
-breaks <- c(-Inf, thresholds)
+exponents <- seq(-4, -100, by = -2)
+thresholds <- sort(c(0.05,10^exponents))
 labels <- as.character(thresholds)
+breaks <- c(thresholds, -Inf)
 peaks.df$qValuegroup <- cut(
   peaks.df$qvals,
   breaks = breaks,
@@ -139,6 +142,8 @@ peaks.df$qValuegroup <- factor(
   peaks.df$qValuegroup,
   levels = rev(labels)
 )
+peaks.df %>% dplyr::count(qValuegroup)
+
 peaks.df$group <- cut(
   peaks.df$width,
   breaks = c(0,400,700,1200,2500,4000,Inf),
@@ -155,13 +160,17 @@ peaks.df$group <- cut(
 
 plot_df <- peaks.df %>% dplyr::count(qValuegroup, group)
 plot_df$threshold_log <- as.character(plot_df$qValuegroup)
+plot_df$threshold_log <- as.numeric(plot_df$threshold_log)
+plot_df$threshold_log <- -log10(plot_df$threshold_log)
+
 plot_df$threshold_exp <- ifelse(
   plot_df$threshold == "0.05",
   1.3,
   as.numeric(sub("1e-", "", plot_df$threshold_log))
 )
 
-p2 <-ggplot(plot_df, aes(x = threshold_exp, y = n, group=group, color = group)) +
+#line-graph version of plot
+p2 <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) +
   #  geom_point() +
   geom_line(linewidth = 1)+
   labs(
@@ -169,8 +178,8 @@ p2 <-ggplot(plot_df, aes(x = threshold_exp, y = n, group=group, color = group)) 
     y = "Number of peaks", title = "B", color = "Peak width\ngroup\n(bp)"
   ) +scale_color_manual(values = colorBlindGrey8)+
   scale_x_continuous(
-    breaks = c(-log10(0.05), seq(10, 100, by = 5)),
-    labels = c("1.3", seq(10, 100, by = 5)),
+    breaks = c(1.3, seq(10, 100, by = 5)),
+    labels = c("1.3",seq(10, 100, by = 5)),
     name = expression("Q value threshold (" * 10^{-n} * ")")
   )+
   theme_minimal(base_size = 14) +
@@ -179,7 +188,7 @@ p2 <-ggplot(plot_df, aes(x = threshold_exp, y = n, group=group, color = group)) 
     legend.position = "bottom")
 p2
 
-# ########################## Fig 3.c ###########################################
+# ########################## Fig 3b.c ###########################################
 # Line graph of number of peaks (y-axis) 
 # q-value threshold (x-axis) with
 # one line per overlap with 0,1,2,3 samples etc.  
@@ -206,16 +215,21 @@ tab <- table(peaks.df$qValuegroup, peaks.df$n_samples_group)
 df_plot <- as.data.frame(tab)
 colnames(df_plot) <- c("qValuegroup", "n_samples", "count")
 df_plot$threshold_log <- as.character(df_plot$qValuegroup)
+df_plot$threshold_log <- as.numeric(df_plot$threshold_log)
+df_plot$threshold_log <- -log10(df_plot$threshold_log)
+
 df_plot$threshold_exp <- ifelse(
   df_plot$threshold_log == "0.05",
   1.3,
   as.numeric(sub("1e-", "", df_plot$threshold_log))
 )
 
-p3 <-ggplot(df_plot, aes(x = threshold_exp, y = count, group=n_samples, color = n_samples)) +
+#line-graph version of plot
+p3 <-ggplot(df_plot, aes(x = threshold_log, y = count, group=n_samples, color = n_samples)) +
+
   geom_line(linewidth = 1)+
   scale_x_continuous(
-    breaks = c(-log10(0.05), seq(10, 100, by = 5)),
+    breaks = c(1.3, seq(10, 100, by = 5)),
     labels = c("1.3", seq(10, 100, by = 5)),
     name = expression("Q value threshold (" * 10^{-n} * ")")
   )+scale_color_manual(values = colorBlindGrey8)+
@@ -228,15 +242,37 @@ p3 <-ggplot(df_plot, aes(x = threshold_exp, y = count, group=n_samples, color = 
   )
 p3
 
-# ########################## Fig 3.d ###########################################
+# ########################## Fig 3d ###########################################
 # Violin plots of distribution of number of samples overlap with (y-axis)
 # q-value threshold (x-axis). 
 
+
+exponents <- seq(-10, -100, by = -5)
+thresholds <- sort(c(0.05,10^exponents))
+labels <- as.character(thresholds)
+
+breaks <- c(thresholds, -Inf)
+
+
+peaks.df$qValuegroup <- cut(
+  peaks.df$qvals,
+  breaks = breaks,
+  labels = labels,
+  include.lowest = TRUE
+)
+
+peaks.df$qValuegroup <- factor(
+  peaks.df$qValuegroup,
+  levels = rev(labels)
+)
+
 peaks.df$threshold_log <- as.character(peaks.df$qValuegroup)
 peaks.df$threshold_exp <- ifelse(
-  peaks.df$threshold_log == "0.05",1.3,
-  as.numeric(sub("1e-", "", peaks.df$threshold_log)))
-  peaks.df$threshold_exp <- factor(
+  peaks.df$threshold_log == "0.05",
+  1.3,
+  as.numeric(sub("1e-", "", peaks.df$threshold_log))
+)
+peaks.df$threshold_exp <- factor(
   peaks.df$threshold_exp,
   levels = c(1.3, seq(10, 100, 5))
 )
@@ -254,8 +290,7 @@ p4<- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+
   theme(
     legend.position = "none")
 p4
-  
-## Combine plots into single figure ##
+
 design <- "AAABBB
            AAABBB
            CCCDDD
@@ -263,16 +298,17 @@ design <- "AAABBB
 
 combined_fig3b <- p1 + p2 + p3+ p4 +  plot_layout(design = design)
 
+
 ## Save figure ##
 ggsave(
-  filename = paste0("Fig3_inflatedPeakSets.pdf"),
+  filename = paste0("Figure_3_inflatedPeakSets.pdf"),
   plot = combined_fig3b,
   width = 22,
   height = 12
 )
 
 ggsave(
-  filename = paste0("Fig3_inflatedPeakSets.png"),
+  filename = paste0("Figure_3_inflatedPeakSets.png"),
   plot = combined_fig3b,
   width = 22,
   height = 12
