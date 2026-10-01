@@ -21,10 +21,9 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.position = "bottom",
     legend.key.width = unit(2.2, "cm")
   )
+col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
 
 cf <- "NEUN"
-
-col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
 peakFiles<-list.files(groupsPeaks, pattern=paste0(cf,"_1e-2.*\\.narrowPeak\\.filt|",cf,"_5e-2.*\\.narrowPeak\\.filt|",cf,"_1e-5.*\\.narrowPeak\\.filt"))
 files_readsAll <- peakFiles[grepl("_\\d+readsAll\\.narrowPeak\\.filt", peakFiles)]
 files_readsAll <- files_readsAll[grepl(cf, files_readsAll, ignore.case = TRUE)]
