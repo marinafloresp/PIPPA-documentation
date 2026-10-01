@@ -24,7 +24,6 @@ args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 cf<-args[2]
 source(configFile)
-col_vals <- c("Sox10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
 
 col_vals_pass <- c(
   "FALSE" = "#D55E00",  # vermillion (fail)
@@ -33,9 +32,6 @@ col_vals_pass <- c(
 
 ## Gather all QC Stage 1 data and results ##
 pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
-pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
-pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
 
 processSum <- read.csv(file.path(paste0(metaDir,"/summariseSampleProcessingProgress.csv")), stringsAsFactors = FALSE, strip.white = TRUE)
@@ -110,6 +106,7 @@ fripStats$FripMACS3PE <- fripStats$ReadsinBAMPeaks/fripStats$BAMTotalReads
 eIndex<-match(mergeStats$sampleID, fripStats$SampleName)
 fripStats<-fripStats[eIndex,]
 mergeStats <- cbind(mergeStats, fripStats[, c("ReadsinBAMPeaks","BAMTotalReads","BAMPeaks","FripMACS3PE")] )
+mergeStats$TotalNumReads <- mergeStats$BAMTotalReads
 
 ## load periodicity metrics 
 filePaths <- list.files(file.path(alignedDir,"/QCOutput/"), pattern = "FragmentDistribution_*")
