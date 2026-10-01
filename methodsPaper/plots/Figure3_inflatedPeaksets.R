@@ -39,9 +39,9 @@ colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999",
 
 col_vals <- c("SOX10+" = "#6B8E23","NeuN+" = "hotpink")
 
-# ########################## Fig 3.a ###########################################
-
-
+######################
+## Gather peak sets ##
+######################
 peakFiles2 <- c("NEUN_5e-2.narrowPeak.filt","SOX_5e-2.narrowPeak.filt",
                 "neun_q5e-2.narrowPeak.filt","sox10_q5e-2.narrowPeak.filt"
 )
@@ -98,7 +98,7 @@ df[c("Cell-fraction", "Dataset")] <- do.call(
   strsplit(df$set, "_")
 )
 df$threshold_log <- -log10(df$threshold)
-p1 <- ggplot(df, aes(
+p3a <- ggplot(df, aes(
   x = threshold_log,
   y = count,
   color = `Cell-fraction`,
@@ -110,7 +110,6 @@ p1 <- ggplot(df, aes(
     labels = c("1.3", seq(10, 100, by = 5)),
     name = expression("Q value threshold (" * 10^{-n} * ")")
   )+
-  # geom_point() +
   geom_line(linewidth = 1) +
   labs(
     x = "Q value",
@@ -122,7 +121,6 @@ p1 <- ggplot(df, aes(
   pub_theme +
   theme(
     legend.position = "bottom")
-p1
 
 # ########################## Fig 3.b ###########################################
 # Line graph of number of peaks (y-axis)
@@ -171,8 +169,7 @@ plot_df$threshold_exp <- ifelse(
   as.numeric(sub("1e-", "", plot_df$threshold_log))
 )
 
-#line-graph version of plot
-p2 <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) +
+p3b <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) +
   #  geom_point() +
   geom_line(linewidth = 1)+
   labs(
@@ -188,9 +185,8 @@ p2 <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) 
   pub_theme +
   theme(
     legend.position = "bottom")
-p2
 
-# ########################## Fig 3b.c ###########################################
+# ########################## Fig 3.c ###########################################
 # Line graph of number of peaks (y-axis) 
 # q-value threshold (x-axis) with
 # one line per overlap with 0,1,2,3 samples etc.  
@@ -226,8 +222,7 @@ df_plot$threshold_exp <- ifelse(
   as.numeric(sub("1e-", "", df_plot$threshold_log))
 )
 
-#line-graph version of plot
-p3 <-ggplot(df_plot, aes(x = threshold_log, y = count, group=n_samples, color = n_samples)) +
+p3c <-ggplot(df_plot, aes(x = threshold_log, y = count, group=n_samples, color = n_samples)) +
 
   geom_line(linewidth = 1)+
   scale_x_continuous(
@@ -242,7 +237,6 @@ p3 <-ggplot(df_plot, aes(x = threshold_log, y = count, group=n_samples, color = 
   theme(
     legend.position = "bottom",
   )
-p3
 
 # ########################## Fig 3d ###########################################
 # Violin plots of distribution of number of samples overlap with (y-axis)
@@ -254,7 +248,6 @@ thresholds <- sort(c(0.05,10^exponents))
 labels <- as.character(thresholds)
 
 breaks <- c(thresholds, -Inf)
-
 
 peaks.df$qValuegroup <- cut(
   peaks.df$qvals,
@@ -279,7 +272,7 @@ peaks.df$threshold_exp <- factor(
   levels = c(1.3, seq(10, 100, 5))
 )
 
-p4<- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+ 
+p3d<- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+ 
   geom_violin(scale = "width", fill ="hotpink")+
   geom_boxplot(width = 0.05, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")+
@@ -291,27 +284,27 @@ p4<- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+
   pub_theme +
   theme(
     legend.position = "none")
-p4
 
+## combine plots for figure 3 ##
 design <- "AAABBB
            AAABBB
            CCCDDD
            CCCDDD"
 
-combined_fig3b <- p1 + p2 + p3+ p4 +  plot_layout(design = design)
+figure3 <- p3a + p3b + p3c+ p3d +  plot_layout(design = design)
 
 
 ## Save figure ##
 ggsave(
-  filename = paste0("Figure_3_inflatedPeakSets.pdf"),
-  plot = combined_fig3b,
+  filename = paste0("Figure_3.pdf"),
+  plot = figure3,
   width = 22,
   height = 12
 )
 
 ggsave(
-  filename = paste0("Figure_3_inflatedPeakSets.png"),
-  plot = combined_fig3b,
+  filename = paste0("Figure_3.png"),
+  plot = figure3,
   width = 22,
   height = 12
 )
