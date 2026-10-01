@@ -18,24 +18,6 @@ library(tidyr)
 ## functions ##
 ###############
 
-genome_size <- 2.7e9   # hg38 mappable genome (approx)
-forbes_coefficient <- function(gr1, gr2, genome_size ) {
-  
-  gr1 <- GenomicRanges::reduce(gr1)
-  gr2 <- GenomicRanges::reduce(gr2)
-  
-  # force numeric to avoid overflow
-  len1 <- sum(as.numeric(width(gr1)))
-  len2 <- sum(as.numeric(width(gr2)))
-  
-  overlap <- GenomicRanges::intersect(gr1, gr2)
-  len_overlap <- sum(as.numeric(width(overlap)))
-  
-  genome_size <- as.numeric(genome_size)
-  
-  (len_overlap * genome_size) / (len1 * len2)
-}
-
 ## overlap vs non-overlap peaks 
 findPeaksOver <- function(gr1, gr2){
   
