@@ -235,17 +235,18 @@ design <- "AAAAAA
            AAAAAA
            BBBCCC
            BBBCCC"
-combined_figSup12 <- free(p1) + p2 + p3 +  plot_layout(design = design)
+
+supFig12 <- free(p1) + p2 + p3 +  plot_layout(design = design)
 
 ggsave(
   filename = paste0("SupplementaryFig_12_D1_SOX.png"),
-  plot = combined_figSup12,
+  plot = supFig12,
   width = 17,
   height = 12
 )
 ggsave(
   filename = paste0("SupplementaryFig_12_D1_SOX.pdf"),
-  plot = combined_figSup12,
+  plot = supFig12,
   width = 17,
   height = 12
 )
