@@ -12,6 +12,8 @@ library(patchwork)
 library(cowplot)
 options(scipen = 5)
 
+## settings for plotting ##
+
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 14),
@@ -24,14 +26,15 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.key.width = unit(2.2, "cm")
   )
 cf <- "SOX"
-
-groupsPeaks <-"./methodsPaper/data/downReads/"
+colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999", 
+                       "#F0E442", "#0072B2",  "#E69F00", "#56B4E9")
 col_vals <- c("0.05" = "#56B4E9","0.01" = "salmon","0.00001" = "#009E73")
 
 ######################
 ## Gather peak sets ##
 ######################
 
+groupsPeaks <-"./methodsPaper/data/downReads/"
 peakFiles<-list.files(groupsPeaks, pattern=paste0(cf,"_1e-2.*\\.narrowPeak\\.filt|",cf,"_5e-2.*\\.narrowPeak\\.filt|",cf,"_1e-5.*\\.narrowPeak\\.filt"))
 files_readsAll <- peakFiles[grepl("_\\d+readsAll\\.narrowPeak\\.filt", peakFiles)]
 files_readsAll <- files_readsAll[grepl(cf, files_readsAll, ignore.case = TRUE)]
