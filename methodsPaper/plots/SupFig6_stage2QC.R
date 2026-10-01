@@ -22,6 +22,11 @@ suppressWarnings(suppressPackageStartupMessages({
   library(patchwork)
 }))
 
+args <- commandArgs(trailingOnly=TRUE)
+configFile<-args[1]
+source(configFile)
+
+## settings for plotting ##
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 10),
@@ -32,11 +37,6 @@ pub_theme <- theme_classic(base_size = 12) +
     plot.title = element_text(face = "bold", size = 14),
     legend.key.width = unit(2.2, "cm")
   )
-
-args <- commandArgs(trailingOnly=TRUE)
-configFile<-args[1]
-source(configFile)
-
 ## colours for plotting
 col_vals_pass <-c(
   "FALSE" = "#D55E00",  # vermillion (fail)
