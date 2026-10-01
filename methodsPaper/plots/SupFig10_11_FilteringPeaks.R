@@ -237,21 +237,21 @@ legends <- wrap_elements(legend_A) |
   wrap_elements(legend_BC)
 
 # Combine
-combined_fig10 <- main_plots /
+supFig10 <- main_plots /
   legends +
   plot_layout(
     heights = c(1, 0.15)
   )
 ggsave(
   filename = "SupplementaryFig_10_D1_NEUN.pdf",
-  plot = combined_fig10,
+  plot = supFig10,
   width = 22,
   height = 6
 )
 
 ggsave(
   filename = "SupplementaryFig_10_D1_NEUN.png",
-  plot = combined_fig10,
+  plot = supFig10,
   width = 16,
   height = 6)
 
@@ -326,21 +326,20 @@ p11c <- ggplot(plot_df.sub, aes(
     y = "Peaks overlap one sample", title = "C", colour = ""
   )
 
-combined_fig11 <-
-  (p11a + p11b +p11c)+
+supFig11 <- (p11a + p11b +p11c)+
   plot_layout(
     heights = c(1,1),
     nrow = 1
   )
 ggsave(
   filename = "SupplementaryFig_11_D1_NEUN.pdf",
-  plot = combined_fig11,
+  plot = supFig11,
   width = 22,
   height = 6
 )
 
 ggsave(
   filename = "SupplementaryFig_11_D1_NEUN.png",
-  plot = combined_fig11,
+  plot = supFig11,
   width = 16,
   height = 6)
