@@ -163,7 +163,7 @@ a2 <- ggplot(xPeaks.plot, aes(x=XIST, y=YTot, color=sex, label= sampleCode)) +
   geom_point() + 
   labs(
     x = "Counts in XIST associated peak",
-    y = "Counts across all X chr peaks",color = "Sex"
+    y = "Counts across all Y chr peaks",color = "Sex"
   ) +
   guides(
     color = guide_legend(
