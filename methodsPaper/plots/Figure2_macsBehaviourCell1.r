@@ -60,13 +60,14 @@ df$cutoff <-fct_recode(df$cutoff, "0.05" = "5e-2", "0.01" = "1e-2", "0.00001" = 
 
 p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
   geom_point(size = 3) +
-  geom_line(size = 1) +
+  geom_line(linewidth = 1) +
   scale_color_manual(values = col_vals) +
   scale_x_continuous(
     breaks = sort(unique(df$reads))
-  ) +
-  labs(
-    x = "Read pairs (Million)",
+  )   +
+labs(
+  x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"),
+    #x = "Read pairs (Million)",
     y = "Number of peaks",
     title = "A",
     color = "Q value threshold"
@@ -98,7 +99,7 @@ p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+
   geom_violin(scale = "width", fill = "#56B4E9") +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
-  labs(x = "Read pairs (Million)", y = "Peak width (bp, log10 scale)", title = "B") +
+  labs( x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"), y = "Peak width (bp, log10 scale)", title = "B") +
   pub_theme +
   theme(
     legend.position = "none", plot.title = element_text(size = 24)
@@ -134,31 +135,31 @@ p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)
   geom_violin(scale = "width", fill = "#56B4E9")+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
-  labs(x = "Read pairs (Million)", y = "Gap between peaks (bp, log10 scale)",title = "C") +
+  labs(x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"), y = "Gap between peaks (bp, log10 scale)",title = "C") +
   pub_theme +
   theme(
     legend.position = "none", plot.title = element_text(size = 24)
   ) 
 p3
 
-## Gather plots and make Figure 2 ##
-
 design <- "AAAAAA
            AAAAAA
            BBBCCC
            BBBCCC"
-
 combined_fig2 <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = design)
 
+# Show combined plot
+combined_fig2
+
 ggsave(
-  filename = "Figure_2_dataset1.pdf",
+  filename = "Figure_2_D1_NEUN.pdf",
   plot = combined_fig2,
   width = 12,
   height = 12
 )
 
 ggsave(
-  filename = "Figure_2_dataset1.png",
+  filename = "Figure_2_D1_NEUN.png",
   plot = combined_fig2,
   width = 12,
   height = 12
