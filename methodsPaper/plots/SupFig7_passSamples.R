@@ -1,24 +1,30 @@
-#####################################################
-##       Supplementary Figure 7                    ##
-## More stringent q-value thresholds change the    ##
-## properties of peaks.                            ##
-## for Sox10+ and IRF8+                            ##
-#####################################################
+#######################################
+##       Supplementary Figure 7      ##
+#######################################
 
-## Universal theme for plotting
-pub_theme <- theme_classic(base_size = 12) +
-  theme(
-    axis.title = element_text(size = 14),
-    axis.text = element_text(size = 12),
-    legend.title = element_text(size = 11),
-    legend.text = element_text(size = 10),
-    strip.text = element_text(size = 11 ),
-    plot.title = element_text(face = "bold", size = 14),
-    legend.position = "bottom",
-    legend.key.width = unit(2.2, "cm")
-  )
+suppressWarnings(suppressPackageStartupMessages({
+  library(dplyr)
+  library(plyr)
+  library(knitr)
+  library(vioplot)
+  library(corrplot)
+  library(ggplot2)
+  library(reshape2)
+  library(gridExtra)
+  library(cowplot)
+  library(kableExtra)
+  library(scales)
+  library(tibble)
+  library(plotly)
+  library(tidyr)
+  library(pheatmap)
+  library(cowplot)
+  library(readr)
+  library(patchwork)
+}))
 
-col_vals <- c("Sox10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
+colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999", 
+                       "#F0E442", "#0072B2",  "#E69F00", "#56B4E9")
 
 ## gather data ##
 groupsPeaks <-"/path/to/peaks/"
