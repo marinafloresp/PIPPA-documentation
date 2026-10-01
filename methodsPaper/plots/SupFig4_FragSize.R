@@ -12,6 +12,8 @@ args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 source(configFile)
 
+## settings for plotting ##
+
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 14),
