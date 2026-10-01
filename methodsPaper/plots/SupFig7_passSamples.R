@@ -23,158 +23,185 @@ suppressWarnings(suppressPackageStartupMessages({
   library(patchwork)
 }))
 
+## settings for plotting ##
 colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999", 
                        "#F0E442", "#0072B2",  "#E69F00", "#56B4E9")
-
-## gather data ##
-groupsPeaks <-"/path/to/peaks/"
-
-cellFractions <- c("IRF8", "SOX")
-df.list <- list()
-for(cf in cellFractions){
-  ## Load file with peaks grouped by overlap with samples
-  load(paste0(groupsPeaks, cf,"_5e-2.narrowPeak.rdata"))
-  df <-  as.data.frame(peak_set_group)
-  df$pvals <- 10^(-df$pValue)
-  df$qvals<- 10^(-df$qValue)
-  df$fraction <- cf
-  df.list[[cf]] <- df
-}
-
-peaks.df <- do.call(rbind,df.list)
-peaks.df$peakID <- rownames(peaks.df)
-rownames(peaks.df) <- NULL 
-peaks.df$fraction <- ifelse(peaks.df$fraction == "IRF8", "IRF8+", "Sox10+")
-
-# ########################## Fig 7.a ###########################################
-# Violin plots of distribution of number of samples overlap with (y-axis)
-# q-value threshold (x-axis). 
-# coloured by cell-fraction (facets)
-
-thresholds <- c(1e-100, 10^seq(-2, -100, length.out = 50), 0.05, 1)
-thresholds <- sort(unique(thresholds))
-order_levels.og <- as.character(head(thresholds, -1))
-
-peaks.df$qValuegroup <- cut(
-  peaks.df$qvals,
-  breaks = thresholds,
-  labels = order_levels.og,
-  include.lowest = TRUE
-)
-peaks.df$qValuegroup[peaks.df$qvals < 1e-100] <- "1e-100"
-peaks.df$qValuegroup <- factor(
-  peaks.df$qValuegroup,
-  levels = rev(levels(peaks.df$qValuegroup))
-)
-fig7a <- ggplot(peaks.df, aes(x = qValuegroup, y = n_samples, fill = fraction))+ 
-  geom_violin(scale = "width")+
-  scale_fill_manual(values = col_vals)+
-  facet_wrap(~fraction, scales = "free_y")+
-  geom_boxplot(width = 0.05, outlier.shape = NA, alpha = 0.4,fill = 'black') +
-  stat_summary(fun = median, geom = "point", color = "white")+
-  labs(x = "Q value", y = "Number of samples overlap", title = "A") +
-  pub_theme +
-  theme(
-    legend.position = "none",
-    axis.text.x = element_text(angle = 45,hjust = 1))
-
-# ########################## Fig 7.b ###########################################
-# Line graph of number of peaks (y-axis)
-# q-value threshold (x-axis) 
-# with one line per “peak size group”.  
-# coloured by cell-fraction (facets)
-
-peaks.df$group <- cut(
-  peaks.df$width,
-  breaks = c(0,400,700,1200,2500,4000,Inf),
-  labels = c(
-    "very_narrow\n(0-400)",
-    "narrow\n(400-700)",
-    "medium\n(700-1200)",
-    "broad\n(1200-2500)",
-    "very_broad\n(2500-4000)",
-    "extreme\n(>4000)"
-  ),
-  include.lowest = TRUE
+pass_fail_cols <- c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
 )
 
-plot_df <- peaks.df %>% dplyr::count(qValuegroup, group, fraction)
+#######################
+## Gather QC results ##
+#######################
 
-fig7b <-ggplot(plot_df, aes(x = qValuegroup, y = n, group=group, color = group)) +
-  geom_point() +
-  geom_line(linewidth = 0.8)+
-  facet_wrap(~fraction, scales = "free_y")+
-  scale_y_continuous(
-                     labels = scales::label_number(suffix = "K",scale = 1e-3))+
+qcStatsD2 <- read_csv("./methodsPaper/data/QC1_D2.csv")
+qcStats2D2 <- read_csv("./methodsPaper/data/MS_alignmentRate.csv")
+qcStatsD2 <- qcStatsD2[,-1]
+qcStats2D2 <- qcStats2D2[,-1]
+qc_cols <- c("PASS_AlignmentRate", "PASS_AlignedTotal", "PASS_NRF", "PASS_PBC1","PASS_PBC2","PASS_NFR","PASS_Mono" )
+qcStatsD2$PASSALL <-  as.factor(rowSums(qcStatsD2[, qc_cols]) == length(qc_cols))
+qcStatsD2$Ratio <- qcStatsD2$NFR/qcStatsD2$Mono
+qcStatsD2$aligned_total_reads <- qcStatsD2$aligned_total*2
+qcStatsD2[order(qcStatsD2$aligned_total, decreasing = TRUE),]$Sample
+
+passAllQCStatus <- as.data.frame(read_csv("./methodsPaper/passAllQCStatus.csv"))
+qc1StatsD1 <- read.table("./methodsPaper/qc1Stats.csv", header = TRUE, sep = ',', stringsAsFactors = FALSE)
+qc1StatsD1$PASSALL <- passAllQCStatus[match(qc1StatsD1$sampleID,passAllQCStatus$sampleID),]$PASSALL
+qc1StatsD1$Ratio <- qc1StatsD1$NFR/qc1StatsD1$MNC
+
+## plot number of reads
+D1.sub <- qc1StatsD1[,c("sampleID","TotalNumReads","PASSALL")]
+D1.sub$dataset <- "Dataset 1"
+D2.sub <- qcStatsD2[,c("Sample","aligned_total","PASSALL")]
+D2.sub$dataset <- "Dataset 2"
+colnames(D2.sub) <- colnames(D1.sub)
+reads.df <- rbind(D1.sub,D2.sub)
+
+reads.df$TotalNumReads <- reads.df$TotalNumReads/1000000
+
+# ########################## Fig Sup 7.a ##################
+# Violin plot of number of reads (y-axis)
+# by dataset (x-axis) 
+# coloured by whether sample passed/failed QC
+
+p7a <- ggplot(
+  reads.df,
+  aes(
+    x = dataset,
+    y = TotalNumReads, fill = PASSALL)
+) +
+  geom_violin(scale = "width",
+              position = position_dodge(width = 0.9),
+              trim = FALSE) +
+  geom_boxplot(width = 0.15,
+               position = position_dodge(width = 0.9),
+               outlier.shape = NA)+
+  stat_summary(
+    fun = median,position = position_dodge(width = 0.9),
+    geom = "point",
+    size = 2.5,
+    color = "white"
+  )+
+  scale_fill_manual(values = pass_fail_cols) +
   labs(
-    x = "Q value",
-    y = "Number of peaks", title = "B", color = "Peak width\ngroup"
+    x = "",
+    y =expression("Number of reads (" ~ x ~ 10^6 ~ ")"), title = "A"
   ) +
-  pub_theme +
-  theme(
-    legend.position = "bottom",
-    axis.text.x = element_text(angle = 45,hjust = 1))
+  pub_theme +  theme_bw(12)+
+  theme(axis.title = element_text(size = 14), legend.position = "none",
+        axis.text.x = element_text(size = 12),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 24,face = "bold"),
+        plot.subtitle = element_text(size = 22,
+                                     face = "bold",
+                                     hjust = 0.5))
 
-# ########################## Fig 7.c ###########################################
-# Line graph of number of peaks (y-axis) 
-# q-value threshold (x-axis) with
-# one line per overlap with 0,1,2,3 samples etc.  
-# plot 0 up to 10 individually, then 10-20, 20-30, or more than 30
+# ########################## Fig Sup 7.b ##################
+# Violin plot of NFR to MNC ratio (y-axis)
+# by dataset (x-axis) 
+# coloured by whether sample passed/failed QC
 
-peaks.df$n_samples_group <- cut(
-  as.numeric(peaks.df$n_samples),
-  breaks = c(0,1,2,3,4,5,6,7,8,9, 10, 20, 30, Inf),
-  labels = c("0","1","2","3","4","5","6","7","8","9","10–20", "20–30", ">30"),
-  right = TRUE,
-  include.lowest = TRUE
-)
+D1.sub <- qc1StatsD1[,c("sampleID","Ratio","PASSALL")]
+D1.sub$dataset <- "Dataset 1"
+D2.sub <- qcStatsD2[,c("Sample","Ratio","PASSALL")]
+D2.sub$dataset <- "Dataset 2"
+colnames(D2.sub) <- colnames(D1.sub)
+reads.df <- rbind(D1.sub,D2.sub)
 
-table(peaks.df$qValuegroup)   # q-value bins (factor)
-table(peaks.df$n_samples_group)     # number of samples per peak
-peaks.df$qValuegroup <- factor(peaks.df$qValuegroup)
-peaks.df$n_samples_group <- factor(peaks.df$n_samples_group)
-tab <- table(peaks.df$qValuegroup, peaks.df$n_samples_group, peaks.df$fraction)
-df_plot <- as.data.frame(tab)
-colnames(df_plot) <- c("qValuegroup", "n_samples", "fraction", "count")
-
-fig7c <-ggplot(df_plot, aes(x = qValuegroup, y = count, group=n_samples, color = n_samples)) +
-  geom_point() +
-  geom_line(linewidth = 1)+
-  facet_wrap(~fraction, scales = "free_y")+
+p7b <- ggplot(
+  reads.df,
+  aes(
+    x = dataset,
+    y = Ratio, fill = PASSALL)
+) +
+  geom_violin(scale = "width",
+              position = position_dodge(width = 0.9),
+              trim = FALSE) +
+  geom_boxplot(width = 0.15,
+               position = position_dodge(width = 0.9),
+               outlier.shape = NA)+
+  stat_summary(
+    fun = median,position = position_dodge(width = 0.9),
+    geom = "point",
+    size = 2.5,
+    color = "white"
+  )+
+  scale_fill_manual(values = pass_fail_cols) +
   labs(
-    x = "Q value",
-    y = "Number of peaks", title = "C", color = "Number of samples\noverlap"
-  ) +scale_y_continuous(
-    labels = scales::label_number(suffix = "K",scale = 1e-3))+
-  pub_theme +
-  theme(
-    legend.position = "bottom",
-    axis.text.x = element_text(
-      angle = 45,
-      hjust = 1
-    )
-  )
+    x = "",
+    y = "NFR/MNC", title = "B", fill = "Pass QC"
+  ) +
+  pub_theme +  theme_bw(12)+
+  theme(axis.title = element_text(size = 14), legend.position = "bottom",
+        axis.text.x = element_text(size = 12),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 24,face = "bold"),
+        plot.subtitle = element_text(size = 22,
+                                     face = "bold",
+                                     hjust = 0.5))
+p7b
 
-## combined plot for Supplementary Figure 7 ##
-design <- "AAAAA
-           AAAAA
-           BBBBB
-           BBBBB
-           CCCCC
-           CCCCC"
+# ########################## Fig Sup 7.c ##################
+# Violin plot of TSS enrichment scores (y-axis)
+# by dataset (x-axis) 
+# coloured by whether sample passed/failed QC
 
-combined_figSup7 <- fig7a + fig7b + fig7c +  plot_layout(design = design)
+D1.sub <- qc1StatsD1[,c("sampleID","TSS_score","PASSALL")]
+D1.sub$dataset <- "Dataset 1"
+p7c <- ggplot(
+  D1.sub,
+  aes(
+    x = dataset,
+    y = TSS_score, fill = PASSALL)
+) +
+  geom_violin(scale = "width",
+              position = position_dodge(width = 0.9),
+              trim = FALSE) +
+  geom_boxplot(width = 0.15,
+               position = position_dodge(width = 0.9),
+               outlier.shape = NA)+
+  stat_summary(
+    fun = median,position = position_dodge(width = 0.9),
+    geom = "point",
+    size = 2.5,
+    color = "white"
+  )+
+  scale_fill_manual(values = pass_fail_cols) +
+  labs(
+    x = "",
+    y = "TSS enrichment score", title = "C"
+  ) +
+  pub_theme +  theme_bw(12)+
+  theme(axis.title = element_text(size = 14), legend.position = "none",
+        axis.text.x = element_text(size = 12),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 24,face = "bold"),
+        plot.subtitle = element_text(size = 22,
+                                     face = "bold",
+                                     hjust = 0.5))
+p7c
+
+## combine plots for figure ##
+figSup7 <- p7a | p7b | p7c + plot_layout(
+  nrow = 1,
+  guides = "collect"
+) 
 
 ggsave(
-  filename = paste0("SupplementaryFig_7_dataset1.png"),
-  plot = combined_figSup7,
-  width = 24,
-  height = 16
+  filename = "SupplementaryFig_7.pdf",
+  plot = figSup7,
+  width = 15,
+  height = 6
 )
 
 ggsave(
-  filename = paste0("SupplementaryFig_7_dataset1.pdf"),
-  plot = combined_figSup7,
-  width = 24,
-  height = 16
+  filename = "SupplementaryFig_7.png",
+  plot = figSup7,
+  width = 15,
+  height = 6
 )
+
