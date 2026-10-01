@@ -56,7 +56,6 @@ peaks<-makeGRangesFromDataFrame(read.table(peakFile), keep.extra.columns=TRUE, s
                                               start.field="V2",
                                               end.field="V3",
                                               ignore.strand=TRUE)
-length(peaks)
                      
 bamFiles<-list.files(alignedDir, pattern = ".filt.nodup.bam$", recursive = TRUE, include.dirs = TRUE)
 sampleNames<-gsub(".filt.nodup.bam$", "", bamFiles)
