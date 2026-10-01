@@ -1,3 +1,8 @@
+
+##########################
+##       Figure 6       ##
+##########################
+
 library(pheatmap)
 library(RColorBrewer)
 library(tibble)
