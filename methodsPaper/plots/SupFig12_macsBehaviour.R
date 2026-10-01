@@ -8,7 +8,6 @@ library(tidyr)
 library(dplyr)
 
 ## Universal theme for plotting
-## Universal theme for plotting
 pub_theme <- theme_classic(base_size = 12) +
   theme(
     axis.title = element_text(size = 15),
@@ -22,6 +21,9 @@ pub_theme <- theme_classic(base_size = 12) +
 
 col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
 
+######################
+## gather peak sets ##
+######################
 
 groupsPeaks <-"/methodsPaper/data/relaxedPeakSets"
 peakFiles2 <- c("NEUN_5e-2.narrowPeak.filt","SOX_5e-2.narrowPeak.filt",
