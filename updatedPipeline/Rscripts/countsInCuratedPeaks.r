@@ -60,8 +60,7 @@ length(peaks)
                      
 bamFiles<-list.files(alignedDir, pattern = ".filt.nodup.bam$", recursive = TRUE, include.dirs = TRUE)
 sampleNames<-gsub(".filt.nodup.bam$", "", bamFiles)
-sampleNames <- sampleNames[sampleNames %in% samples]#pheno$sampleID]
-#bamFiles<-bamFiles[bamFiles %in% unlist(lapply(sampleNames, function(x) paste0(x,".filt.nodup.bam")))]
+sampleNames <- sampleNames[sampleNames %in% samples]
 
 bamFiles <- ifelse(
   grepl("_merged$", samples),
