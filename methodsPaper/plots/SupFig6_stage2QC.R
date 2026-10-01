@@ -49,10 +49,9 @@ col_vals_sex <- c(
 
 ## gather data ##
 pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno$fraction[pheno$fraction == "SOX"] <- "Sox10+"
+pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
 pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
 pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
-pheno<- pheno[!grepl("EX078", pheno$sampleCode), ] 
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
 
 qcPass1 <- read.csv(qc1pass, stringsAsFactors = FALSE, strip.white = TRUE, header = TRUE)
@@ -191,9 +190,10 @@ genoScores$batch <- pheno[match(genoScores$sampleID, pheno$sampleID),]$sequencin
 genoScores$sampleCode <- pheno[match(genoScores$sampleID, pheno$sampleID),]$sampleCode
 genoScores <- genoScores[complete.cases(genoScores[ , c('FREEMIX', 'CHIPMIX')]), ]
 
-genoScores$qcpass <- ifelse(genoScores$CHIPMIX < 0.1 | genoScores$FREEMIX < 0.1, "TRUE", "FALSE")
+genoScores$qcpassCHIPMIX <- genoScores$CHIPMIX < 0.1
+genoScores$qcpassFREEMIX <- genoScores$FREEMIX < 0.1
+genoScores$qcpass <- genoScores$qcpassFREEMIX & genoScores$qcpassCHIPMIX
 genoScores.plots.p3 <- genoScores
-#genoScores.plots.p3$qcpass <- genoScores.plots.p2$qcpass  
 
 p3 <- ggplot(genoScores.plots.p3, aes(x=FREEMIX, y=CHIPMIX, color=qcpass)) +
   geom_point(size=2) +
