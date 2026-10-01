@@ -191,18 +191,18 @@ design <- "AAADDD
            AAADDD
            BBBCCC
            BBBCCC"
-combined_fig8 <- p8a + p8b + p8c+ p8d +  plot_layout(design = design)
+figSup8 <- p8a + p8b + p8c+ p8d +  plot_layout(design = design)
 
 ggsave(
   filename = "SupplementaryFig_8_D1_SOX.pdf",
-  plot = combined_fig8,
+  plot = figSup8,
   width = 15,
   height = 12
 )
 
 ggsave(
   filename = "SupplementaryFig_8_D1_SOX.png",
-  plot = combined_fig8,
+  plot = figSup8,
   width = 15,
   height = 12
 )
