@@ -25,7 +25,11 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.position = "bottom",
     legend.key.width = unit(2.2, "cm")
   )
-  
+
+###############
+## functions ##
+###############
+
 fdsPlots <- function(listSamples){
   counter = 1
   list_plots <-list()
