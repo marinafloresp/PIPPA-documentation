@@ -813,7 +813,7 @@ cols2Keep <- c("TSSScore","BAMTotalReads", "TotalReadPairs_afterAlignment","tota
                "BAMPeaks","FripMACS3PE")
 corMergeStats<-mergeStats[,cols2Keep]
 colnames(corMergeStats)<- c("tss",'total\nreads', 'total\npairs','dedup', 'poor\nqual', 'mt\nreads', 'alignt\nrate', 'distinct\nreads', 
-                            'NFR','PBC1',  "PBC2","PropNFR", "PropMono", "DipP","NPeaks_PE", "FRIP_PE")
+                            'NRF','PBC1',  "PBC2","PropNFR", "PropMNC", "DipP","NPeaks_PE", "FRIP_PE")
 corMergeStats<- corMergeStats[, colSums(corMergeStats, na.rm = TRUE) != 0]
 corrplot.mixed(cor(corMergeStats, use = "p"), order = 'AOE', tl.cex=0.7, tl.col = 'black')
 ```
