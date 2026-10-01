@@ -366,7 +366,7 @@ p9c_clean <- p9c + theme(legend.position = "none")
 p9d_clean <- p9d + theme(legend.position = "none")
 p9e_clean <- p9e + theme(legend.position = "none")
 
-combined_p9 <- 
+figSup9 <- 
   (p9a_clean | p9b_clean) / (p9c_clean | p9d_clean) / (p9e_clean | legend_shared) +
   plot_layout(
     heights = c(1, 1, 1), nrow = 3
@@ -374,14 +374,14 @@ combined_p9 <-
 
 ggsave(
   filename = "SupplementaryFig_9_D1.pdf",
-  plot = combined_p9,
+  plot = figSup9,
   width = 14,
   height = 16
 )
 
 ggsave(
   filename = "SupplementaryFig_9_D1.png",
-  plot = combined_p9,
+  plot = figSup9,
   width = 14,
   height = 16
 )
