@@ -1,3 +1,7 @@
+######################################
+##       Supplementary Fig 2,3      ##
+######################################
+
 suppressWarnings(suppressPackageStartupMessages({
   library(dplyr)
   library(plyr)
@@ -40,7 +44,6 @@ readCounts<-read.table(file.path(paste0(alignedDir, "/countMTReads.txt")), fill 
 alignQC<-read.table(file.path(paste0(alignedDir, "/multiqc/multiqc_data/multiqc_bowtie2.txt")), sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 flagstat<-read.csv(file.path(paste0(alignedDir, "/ENCODEMetrics/collateFlagStatMetrics.txt")), header = FALSE)
 flagstat<- flagstat[,c(1:ncol(flagstat)-1)]
-
 
 # wrangle data
 missingCol<-setdiff(c("sequencingBatch", "sampleID", "sampleCode", "cohort", "fraction", "experiment", "individualID"), colnames(pheno))
@@ -165,7 +168,6 @@ mergeStats <- cbind(mergeStats,TSSScore = tssSamples$"TSS_enrichment")
 
 QCPASS.df <- read.csv(file.path(qc1pass),header = TRUE, sep = ',', stringsAsFactors = FALSE)
 QCPASS.df <- QCPASS.df[,-1]
-head(QCPASS.df)
 qcStats <- read.csv(file.path(qc1stats),header = TRUE, sep = ',', stringsAsFactors = FALSE)
 qcStats$qcpass <- QCPASS.df[match(qcStats$sampleID, QCPASS.df$sampleID),]$QCPASS
 mergeStats$totalreads<-mergeStats$Total.Sequences_R1+mergeStats$Total.Sequences_R2
