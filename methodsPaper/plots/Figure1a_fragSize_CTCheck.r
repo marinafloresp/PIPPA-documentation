@@ -1,6 +1,7 @@
-      ########################################################
-## Script to plot fragment size distribution for pass/fail samples ##
-      ########################################################
+########################
+##       Figure 1     ##
+########################
+
 args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 source(configFile)
@@ -63,8 +64,6 @@ qc1$QCPASS <- as.factor(qc1$QCPASS)
 pheno$qcpass1 <- qc1[match(pheno$sampleID,qc1$sampleID),]$QCPASS
 
 processSum <- pheno
-
-
 propNucleosomesAll<-NULL
 diptestStatsAll<-NULL
 filePaths <- list.files(file.path(alignedDir,"/QCOutput/"), pattern = "FragmentDistribution_Batch|FragmentDistribution_Batch_")
@@ -73,8 +72,6 @@ for(each in filePaths){
   propNucleosomesAll<-rbind(propNucleosomesAll, propNucleosomes)
   diptestStatsAll<-rbind(diptestStatsAll, diptestStats)
 }
-
-#diptestStatsAll<-as.data.frame(diptestStatsAll)
 propNucleosomesAll<-propNucleosomesAll[match(processSum$sampleID, rownames(propNucleosomesAll)),]
 diptestStatsAll<-diptestStatsAll[match(processSum$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll))),]
 rownames(diptestStatsAll)<-processSum$sampleID
@@ -104,11 +101,11 @@ melt.df$FragSize <- factor(
   levels = c("NFR", "Mono", "Di", "Tri", "Quad")
 )
 
-# ########################## Fig 1.a ###########################################
+# ########################## Fig 1.a1 ###########################################
 # Violin plot for fragment size % (y-axis)
 # fragment size group (x-axis)
 
-p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
+p1a1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
    geom_violin(scale = "width",
             position = position_dodge(width = 0.9),
             trim = FALSE) +
@@ -130,12 +127,12 @@ p1 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = FragSize))+
     plot.title = element_text(size = 16, face = "bold")
   )
 
-# ########################## Fig 1.b ###########################################
+# ########################## Fig 1.a2 ###########################################
 # Violin plot for fragment size % (y-axis)
 # fragment size group (x-axis)
 # coloured by overall pass/fail Stage 1 QC
 
-p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
+p1a2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
    geom_violin(scale = "width",
             position = position_dodge(width = 0.9),
             trim = FALSE) +
@@ -160,20 +157,20 @@ p2 <- ggplot(melt.df,aes(x=FragSize, y=percentage,fill = passQC1))+
   )
 
 ## Load Figure 1.b-g made with script Figure1b_cellTypeCheck ##
-p3 <- readRDS("/fig1bg_ctCheck.rds")
+p1b.g <- readRDS("/fig1bg_ctCheck.rds")
 
-combined_fig1 <- (p1 | p2) / p3 + plot_layout(height=c(1,1.5))
+figure1 <- (p1a1 | p1a2) / p1b.g + plot_layout(height=c(1,1.5))
 
 ggsave(
-  filename = "Fig1a.pdf",
-  plot = combined_fig1,
+  filename = "Figure_1a.pdf",
+  plot = figure1,
   width = 14,
   height = 14
 )
 
 ggsave(
-  filename = "Fig1a.png",
-  plot = combined_fig1,
+  filename = "Figure_1a.png",
+  plot = figure1,
   width = 14,
   height = 14
 )
