@@ -1,4 +1,6 @@
-## Figure 1.b: Stage 3 QC Cell-type check
+###########################
+##       Figure 1 ab     ##
+###########################
 
 library(edgeR)
 library(ggplot2)
@@ -19,7 +21,7 @@ pub_theme <- theme_classic(base_size = 12) +
   )
 
 ## Load metadata ##
-metadata <- read.table(paste0(metaDir,"/methodsPaper/sampleSheet_50bp.csv"), header = TRUE, sep = ',', stringsAsFactors = FALSE)
+metadata <- read.table(paste0(metaDir,"/methodsPaper/sampleSheet.csv"), header = TRUE, sep = ',', stringsAsFactors = FALSE)
 dim(metadata)
 metadata$sequencingBatch <- as.factor(metadata$sequencingBatch)
 metadata$fraction[metadata$fraction == "SOX"] <- "Sox10+"
@@ -121,7 +123,7 @@ tpm.scores.df <- data.frame(pc1 = tpm.scores[,1],pc2 = tpm.scores[,2],pc3 = tpm.
                             sampleID =as.factor(pheno.filt$sampleID), 
                             gender =as.factor(pheno.filt$gender), passed = pheno.filt$QCS3)
 
-plot1B <- ggplot(tpm.scores.df, aes(x=pc1, y=pc2, color =  fraction, shape = passed, label = sampleCode))+
+p1b <- ggplot(tpm.scores.df, aes(x=pc1, y=pc2, color =  fraction, shape = passed, label = sampleCode))+
     geom_point(size=2, alpha = 0.7)+
   scale_shape_manual(values = c("FALSE" = 3, "TRUE" = 16)) + 
     scale_color_manual(values = col_vals) +
@@ -148,7 +150,7 @@ plot1B <- ggplot(tpm.scores.df, aes(x=pc1, y=pc2, color =  fraction, shape = pas
 
 counts_to_plot.m <- melt(tpm.scores.df)
 counts_to_plot.m.pc1 <- counts_to_plot.m[counts_to_plot.m$variable == "pc1",]
-plot1C <- ggplot(counts_to_plot.m.pc1, aes(x=fraction, y = value))+
+p1c <- ggplot(counts_to_plot.m.pc1, aes(x=fraction, y = value))+
   geom_jitter(aes(shape = passed))+
   geom_violin(aes(fill = fraction))+
   stat_summary(fun = "median", geom = "point",color = "white",
@@ -169,7 +171,7 @@ plot1C <- ggplot(counts_to_plot.m.pc1, aes(x=fraction, y = value))+
               fill = guide_legend(override.aes = list(size=3),nrow = 1))
 
 counts_to_plot.m.pc2 <- counts_to_plot.m[counts_to_plot.m$variable == "pc2",]
-plot1D <- ggplot(counts_to_plot.m.pc2, aes(x=fraction, y = value))+
+p1d <- ggplot(counts_to_plot.m.pc2, aes(x=fraction, y = value))+
   geom_jitter(aes(shape = passed))+
   geom_violin(aes(fill = fraction))+
   stat_summary(fun = "median", geom = "point",color = "white",
@@ -190,7 +192,7 @@ plot1D <- ggplot(counts_to_plot.m.pc2, aes(x=fraction, y = value))+
               fill = guide_legend(override.aes = list(size=3),nrow = 1))
 
 counts_to_plot.m.pc3 <- counts_to_plot.m[counts_to_plot.m$variable == "pc3",]
-plot1E <- ggplot(counts_to_plot.m.pc3, aes(x=fraction, y = value))+
+p1e <- ggplot(counts_to_plot.m.pc3, aes(x=fraction, y = value))+
   geom_jitter(aes(shape = passed))+
   geom_violin(aes(fill = fraction))+
   stat_summary(fun = "median", geom = "point",color = "white",
@@ -211,7 +213,7 @@ plot1E <- ggplot(counts_to_plot.m.pc3, aes(x=fraction, y = value))+
               fill = guide_legend(override.aes = list(size=3),nrow = 1))
 
 counts_to_plot.m.pc4 <- counts_to_plot.m[counts_to_plot.m$variable == "pc4",]
-plot1F <- ggplot(counts_to_plot.m.pc4, aes(x=fraction, y = value))+
+p1f <- ggplot(counts_to_plot.m.pc4, aes(x=fraction, y = value))+
   geom_jitter(aes(shape = passed))+
   geom_violin(aes(fill = fraction))+
   stat_summary(fun = "median", geom = "point",color = "white",
@@ -232,7 +234,7 @@ plot1F <- ggplot(counts_to_plot.m.pc4, aes(x=fraction, y = value))+
               fill = guide_legend(override.aes = list(size=3),nrow = 1))
 
 counts_to_plot.m.pc5 <- counts_to_plot.m[counts_to_plot.m$variable == "pc5",]
-plot1G <- ggplot(counts_to_plot.m.pc5, aes(x=fraction, y = value))+
+p1g <- ggplot(counts_to_plot.m.pc5, aes(x=fraction, y = value))+
   geom_jitter(aes(shape = passed))+
   geom_violin(aes(fill = fraction))+
   stat_summary(fun = "median", geom = "point",color = "white",
@@ -253,22 +255,22 @@ plot1G <- ggplot(counts_to_plot.m.pc5, aes(x=fraction, y = value))+
               fill = guide_legend(override.aes = list(size=3),nrow = 1))
 
 ## gather plots ##
-plot1B <- plot1B + theme(legend.position = "none")
-plot1C <- plot1C + theme(legend.position = "none")
-plot1D <- plot1D + theme(legend.position = "none")
-plot1E <- plot1E + theme(legend.position = "none")
-plot1F <- plot1F + theme(legend.position = "bottom")
-plot1G <- plot1G + theme(legend.position = "none")
+p1b_clean <- p1b + theme(legend.position = "none")
+p1c_clean <- p1c + theme(legend.position = "none")
+p1d_clean <- p1d + theme(legend.position = "none")
+p1e_clean <- p1e + theme(legend.position = "none")
+p1f_clean <- p1f  + theme(legend.position = "bottom")
+p1g_clean <- p1g + theme(legend.position = "none")
 
-combined_fig1bg <-
-  (plot1B |  plot1C | plot1D) /
-  (plot1E |  plot1F | plot1G)
+figure1 <-
+  (p1b_clean |  p1c_clean | p1d_clean) /
+  (p1e_clean |  p1f_clean | p1g_clean)
   plot_layout(
     heights = c(1,1),
     nrow = 2
   )
 
 ## Save figure to be merged with Figure 1a ##
-saveRDS(combined_fig1bg, "fig1bg_ctCheck.rds")
+saveRDS(figure1, "fig1bg_ctCheck.rds")
 
 
