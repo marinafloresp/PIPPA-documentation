@@ -1,5 +1,6 @@
-## Supplementary Figure 4: Stage 2 QC results ## 
-
+#####################################
+##       Supplementary Fig 6       ##
+#####################################
 suppressWarnings(suppressPackageStartupMessages({
   library(dplyr)
   library(plyr)
