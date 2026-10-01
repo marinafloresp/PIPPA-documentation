@@ -58,7 +58,7 @@ df$cutoff <-fct_recode(df$cutoff, "0.05" = "5e-2", "0.01" = "1e-2", "0.00001" = 
 # number of reads (x-axis) 
 # coloured by default thresholds 
 
-p1 <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
+p2a <- ggplot(df, aes(x = reads, y = num, color = cutoff)) +
   geom_point(size = 3) +
   geom_line(linewidth = 1) +
   scale_color_manual(values = col_vals) +
@@ -76,8 +76,6 @@ labs(
   theme(
     legend.position = "bottom", plot.title = element_text(size = 24)
   )
-p1
-
 
 # ########################## Fig 2.b ###########################################
 # Box plot/violin plots of width of peaks (y-axis) 
@@ -95,7 +93,7 @@ widthPeaks_df <- data.frame(
 
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
+p2b <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
   geom_violin(scale = "width", fill = "#56B4E9") +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
@@ -103,8 +101,7 @@ p2 <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+
   pub_theme +
   theme(
     legend.position = "none", plot.title = element_text(size = 24)
-  ) 
-p2
+  )
 
 # ########################## Fig 2.c ###########################################
 # Box plot/violin plots of gaps between peaks (y-axis) 
@@ -119,7 +116,6 @@ spacing_prev <- lapply(peaks, function(x) {
   dist
 })
 
-
 peaksAnno.all.df <- lapply(seq_along(peaks), function(i) {
   df <- as.data.frame(peaks[[i]])
   df$spacing <- spacing_prev[[i]]
@@ -131,7 +127,7 @@ peaksAnno.all.df.space <- bind_rows(peaksAnno.all.df)
 
 peaksAnno.all.df.space$set_num <- as.integer(str_extract(peaksAnno.all.df.space$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
+p2c <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
   geom_violin(scale = "width", fill = "#56B4E9")+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")  +
@@ -140,27 +136,24 @@ p3 <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)
   theme(
     legend.position = "none", plot.title = element_text(size = 24)
   ) 
-p3
 
 design <- "AAAAAA
            AAAAAA
            BBBCCC
            BBBCCC"
-combined_fig2 <- free(p1) + p2 + p3 +  plot_layout(axes = "collect",design = design)
 
-# Show combined plot
-combined_fig2
+figure2 <- free(p2a) + p2b + p2c +  plot_layout(axes = "collect",design = design)
 
 ggsave(
   filename = "Figure_2_D1_NEUN.pdf",
-  plot = combined_fig2,
+  plot = figure2,
   width = 12,
   height = 12
 )
 
 ggsave(
   filename = "Figure_2_D1_NEUN.png",
-  plot = combined_fig2,
+  plot = figure2,
   width = 12,
   height = 12
 )
