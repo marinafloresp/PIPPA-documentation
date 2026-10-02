@@ -1,7 +1,7 @@
 # TO BE UPDATED #
 # ATAC-seq analysis pipeline 
 
-The Assay for Transposase-Accessible Chromatin followed by sequencing (ATAC-seq) experiment provides genome-wide profiles of chromatin accessibility. This pipeline has been developed to provide end-to-end quality control, processing and analysis of paired-end ATAC-seq datasets. This pipeline has been developed so that can be run end-to-end, starting from raw FASTQ files all the way to peak calling and perform differential accessibility analysis. 
+The Assay for Transposase-Accessible Chromatin followed by sequencing (ATAC-seq) experiment provides genome-wide profiles of chromatin accessibility. This pipeline has been developed to provide end-to-end quality control, processing and analysis of paired-end ATAC-seq datasets. This pipeline has been developed so that can be run end-to-end, starting from raw FASTQ files all the way to curated peak sets that can be used for downstream analyses.
 
 ## Pipeline's structure
 
@@ -21,7 +21,7 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
     - `REFERENCES_DIR`: full path to directory with all references used throughout the pipeline.
     - Specify the modules versions to be loaded and the full paths to the softwares used in the pipeline (e.g. picard).
   - An alphabetically ordered array of cell types to which samples belong to: `CELLTYPES`. 
-  - Cutoff values for peak calling should be specified by the user. If not specified, default will be used (0.05). For more information about what values to choose: [MACS documentation](https://macs3-project.github.io/MACS/docs/cutoffanalysis.html)
+  - Cutoff values for peak calling should be specified by the user. If not specified, default will be used (0.05). 
     - `macs_sample_thres` : Sample-level peak calling q-value cutoff
     - `macs_group_thres` : Cell fraction-level peak calling q-value cutoff
     - `macs_chr_thres` : Peak calling on sex chromosomes q-value cutoff
@@ -39,22 +39,22 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
   - config.txt: with variables for bash scripts.
   - config.r with parameters for R scripts
   - environment.yml : file with packages and their version to be installed by conda.
-  - packagesPip.txt : list of packages and their version to be installed by pip in the conda environment. 
-- Requires a samples.txt file in the META_DATA (0_metadata) folder with the names of the samples that will be used to run the pipeline.
-- Requires a sampleSheet.csv file in the META_DATA (0_metadata) folder with information about the samples. More information below.
+- Requires a samples.txt file in the META_DIR (0_metadata) folder with the names of the samples that will be used to run the pipeline.
+- Requires a sampleSheet.csv file in the META_DIR (0_metadata) folder with information about the samples. More information below.
 - Samples need to be in the RAWDATADIR folder in the project folder (1_raw)
-- An alphabetically ordered array of cell types to which samples belong to needs to be specified in the *config.txt* file as `CELLTYPES` in order to perform peak calling by cell group (STEP 8). This also required in the *config.r* file.
+- An alphabetically ordered array of cell types to which samples belong to needs to be specified in the *config.txt* file as `CELLTYPES` in order to perform peak calling by cell group (STEP 8). This also required in the *config.r* file. 
 - A Reference folder is needed with the following resources:
   - Reference genome in .fa format (hg38): [UCSC](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/)
   - Index for Bowtie2 alignment: [Bowtie index](https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#the-bowtie2-build-indexer)
   - ENCODE blacklist regions: [hg38](https://github.com/Boyle-Lab/Blacklist/blob/master/lists/hg38-blacklist.v2.bed.gz)
-  - Pseudoautosomal regions (PAR)
-  - 1000 Genomes Project [data](https://www.ensembl.org/Homo_sapiens/Info/Index)
-  - X chromosome gene list.
+  - Pseudoautosomal regions (PAR) (hg38) [UCSC](https://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html)
+  - X chromosome gene list (FIRRE and XIST) :
+  -   chrX	73820656	73852723	XIST	10	-
+  -   chrX  131688779	131830604	FIRRE	10	-
 
 ## Software 
 
-Several software are needed to run the pipeline. Some of these can be used from a conda or pip environment. The set up script (0_setUp.sh) will create a conda environment where some of these packages will be installed either by conda or pip. As explained in *Requisites*, the packagesPip.txt and environment.yml files are needed for the conda environment to be set up. This can be done using either Anaconda or Miniconda, which local source directory needs to be specified in the *config.txt* file (`CONDA`). In order to download and install refer to: [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
+Several software are needed to run the pipeline. Some of these can be used from a conda. The set up script (0_setUp.sh) will create a conda environment where some of these packages will be installed by conda. As explained in *Requisites*, the environment.yml files are needed for the conda environment to be set up. This can be done using either Anaconda or Miniconda, which local source directory needs to be specified in the *config.txt* file (`CONDA`). In order to download and install refer to: [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
 
 Important software that will be installed in this environment are: MACS3 (3.0.2), SAMstats, SAMtools, BEDTools, Bowtie2, MultiQC, R, Python3, Pandoc, GATK, Picard. If you already have a conda environment, please specify its name or path in the *config.txt* file. 
   - Python version in this conda environment should be >= 3.12, as this is required by MACS3. For further details about MACS3 requirements: [MACS3 documentation](https://macs3-project.github.io/MACS/docs/INSTALL.html)
@@ -68,12 +68,12 @@ Other software needed are: BEDTools, Bowtie2, Picard and R. Note R also needs to
 
 ## Sample sheet 
 
-A sample sheet with the metadata about samples is essential to run the ATAC-seq pipeline. This should be located in the META_DATA (0_metadata) folder and should be named as sampleSheet.csv. 
+A sample sheet with the metadata about samples is essential to run the ATAC-seq pipeline. This should be located in the META_DIR (0_metadata) folder and should be named as sampleSheet.csv. 
 Samples must be in the same order as in the samples.txt file. An example of information about a sample is shown below. 
 
 | sequencingBatch | sampleID | sampleCode | cohort | fraction | individualID | age | gender | clinical | vcfID |
 | --------------- | -------- | ---------- |------- | -------- | ------------ | --- | ------ | -------- | ----- |
-| 11031	| 11031_EX161_NEUN_S1	| EX161_NEUN | BRISTOL_A	| NEUN | 859 | 85	| F |	5	| 201023670019_R08C02_EX161 |
+| X	| X_A61_NEUN_S1	| A61_NEUN | Y	| NEUN | 859 | 85	| F |	5	| XXXX_YYYYY_A61 |
 
 - `sequencingBatch`: sequencing batch number
 - `sampleID`: name of sample in samples.txt and name of fastq file corresponding to the sample. This is usually formed by the sequencingBatchNumber_sampleID_fraction_SNumber.
@@ -83,8 +83,12 @@ Samples must be in the same order as in the samples.txt file. An example of info
 - `individualID`: ID of the individual to which the sample belongs to. All samples that belong to the same individual must have the same ID.
 - `age`
 - `gender`: F or M.
-- `clinical`: braak stage
-- `vcfID`: ID of imputed array data to perform genotype comparison and confirm sample's identity.
+- `clinical`: clinical group of samples (optional)
+- `vcfID`: ID of imputed array data to perform genotype comparison and confirm sample's identity (optional)
+
+## NOTES
+
+These pipeline has been originally designed to be executed with cell type sorted ATAC-seq datasets. However, with the right modifications, it can also be used on bulk tissue ATAC-seq datasets. Instead of a list of cell types in the `CELLTYPES` variable, use "BULK" for example. This has not been tested yet.
 
 ## STEPS
 
