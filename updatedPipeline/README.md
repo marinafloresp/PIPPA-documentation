@@ -310,7 +310,7 @@ This scripts prepares inputs for downstream analyses, especially counts in peaks
 
 ##### -scripts executed-
 - ./Rscripts/curatedPeaksChecks.Rmd (R config file): Output results of curated cell-groups peak calling.
-- ./Rscripts/countsInCleanPeaks.r (R config file): Obtain read counts in peaks called on each cell group and performs differential analysis to find topmost differential peaks from peak sets used for curation (5e-2). This would be with only samples that passed all QC stages. Note STEP 9.3 should have run before this and created the peak sets.
+- ./Rscripts/countsInCleanPeaksCT.r (R config file): Obtain read counts in peaks called on each cell group and performs differential analysis to find topmost differential peaks from peak sets used for curation (5e-2). This would be with only samples that passed all QC stages. Note STEP 9.3 should have run before this and created the peak sets.
 - ./Rscripts/countsInCuratedPeaks.r (R config file) (GROUP) (THRES): Obtain read counts in peaks called in specified cell type and significance threshold. Note STEP 9.5 PEAKSTR should have run before this and created the peak set.
 
 ##### -parameters-
@@ -320,6 +320,6 @@ This scripts prepares inputs for downstream analyses, especially counts in peaks
 -optional-
 - `[STEPS]` They may be combined, with desired steps included as single string, i.e. FRAGSIZE,PEAKS. Default if left blank is to run all of them.
   - `SUMMARY`: Collates curated peak sets generated across cell types in a Rmarkdown report with  properties of peaks: number, genomic annotation, width, etc. Run curatedPeaksChecks.Rmd only.
-  - `CTCLEAN`: Gets read counts in peaks called at cell group level and analysis for topmost differential peaks. Run only countsInCleanPeaks.r.
+  - `CTCLEAN`: Gets read counts in peaks called at cell group level and analysis for topmost differential peaks. Run only countsInCleanPeaksCT.r.
   - `COUNTS`: Gets read counts in peaks called in curated peak set in chosen cell type. Run only countsInCuratedPeaks.r.
   - 
