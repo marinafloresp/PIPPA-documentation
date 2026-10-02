@@ -1,4 +1,3 @@
-# TO BE UPDATED #
 # ATAC-seq analysis pipeline 
 
 The Assay for Transposase-Accessible Chromatin followed by sequencing (ATAC-seq) experiment provides genome-wide profiles of chromatin accessibility. This pipeline has been developed to provide end-to-end quality control, processing and analysis of paired-end ATAC-seq datasets. This pipeline has been developed so that can be run end-to-end, starting from raw FASTQ files all the way to curated peak sets that can be used for downstream analyses.
@@ -38,9 +37,9 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
 - Requires config files (file paths should be specified in config.txt):
   - config.txt: with variables for bash scripts.
   - config.r with parameters for R scripts
-  - environment.yml : file with packages and their version to be installed by conda.
-- Requires a samples.txt file in the META_DIR (0_metadata) folder with the names of the samples that will be used to run the pipeline.
-- Requires a sampleSheet.csv file in the META_DIR (0_metadata) folder with information about the samples. More information below.
+  - environment.txt : file with packages and their version to be installed by conda.
+- Requires a samples.txt file in the META_DIR (0_metadata) folder with the names of the samples that will be used to run the pipeline. 
+- Requires a sampleSheet.csv file in the META_DIR (0_metadata) folder with information about the samples. Name given/path should be specified as `sampleSheet` in the config.r file. More information below.
 - Samples need to be in the RAWDATADIR folder in the project folder (1_raw)
 - An alphabetically ordered array of cell types to which samples belong to needs to be specified in the *config.txt* file as `CELLTYPES` in order to perform peak calling by cell group (STEP 8). This also required in the *config.r* file. 
 - A Reference folder is needed with the following resources:
@@ -54,21 +53,16 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
 
 ## Software 
 
-Several software are needed to run the pipeline. Some of these can be used from a conda. The set up script (0_setUp.sh) will create a conda environment where some of these packages will be installed by conda. As explained in *Requisites*, the environment.yml files are needed for the conda environment to be set up. This can be done using either Anaconda or Miniconda, which local source directory needs to be specified in the *config.txt* file (`CONDA`). In order to download and install refer to: [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
+Several software are needed to run the pipeline. Some of these can be used from a conda. The set up script (0_setUp.sh) will create a conda environment where some of these packages will be installed by conda. As explained in *Requisites*, the environment.txt file can be used to set up the conda environment. This can be done using either Anaconda or Miniconda, which local source directory needs to be specified in the *config.txt* file (`CONDA`). In order to download and install refer to: [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
 
-Important software that will be installed in this environment are: MACS3 (3.0.2), SAMstats, SAMtools, BEDTools, Bowtie2, MultiQC, R, Python3, Pandoc, GATK, Picard. If you already have a conda environment, please specify its name or path in the *config.txt* file. 
+Important software that will be installed in this environment are: MACS3 (3.0.2), SAMstats, SAMtools, BEDTools, Bowtie2, MultiQC, R, VerifyBamID, Python3, Pandoc, GATK, Picard. If you already have a conda environment, please specify its name or path in the *config.txt* file. 
   - Python version in this conda environment should be >= 3.12, as this is required by MACS3. For further details about MACS3 requirements: [MACS3 documentation](https://macs3-project.github.io/MACS/docs/INSTALL.html)
   - R version should be >= 4.3. Some packages are no longer supported in the regular CRAN repository and need to be installed from source. To do this, download the source file of the package [ptest R package](https://cran.r-project.org/src/contrib/Archive/ptest/), keep this in the *config* folder and this will be installed from source at the *0_setUp.sh* script.
 Other software that needs to be available locally are (and path to these need to be specified in the *config.txt* file):
-  - [VerifyBamID](https://github.com/Griffan/VerifyBamID)
-  - [Phantompeakqualtools](https://github.com/kundajelab/phantompeakqualtools)
-Important software that will be installed in this environment are: MACS3 (3.0.2) and samstats. If you already have a conda environment, please specify its name or path in the *config.txt* file. Please check the python version in this conda environment is <= 3.12, as this is required by MACS3. For further details about MACS3 requirements: [MACS3 documentation](https://macs3-project.github.io/MACS/docs/INSTALL.html)
-
-Other software needed are: BEDTools, Bowtie2, Picard and R. Note R also needs to be installed in the conda environment, as there are some packages that are not available for later versions of R. 
 
 ## Sample sheet 
 
-A sample sheet with the metadata about samples is essential to run the ATAC-seq pipeline. This should be located in the META_DIR (0_metadata) folder and should be named as sampleSheet.csv. 
+A sample sheet with the metadata about samples is essential to run the ATAC-seq pipeline. This should be located in the META_DIR (0_metadata) folder. The name of this file should be specified in the config files as `SAMPLE_SHEET` and `sampleSheet` in the *config.txt* and *config.r* files, respectively.
 Samples must be in the same order as in the samples.txt file. An example of information about a sample is shown below. 
 
 | sequencingBatch | sampleID | sampleCode | cohort | fraction | individualID | age | gender | clinical | vcfID |
@@ -96,7 +90,7 @@ Parameters in [] are optional. If no step is specified, all steps in the script 
 
 ### 0. Set-up
 
-`sbatch --array=0 ./jobSubmission/0_setUp.sh (project directory) `
+`sbatch ./jobSubmission/0_setUp.sh (project directory) `
 
 This script checks for required files, packages or libraries that are needed later in the pipeline.
 
@@ -104,7 +98,6 @@ This script checks for required files, packages or libraries that are needed lat
 - ./Rscripts/installLibraries.r : checks for already installed R libraries and install if not found.
 
 ##### -parameters-
-- `--array`: should be 0 for this script as general analysis is run rather than individual samples.
 - `(project-name)` project's directory.
 
 ##### -requires-
