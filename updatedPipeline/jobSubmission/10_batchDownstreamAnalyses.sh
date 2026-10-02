@@ -138,7 +138,7 @@ Output directory is ${PEAKCOUNTS_DIR_GROUPS}
 
 EOF
 
-  Rscript "${RSCRIPTS_DIR}/countsInCleanPeaks.r" ${CONFIGR}
+  Rscript "${RSCRIPTS_DIR}/countsInCleanPeaksCT.r" ${CONFIGR}
 fi
 
 
