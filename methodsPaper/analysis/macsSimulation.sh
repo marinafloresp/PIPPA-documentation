@@ -212,6 +212,44 @@ EOF
   rm ${PEAK_DIR_GROUPS}/${PEAKS_NAME}_peaks.xls 
   
 fi
+if [ $# = 1 ] || [[ $2 == 'PEAKS' ]]
+then
+   
+  INPUTDIR="${ALIGNED_DIR}/numReadsSubsets/${GROUP}/"
+  BEDFILE="${INPUTDIR}/${GROUP}_downSamp_${NUM}.bed"
+  MACS_GROUP=$5
+  
+  PEAK_DIR_GROUPS="${PEAK_DIR_GROUPS}/numSamplesPeaks_test/${GROUP}/"
+  PEAKS_NAME="${GROUP}_${MACS_GROUP}_${NUM}down"
+  
+  SCALE=10000000
+  readPairsToSample=$((${NUM} * SCALE))
+  
+  mkdir -p "${PEAK_DIR_GROUPS}"
+  
+ cat <<EOF
+
+|| Running STEP 4 of MACS analysis: PEAKS ||
+
+Peak calling will be performed on downsampled bed file created in STEP 3 DOWN.
+Bed file created with ${readPairsToSample} downsampled reads will be used: "${INPUTDIR}/${GROUP}_downSamp_${NUM}.bed"
+Output directory is ${PEAK_DIR_GROUPS}
+Peak file name is ${PEAKS_NAME}
+Q-value threshold is: ${MACS_GROUP}
+
+EOF
+
+  macs3 callpeak -t ${BEDFILE} --outdir ${PEAK_DIR_GROUPS} -n ${PEAKS_NAME} -f BEDPE -g 2.9e9 -q $MACS_GROUP --keep-dup all --nomodel 
+
+  ## exclude peaks aligned to blacklist regions and peaks called in chr X and Y
+  bedtools intersect -v -a ${PEAK_DIR_GROUPS}/${PEAKS_NAME}_peaks.narrowPeak -b ${BLACKLIST} \
+  	| awk 'BEGIN{OFS="\t"} {if ($5>1000) $5=1000; print $0}' \
+  	| awk '!/^(chrY|chrX)/' > ${PEAK_DIR_GROUPS}/${PEAKS_NAME}.narrowPeak.filt
+   
+  rm ${PEAK_DIR_GROUPS}/${PEAKS_NAME}_peaks.narrowPeak
+  rm ${PEAK_DIR_GROUPS}/${PEAKS_NAME}_peaks.xls 
+  
+fi
 
 conda deactivate
  
