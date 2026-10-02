@@ -1,6 +1,8 @@
 #!/bin/bash
 #SBATCH --export=ALL # export all environment variables to the batch job.
+#SBATCH -p mrcq # submit to the serial queue
 #SBATCH --time=48:00:00 # Maximum wall time for the job.
+#SBATCH -A Research_Project-MRC190311 # research project to submit under. 
 #SBATCH --nodes=1 # specify number of nodes.
 #SBATCH --ntasks-per-node=16 # specify number of processors per node
 #SBATCH --mail-type=END # send email at job completion 
@@ -87,9 +89,9 @@ else
 fi
 
 ## Check that the sampleSheet exist
-if [[ -d ${META_DIR} ]] && [[ -s "${META_DIR}/sampleSheet.csv" ]]
+if [[ -d ${META_DIR} ]] && [[ -s "${SAMPLE_SHEET}" ]]
 then
-  SAMPLEIDS=( $(tail -n +2 ${META_DIR}/sampleSheet.csv  | cut -d ',' -f2) )
+  SAMPLEIDS=( $(tail -n +2 "${SAMPLE_SHEET}"  | cut -d ',' -f2) )
   echo "Sample sheet found. Number of sample IDs found:"" ""${#SAMPLEIDS[@]}"""
 else
   echo "sampleSheet.csv file does not exist in METADIR."
