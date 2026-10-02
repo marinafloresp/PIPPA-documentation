@@ -88,11 +88,11 @@ These pipeline has been originally designed to be executed with cell type sorted
 
 Parameters in [] are optional. If no step is specified, all steps in the script will be run. For more information about the inputs needed for each step and the outputs generated, please refer to each script.
 
-### 0. Set-up
+### 0. Set-up (optional)
 
 `sbatch ./jobSubmission/0_setUp.sh (project directory) `
 
-This script checks for required files, packages or libraries that are needed later in the pipeline.
+This script checks for required files, packages or libraries that are needed in the pipeline.
 
 ##### -scripts executed-
 - ./Rscripts/installLibraries.r : checks for already installed R libraries and install if not found.
@@ -101,15 +101,13 @@ This script checks for required files, packages or libraries that are needed lat
 - `(project-name)` project's directory.
 
 ##### -requires-
-- packagesPip.txt: list of packages to be installed by pip in the conda environment.
-- environment.yml: list of conda packages to be installed in conda.
+- environment.txt: list of conda packages to be installed in conda.
 - config.r: R config file with data paths and thresholds used in analysis.
 
 #### -outputs-
 - creates data folder if not found: 2_trimmed, 3_aligned, 4_calledPeaks
 - creates conda environment with required software for later subprocesses of the pipeline.
 - installs R libraries.
-
 
 ### 1. Pre-analysis (stage 1 QC) 
 
@@ -124,7 +122,7 @@ Performs pre-analysis of ATAC-seq data, including pre-alignment quality control,
 - ./subScripts/calcENCODEQCMetrics.sh (array-number): ENCODE QC metrics are calculated on aligned samples.
   
 ##### -parameters-
-- `--array`: number of batch jobs, each number matches a sample.
+- `--array`: number of batch jobs, each number matches a sample, starting from 0.
 - `(project-name)` project's directory.
 -optional-
 - `[STEPS]` Option to combine steps with desired steps included as single string, i.e. `FASTQC,TRIM`. Default if left blank is to run all steps. Options:
