@@ -1,7 +1,7 @@
 ## ===============================================================================================================##
-##                          ATAC-seq pipeline STEP 7.0: Sample list for group peak calling                        ##
+##                          ATAC-seq pipeline STEP 8.0: Sample list for group peak calling                        ##
 ## ===============================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForGroupAnalysis.r <project> <cell-group>              ||
+## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForGroupAnalysis.r <project> <cf>                      ||
 ## - execute from scripts directory                                                                               ||
 ##                                                                                                                ||
 ## DESCRIPTION: This scripts creates a file with samples that passed both stage 1 and 2 of the QC and selects     ||
@@ -9,15 +9,16 @@
 ##                                                                                                                ||
 ## INPUTS:                                                                                                        ||
 ## - <project> : project on which analysis is being run                                                           ||
-## - <ell-group>: cell fraction of samples to select for group peak calling                                       ||
+## - <cf>: cell fraction of samples to select for group peak calling                                              ||
 ##                                                                                                                ||
 ## OUTPUTS:                                                                                                       ||
-## - samplesForGroupAnalysisOrdered_<cell-group>.txt" in 0_metadata folder                                        ||
+## - "samplesForGroupAnalysisOrdered_<cf>.txt" in 0_metadata folder                                               ||
+## - "samplesGroupAnalysis.csv" in 0_metadata folder                                                              ||
 ##                                                                                                                ||
 ## REQUIRES:                                                                                                      ||
 ## - R version > 4.3                                                                                              ||
 ## - A csv file in the metadata folder with the summary of QC stages 1 and 2: passS1S2Status.csv. This is produced||
-##   at STEP 6.2 CHECK                                                                                            ||
+##   at STEP 7.2 SUMMARY                                                                                          ||
 ## ===============================================================================================================##
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -34,6 +35,7 @@ print(table(phenoAllQC$fraction))
 print(table(phenoAllQC$cohort))
 
 write.csv(phenoAllQC, file = file.path(groupAnalysisSamples), row.names = FALSE)
+
 passAllQC <- read.csv(file.path(groupAnalysisSamples), stringsAsFactors = FALSE, strip.white = TRUE)
 samples <- passAllQC[passAllQC$fraction == cf,]$sampleID
 samples <- na.omit(samples)
