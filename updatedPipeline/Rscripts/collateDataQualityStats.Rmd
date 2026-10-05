@@ -25,10 +25,8 @@ suppressWarnings(suppressPackageStartupMessages({
   library(scales)
   library(tidyr)
   library(forcats)
-  
   library(ComplexUpset)
   library(plyr)
-  
   library(vioplot)
   library(corrplot)
   library(cowplot)
@@ -36,12 +34,18 @@ suppressWarnings(suppressPackageStartupMessages({
   library(tibble)
   library(ChIPQC)
   library(plotly)
-  
   library(pheatmap)
 }))
+
 options(scipen=5)
+
 ## load config variables
 source(params$configFile)
+
+col_vals_pass  <- c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
+)
 
 ```
 
@@ -221,8 +225,8 @@ if (nrow(mergeStats) > 70) {
 <div class="scrollingimage">
 ```{r overview, echo=FALSE}
 # plot barchart of raw reads, aligned reads and reads in peaks 
-data.frame(mergeStats$sampleID, mergeStats$Total.Sequences_R1+mergeStats$Total.Sequences_R2, mergeStats$BAMTotalReads,mergeStats$ReadsinBAMPeaks) %>%
-  setNames(c('Samples', 'Raw reads (R1 + R2)', 'Aligned reads', 'Reads in peaks')) %>%
+data.frame(mergeStats$sampleID, mergeStats$Total.Sequences_R1*2, mergeStats$BAMTotalReads,mergeStats$ReadsinBAMPeaks) %>%
+  setNames(c('Samples', 'Raw reads', 'Aligned reads', 'Reads in peaks')) %>%
   melt(id='Samples') %>%
   ggplot(., aes(fill= variable, x=Samples, y=value))+
     geom_bar(position = 'dodge', stat = 'identity')+
@@ -809,11 +813,11 @@ This is a correlation matrix of the QC metrics considered so far which enables u
 ``` {r correlation, fig.width = 10, fig.height= 10}
 ## create correlation plot 
 cols2Keep <- c("TSSScore","BAMTotalReads", "TotalReadPairs_afterAlignment","total_deduplicated_percentage_R1","Sequences.flagged.as.poor.quality_R1",
-               "PercentMTReads","overall_alignment_rate", "DistinctReadPairs","NRF","PBC1","PBC2", "NFR", "Mono","p.value",
+               "PercentMTReads","overall_alignment_rate", "DistinctReadPairs","NRF","PBC1","PBC2", "NFR", "MNC","p.value",
                "BAMPeaks","FripMACS3PE")
 corMergeStats<-mergeStats[,cols2Keep]
 colnames(corMergeStats)<- c("tss",'total\nreads', 'total\npairs','dedup', 'poor\nqual', 'mt\nreads', 'alignt\nrate', 'distinct\nreads', 
-                            'NRF','PBC1',  "PBC2","PropNFR", "PropMNC", "DipP","NPeaks_PE", "FRIP_PE")
+                            'NFR','PBC1',  "PBC2","PropNFR", "PropMNC", "DipP","NPeaks_PE", "FRIP_PE")
 corMergeStats<- corMergeStats[, colSums(corMergeStats, na.rm = TRUE) != 0]
 corrplot.mixed(cor(corMergeStats, use = "p"), order = 'AOE', tl.cex=0.7, tl.col = 'black')
 ```
@@ -888,10 +892,6 @@ ComplexUpset::upset(
 Below there is a summary of the samples that passed/failed the first stage of the ATAC-seq QC pipeline. Those samples that fail don't have enough data quality to be used for downstream analyses.
 
 ```{r}
-col_vals_pass  <- c(
-  "FALSE" = "#D55E00",  # vermillion (fail)
-  "TRUE"  = "#009E73"   # bluish green (pass)
-)
   
 QCPASS.counts<-QCPASS.df %>% dplyr::count(QCPASS,fraction)
 
