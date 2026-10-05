@@ -34,7 +34,6 @@ suppressWarnings(suppressPackageStartupMessages({
   library(tibble)
   library(ChIPQC)
   library(plotly)
-  library(pheatmap)
 }))
 
 options(scipen=5)
