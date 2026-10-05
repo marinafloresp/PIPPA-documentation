@@ -16,7 +16,7 @@
 ##                                                                                                                          ||
 ## REQUIRES:                                                                                                                ||
 ## - R > 4.2, libraries: ATACseqQC, diptest, ptest, plyr ,ggplot2                                                           ||
-## - specified in config.r file: samplesList, alignedDir, qcDir                                                             ||
+## - Parameters in config.r file: samplesList, alignedDir, qcDir                                                            ||
 ## =========================================================================================================================##
 
 ## ==========##
