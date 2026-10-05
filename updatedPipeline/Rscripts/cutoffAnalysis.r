@@ -9,7 +9,7 @@
 ##                                                                                                 ||
 ## INPUTS:                                                                                         ||
 ## - <project> : project on which analysis is being run                                            ||
-## - <cf> : cell-type to perform segmented analysis on                                             ||
+## - <cf> : cell type to perform segmented analysis on                                             ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
 ## -  plot with segmented analysis results: "cutoffAnalysis_<cf>.pdf"                              ||
@@ -17,6 +17,7 @@
 ## REQUIRES:                                                                                       ||
 ## - R/4.2.1-foss-2022a, R libraries: rtracklayer, GenomicRanges, segmented,tidyr, ggplot2         ||
 ## - A peak file generated in STEP 9.3: <cf>_5e-2.sorted.narrowPeak.filt"                          ||
+## 
 ## ================================================================================================##
 
 ## ==========##
@@ -50,9 +51,6 @@ args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
 cf<-args[2]
 source(configFile)
-
-
-col_vals <- c("SOX" = "#6B8E23","TN" = "#C77CFF","NEUN" = "hotpink","IRF8" = "orange")
 
 plot_colour <- col_vals[cf]
 
