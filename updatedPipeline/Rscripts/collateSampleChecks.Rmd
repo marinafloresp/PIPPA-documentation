@@ -15,13 +15,15 @@ params:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.align='center')
 
 # load packages
-library(ggplot2)
-library(ggpubr)
-library(tidyverse)
-library(kableExtra)
-library(gridExtra)
-library(plotly)
-library(scales)
+suppressWarnings(suppressPackageStartupMessages({
+	library(ggplot2)
+	library(ggpubr)
+	library(tidyverse)
+	library(kableExtra)
+	library(gridExtra)
+	library(plotly)
+	library(scales)
+}))
 
 source(params$configFile)
 
@@ -49,7 +51,7 @@ pub_theme <- theme_classic(base_size = 12) +
 
 ## Overview
 
-Having already excluded samples that did not work experimentally, we will now confirm whether the sample matchs the phenotype data we have as a secondly confirmation of data quality and to identify any sample switches. To do this we will perform a sex prediction using the X and Y chromosomes and compare to matched genotype data. 
+Having already excluded samples that did not work experimentally, we will now confirm whether the sample matches the phenotype data we have as a secondly confirmation of data quality and to identify any sample switches. To do this we will perform a sex prediction using the X and Y chromosomes and compare to matched genotype data. 
 
 In total, `r nrow(pheno)` samples were profiled and `r nrow(s1Pass[s1Pass$QCPASS==TRUE,])` samples passed stage 1 (data quality) of the QC. 
 
@@ -117,7 +119,6 @@ yPeaksWide = yPeaks %>%
 xPeaksWide$sampleID<-gsub(".chrX.bam", "", xPeaksWide$sampleID, fixed = TRUE)
 yPeaksWide$sampleID<-gsub(".chrY.bam", "", yPeaksWide$sampleID,fixed = TRUE)
 
-
 xPeaksWide<-xPeaksWide[match(pheno$sampleID,xPeaksWide$sampleID), ]
 yPeaksWide<-yPeaksWide[match(pheno$sampleID,yPeaksWide$sampleID),]
 
@@ -163,7 +164,7 @@ a2 <- ggplot(xPeaks.plot, aes(x=XIST, y=YTot, color=sex, label= sampleCode)) +
   geom_point() + 
   labs(
     x = "Counts in XIST associated peak",
-    y = "Counts across all Y chr peaks",color = "Sex"
+    y = "Counts across all X chr peaks",color = "Sex"
   ) +
   guides(
     color = guide_legend(
@@ -199,7 +200,6 @@ ggplotly(a1, tooltip = c("label"))
 ```{r, fig.width = 8}
 ggplotly(a2, tooltip = c("label"))
 ```
-
 
 Sex predictions were made for `r sum(is.na(sexPredict$FIRREratio))` samples. `r sum(sexPredict$concordantPredictions, na.rm = TRUE)` samples were predicted the same sex using both X chromosome metrics. 
 
@@ -244,9 +244,6 @@ Aligned ATAC bam files were compared to imputed genotype data using verifyBamID.
 Firstly this software looks for evidence of contamination, using genotypes from within the ATAC bam file.The distribution of this metric is shown below. It is bounded between 0 and 1, with 0 reflecting no contamination. This value can be roughly interpreted as representing the proportion of non-reference bases that are observed in reference sites. 
 
 ```{r}
-#hist(genoScores$FREEMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Proportion contamination (FREEMIX)", main = "")
-#abline(v = 0.02)
-
 ggplot(genoScores, aes(x = FREEMIX))+ # select x values based on column index rather than name
           geom_histogram(bins = 50,fill ='gray')+
   geom_vline(xintercept=0.1, color = "orange")+ 
@@ -259,8 +256,6 @@ ggplot(genoScores, aes(x = FREEMIX))+ # select x values based on column index ra
 Secondly, it compares the sequence in the bam file to genotypes for that individual and calculates a contamination score that incorporates the genotype data for that sample. Here a value of ~ 0 indicates no contamination and therefore this matches the provided genotype data. A value of ~ 1 indicates that the sample does not have any contamination but it does not match the genotype data.   
 
 ```{r}
-#hist(genoScores$CHIPMIX, breaks = 50, col = "grey", ylab = "Number of samples", xlab = "Potential swap (CHIPMIX)", main = "")
-
 ggplot(genoScores, aes(x = CHIPMIX))+ # select x values based on column index rather than name
           geom_histogram(bins = 50,fill ='lightgray')+
   geom_vline(xintercept=0.1, color = "orange")+ 
