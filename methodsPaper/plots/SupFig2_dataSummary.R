@@ -1,6 +1,6 @@
-######################################
-##       Supplementary Fig 2,3      ##
-######################################
+####################################
+##       Supplementary Fig 2      ##
+####################################
 
 suppressWarnings(suppressPackageStartupMessages({
   library(corrplot)
