@@ -3,180 +3,20 @@
 ######################################
 
 suppressWarnings(suppressPackageStartupMessages({
-  library(dplyr)
-  library(plyr)
-  library(knitr)
-  library(vioplot)
   library(corrplot)
   library(ggplot2)
   library(reshape2)
-  library(gridExtra)
-  library(cowplot)
-  library(kableExtra)
-  library(scales)
-  library(tibble)
-  library(ChIPQC)
-  library(plotly)
-  library(tidyr)
   library(pheatmap)
   library(cowplot)
   library(patchwork)
+  library(scales)
 }))
 
-## load config variables
 args <- commandArgs(trailingOnly=TRUE)
 configFile<-args[1]
-cf<-args[2]
 source(configFile)
 
-col_vals_pass <- c(
-  "FALSE" = "#D55E00",  # vermillion (fail)
-  "TRUE"  = "#009E73"   # bluish green (pass)
-)
-
-## Gather all QC Stage 1 data and results ##
-pheno<-read.table(sampleSheet, header = TRUE, sep = ',', stringsAsFactors = FALSE)
-pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
-
-processSum <- read.csv(file.path(paste0(metaDir,"/summariseSampleProcessingProgress.csv")), stringsAsFactors = FALSE, strip.white = TRUE)
-fastqc<-read.table(file.path(paste0(fastQCDir,"/multiqc/multiqc_data/multiqc_fastqc.txt")), sep = "\t", header = TRUE, stringsAsFactors = FALSE)
-readCounts<-read.table(file.path(paste0(alignedDir, "/countMTReads.txt")), fill = TRUE, skip = 1)
-alignQC<-read.table(file.path(paste0(alignedDir, "/multiqc/multiqc_data/multiqc_bowtie2.txt")), sep = "\t", header = TRUE, stringsAsFactors = FALSE)
-flagstat<-read.csv(file.path(paste0(alignedDir, "/ENCODEMetrics/collateFlagStatMetrics.txt")), header = FALSE)
-flagstat<- flagstat[,c(1:ncol(flagstat)-1)]
-
-# wrangle data
-missingCol<-setdiff(c("sequencingBatch", "sampleID", "sampleCode", "cohort", "fraction", "experiment", "individualID"), colnames(pheno))
-if (length(missingCol) != 0 ) {
-  if ("sequencingBatch" %in% missingCol){
-    pheno$sequencingBatch<-pheno$cohort
-      if (length(missingCol) > 1) {
-      warning('Incorrect column names. Missing column(s): ', list(missingCol))
-      stop()
-    }
-  }
-}
-## exclude duplicates from metadata
-dups<-names(which(table(paste(pheno$individualID, pheno$fraction, pheno$tissue, sep = "_")) > 1))
-pheno<-unique(pheno[,intersect(c("sequencingBatch", "sampleID","sampleCode", "cohort","fraction","individualID", "tissue"), colnames(pheno))])
-
-idx <- match(pheno$sampleID, processSum$sampleID)
-processSum <- processSum[idx[!is.na(idx)], ]
-processSum$sampleCode <- pheno[match(processSum$sampleID, pheno$sampleID),]$sampleCode
-colsKeep<-c("sampleID","sampleCode", "R1Filename","R2Filename")
-mergeStats <- processSum[,colsKeep]
-
-## wrangle multiqc stats to retain important columns
-colsKeep<-c("Total.Sequences","total_deduplicated_percentage", "Sequences.flagged.as.poor.quality")
-R1stats <- fastqc[match(processSum$R1Filename, fastqc$Filename),colsKeep]
-colnames(R1stats) <- paste0(colnames(R1stats) , "_R1")
-R2stats <- fastqc[match(processSum$R2Filename, fastqc$Filename),colsKeep]
-colnames(R2stats) <- paste0(colnames(R2stats) , "_R2")
-mergeStats<-cbind(mergeStats,R1stats,R2stats )
-
-## calculate percentage of mitochondrial reads
-readCounts<-readCounts[match(mergeStats$sampleID, readCounts$V1),]
-MTpercentReads <- readCounts$V2/readCounts$V3*100
-mergeStats$"PercentMTReads" <- MTpercentReads
-
-## select alignment columns and match to sampleIDs
-aIndex<-match(mergeStats$sampleID, gsub("\\.bowtie", "", alignQC$Sample))
-alignQC$aligned_total<-rowSums(alignQC[,c("paired_aligned_one", "paired_aligned_multi")])
-mergeStats<-cbind(mergeStats,alignQC[aIndex,c("overall_alignment_rate", "aligned_total")])
-
-## load flagstat metrics calculated as part of encode qc pipeline
-files<-list.files(paste0(alignedDir, "/ENCODEMetrics"), pattern = "\\.pbc\\.qc$")
-eMetrics <- do.call(rbind, lapply(files, function(each) {
-  tmp <- read.table(
-    file.path(alignedDir, "ENCODEMetrics", each)
-  )
-  if (ncol(tmp) != 7) {
-    tmp <- as.data.frame(matrix(NA, nrow = 1, ncol = 7))
-  }
-  tmp$sampleID <- sub("\\.pbc\\.qc$", "", each)
-  tmp
-}))
-
-colnames(eMetrics)<-c("TotalReadPairs_afterAlignment","DistinctReadPairs","OneReadPair","TwoReadPairs","NRF","PBC1","PBC2", "Sample")
-eIndex<-match(mergeStats$sampleID, eMetrics$Sample)
-eMetrics<-eMetrics[eIndex,]
-mergeStats<-cbind(mergeStats,eMetrics)
-mergeStats <- subset(mergeStats, select = -Sample)
-
-## Merge Peak calling and FRIP results
-fripStats <- read.csv(file.path(fripFile), stringsAsFactors = FALSE, strip.white = TRUE)
-fripStats$FripMACS3PE <- fripStats$ReadsinBAMPeaks/fripStats$BAMTotalReads
-eIndex<-match(mergeStats$sampleID, fripStats$SampleName)
-fripStats<-fripStats[eIndex,]
-mergeStats <- cbind(mergeStats, fripStats[, c("ReadsinBAMPeaks","BAMTotalReads","BAMPeaks","FripMACS3PE")] )
-mergeStats$TotalNumReads <- mergeStats$BAMTotalReads
-
-## load periodicity metrics 
-filePaths <- list.files(file.path(alignedDir,"/QCOutput/"), pattern = "FragmentDistribution_*")
-propNucleosomesAll <- do.call(rbind, lapply(filePaths, function(each) {
-
-  load(file.path(alignedDir, "QCOutput", each))
-
-  propNucleosomes
-}))
-colnames(propNucleosomesAll) <- c("NFR", "Mono", "Di", "Tri", "Quad")
-eIndex<-match(mergeStats$sampleID, rownames(propNucleosomesAll))
-propNucleosomesAll<-propNucleosomesAll[eIndex,]
-mergeStats <- cbind(mergeStats,propNucleosomesAll)
-                    
-diptestStatsAll <- do.call(rbind, lapply(filePaths, function(each) {
-
-  load(file.path(alignedDir, "QCOutput", each))
-
-  diptestStats
-}))
-eIndex<-match(mergeStats$sampleID, gsub("\\.D$", "", rownames(diptestStatsAll)))
-diptestStatsAll<-diptestStatsAll[eIndex,]
-mergeStats <- cbind(mergeStats,diptestStatsAll)
-
-## add more metadata info
-mergeStats <- mergeStats %>%
-  left_join(pheno %>% select("sampleID","sequencingBatch","cohort", "fraction"), by = "sampleID")
-
-## count number of samples with X million reads
-readThres<-seq(0,max(mergeStats$Total.Sequences_R1, na.rm = TRUE)+10^6, 10^6)
-nSamples<-matrix(data = NA, nrow = length(readThres), ncol = length(unique(mergeStats$sequencingBatch))+1)
-for(i in readThres){
-  nSamples[1+(i/10^6),1] <- sum(mergeStats$Total.Sequences_R1 > i, na.rm = TRUE)
-  colNum<-2
-  for(each in unique(mergeStats$sequencingBatch)){
-    nSamples[1+(i/10^6),colNum] <- sum(mergeStats[which(mergeStats$sequencingBatch == each),3] > i, na.rm = TRUE)
-    colNum<-colNum+1
-  }
-}
-
-## a successful ATAC experiment should have decreasing proportions in the nucleosome, mono, di,tri- nucleosomes
-## define a tolerance for these comparisons
-tol <- 0
-decreasingProps<-cbind(mergeStats$NFR+tol > mergeStats$Mono, 
-                       mergeStats$Mono+tol > mergeStats$Di, 
-                       mergeStats$Di+tol > mergeStats$Tri
-)
-colnames(decreasingProps)<-c("NFR>Mono", "Mono>Di", "Di>Tri")
-mergeStats <- cbind(mergeStats,decreasingProps)
-
-## Load TSS enrichment scores
-tssSamples <- read.table(tssEnrich,header= TRUE)
-eIndex<-match(mergeStats$sampleID, tssSamples$sample)
-tssSamples<-tssSamples[eIndex,]
-mergeStats <- cbind(mergeStats,TSSScore = tssSamples$"TSS_enrichment")
-
-QCPASS.df <- read.csv(file.path(qc1pass),header = TRUE, sep = ',', stringsAsFactors = FALSE)
-QCPASS.df <- QCPASS.df[,-1]
-qcStats <- read.csv(file.path(qc1stats),header = TRUE, sep = ',', stringsAsFactors = FALSE)
-qcStats$qcpass <- QCPASS.df[match(qcStats$sampleID, QCPASS.df$sampleID),]$QCPASS
-mergeStats$totalreads<-mergeStats$Total.Sequences_R1+mergeStats$Total.Sequences_R2
-mergeStats$total_deduplicated_percentage_mean<-(mergeStats$total_deduplicated_percentage_R1+mergeStats$total_deduplicated_percentage_R2)/2
-qcStats$NumReadsbeforeQC <- mergeStats[match(qcStats$sampleID,mergeStats$sampleID),]$totalreads
-qcStats$UniqueNumReadsQC <- mergeStats[match(qcStats$sampleID,mergeStats$sampleID),]$total_deduplicated_percentage_mean
-
-head(qcStats)
-table(qcStats$QCPASS)
+## Universal theme for plotting ## 
 
 pub_theme <- theme_classic(base_size = 12) +
   theme(
@@ -189,27 +29,37 @@ pub_theme <- theme_classic(base_size = 12) +
     legend.key.width = unit(2.2, "cm")
   )
 
+col_vals_pass <- c(
+  "FALSE" = "#D55E00",  # vermillion (fail)
+  "TRUE"  = "#009E73"   # bluish green (pass)
+)
+
+## Load file with QC Stage 1 results ##
+qcStats <- read.csv("qcStage1Results.csv") 
+
+
 dfa <- data.frame(
   Samples = qcStats$sampleID,
   qcpass = qcStats$qcpass,
   reads = qcStats$NumReadsbeforeQC
 ) 
- 
+
 plot.a <- ggplot(dfa, aes( x = reads)) +
   geom_histogram(bins = 100,fill ='gray')+
-  labs( x = 'Number of reads (R1 + R2)', y = "Number of samples", title = "A") +
+  labs( x = expression("Number of reads (" ~ x ~ 10^6 ~ ")"), y = "Number of samples", title = "A") +
   pub_theme +
   scale_x_continuous(
-    labels = label_number(suffix = "M", scale = 1e-6)
+    labels = label_number(suffix = "", scale = 1e-6)
   )
 
 dfb <- data.frame(
   Samples = qcStats$sampleID,
   reads = qcStats$UniqueNumReadsQC
 )
+
 plot.b <- ggplot(dfb,aes(x =  reads))+
 geom_histogram(bins = 100,fill ='gray')+
-  labs(x  = '% unique reads (mean R1 + R2)', y = "Number of samples", title = "B")+
+  labs(x  = '% unique reads', y = "Number of samples", title = "B")+
   pub_theme 
 
 align_f <- qcStats
@@ -223,20 +73,21 @@ plot.c <- ggplot(align_f, aes(x = AlignmentRate,fill = qcpass))+
   labs(x  = '% Alignment rate', y = "Number of samples", title = "C", fill = "PASS")+
   pub_theme 
 
-mergeStats$qcpass <- ifelse(mergeStats$BAMTotalReads > numReads*10^6, "TRUE", "FALSE")
-plot.d <- ggplot(mergeStats, aes(x = BAMTotalReads,fill = qcpass))+
+qcStats$qcpass <- ifelse(qcStats$TotalNumReads > numReads*10^6, "TRUE", "FALSE")
+plot.d <- ggplot(qcStats, aes(x = TotalNumReads,fill = qcpass))+
   geom_histogram(bins = 100)+
   geom_vline(xintercept=numReads*10^6,
              color ='red')+
   scale_fill_manual(values = col_vals_pass) +           
-  labs(x =  'Number of reads aligned (after QC)', y = "Number of samples", fill = "PASS",title = "D")+
+  labs(x =  expression("Number of reads aligned (" ~ x ~ 10^6 ~ ")"), y = "Number of samples", fill = "PASS",title = "D")+
   pub_theme +
-	scale_x_continuous(labels = label_number(suffix = "M", scale = 1e-6))
+	scale_x_continuous(labels = label_number(suffix = " ", scale = 1e-6))
 
-plot.e <- ggplot(mergeStats, aes(x =  PercentMTReads))+
+plot.e <- ggplot(qcStats, aes(x =  PercentMTReads))+
   geom_histogram(bins = 100,fill ='gray')+
   labs(x  = '% MT reads', y = "Number of samples", title = "E")+
   pub_theme 
+  
   
 eMetrics_f <- qcStats
 eMetrics_f$qcpass <- ifelse(eMetrics_f$PBC1 > pbc1Thres, "TRUE", "FALSE")
@@ -299,7 +150,7 @@ plot.g <- plot.g + theme(legend.position = "none")
 plot.h <- plot.h + theme(legend.position = "none")
 plot.i <- plot.i + theme(legend.position = "none")
 plot.j <- plot.j + theme(legend.position = "none")
-plot.k <- plot.k + theme(legend.position = "none")
+plot.k <- plot.k + theme(legend.position = "bottom")
 
 
 combined_figall <- (plot.a + plot.b + plot.c +
@@ -318,22 +169,21 @@ FFGGHH
 JJJKKK
 JJJKKK
 "
-)+ 
-  plot_layout(guides = "collect"             # <-- collect all legends into guide_area()
-  ) & theme(
-  legend.position = "bottom"
-))
+)
+  )
 
 ggsave(
-  filename = paste0("SupplementaryFig_2.png"),
+  filename = paste0("SupplementaryFig_2_D1.png"),
   plot = combined_figall,
-  width = 12,
+  width = 13,
   height = 17)
   
 ggsave(
-  filename = paste0("SupplementaryFig_2.pdf"),
+  filename = paste0("SupplementaryFig_2_D1.pdf"),
   plot = combined_figall,
-  width = 12,
+  width = 13,
   height = 17
 )
+
+
 
