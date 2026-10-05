@@ -143,6 +143,9 @@ if(nSamples > 0){
   labs(x="Fragment size (bp)",y="Frequency", title=names(BatchSamples.split)[i]) +scale_x_continuous(breaks=axis1, limits = c(0, 800))
   }
 
+## ========##
+##  PLOTS  ##
+## ========##
   pdf(file.path(paste0(qcDir, "/FSD_", gsNumber, ".pdf")), width = 10, height = 5)
   print(p)
   dev.off()
