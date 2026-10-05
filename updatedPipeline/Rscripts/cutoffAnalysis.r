@@ -90,7 +90,11 @@ df <- data.frame(
     count = counts_list
 )
 
-##segmented analysis: fits two linear regimes and estimates a breakpoint.
+## ======================##
+##   SEGMENTED ANALYSIS  ##
+## ======================##
+
+#segmented analysis: fits two linear regimes and estimates a breakpoint.
 model <- lm(count ~ logQ, data = df)
 seg_model <- segmented(
     model,
