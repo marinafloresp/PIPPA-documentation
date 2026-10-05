@@ -11,15 +11,18 @@
 ## - <configFile> : config file of project on which analysis is being run                          ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
-## -  counts in peaks (all peaks) file: peakCounts.rdata in 5_countPeaks folder                    ||
+## - consensus peak set across cell types: "consensusPeaks_5e-2_passS1-2.narrowPeak.bed" in        ||
+## 4_calledPeaks folder                                                                            ||
+## - counts in peaks (all peaks) file: peakCounts.rdata in 5_countPeaks folder                     ||
+## - differential accessibility results file: diffPeaksCountsAll.rdata in 5_countPeaks folder      ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
 ## - R version > 4.3, R libraries: Rsubread, GenomicRanges, ChIPpeakAnno,ChIPseeker                ||
 ##   TxDb.Hsapiens.UCSC.hg38.knownGene,org.Hs.eg.db                                                ||
 ## - A csv file in the metadata folder with samples used for group peak calling:                   || 
 ##   samplesGroupAnalysis.csv. This is produced in STEP 8.0                                        ||
-## - Parameters in config.r file: groupAnalysisSamples, sampleSheet, macs_thres_group, groupsPeaks //
-##   groupCountsAll, diffPeaksCountsAll                                                             ||
+## - Parameters in config.r file: groupAnalysisSamples, sampleSheet, macs_thres_group, groupsPeaks ||
+##   groupCountsAll, diffPeaksCountsAll                                                            ||
 ## ================================================================================================##
 
 ## ==========##
@@ -33,8 +36,6 @@ source(configFile)
 suppressWarnings(suppressPackageStartupMessages({
   library(Rsubread)
   library(GenomicRanges)
-  library(ChIPpeakAnno)
-  library(ChIPseeker)
   library(rtracklayer)
   library(TxDb.Hsapiens.UCSC.hg38.knownGene)
   library(org.Hs.eg.db)
@@ -67,11 +68,10 @@ for(each in peakFiles){
 }
 
 peaks<-reduce(unlist(GRangesList(peaks)),min.gapwidth = 150)
+## save consensus peak set ##
 export(peaks, con = paste0(groupsPeaks,"/consensusPeaks_",macs_thres_group,"_passS1-2.narrowPeak.bed"), format = "bed")
 
-## Annotate peaks
-peaksAnno<-annotatePeak(peaks, tssRegion=c(-1000, 1000),TxDb=TxDb.Hsapiens.UCSC.hg38.knownGene, annoDb="org.Hs.eg.db", verbose = FALSE)
-
+## gather bam files for read counts in peaks ##
 bamFiles<-list.files(alignedDir, pattern = "*.filt.nodup.bam$", recursive = TRUE, include.dirs = TRUE)
 sampleNames<-gsub(".filt.nodup.bam$", "", bamFiles)
 sampleNames <- sampleNames[sampleNames %in% pheno$sampleID]
@@ -90,16 +90,18 @@ print(groupCountsAll)
 
 ctPeaks <- data.frame(peaks)
 ctPeaks$GeneID <- paste0("Peak_", row.names(ctPeaks))
-ctPeaks <- ctPeaks[c(6,1,2,3,5)]
+ctPeaks <- ctPeaks[c( "GeneID","seqnames","start","end","strand")]
 names(ctPeaks) <- c("GeneID", "Chr", "Start", "End", "Strand")
-
 print("Getting counts in peaks")
 ## Get counts in all peaks
 fc_ctPeaks <- featureCounts(file.path(bamFiles),annot.ext=ctPeaks, allowMultiOverlap = TRUE, isPairedEnd = TRUE, nthreads = 10, fracOverlap=0.2)
 save(fc_ctPeaks, file = groupCountsAll)
 print("Counts in peaks matrix done")
 
-## Differential accessible analysis is done to get topmost differential peaks
+## Differential accessible analysis is done to get topmost differential peaks ##
+## File name specified in config file
+print("Differential peaks file name is: ")
+print(diffPeaksCountsAll)
 counts <- fc_ctPeaks$counts
 colnames(counts) <- sub("\\.filt\\.nodup\\.bam$", "", colnames(counts))
 cnt_table <- fc_ctPeaks$annotation
@@ -127,8 +129,4 @@ results <- as.data.frame(results[order(results$PValue),])
 results$Geneid <- rownames(results)
 results$Bon <- p.adjust(results$PValue, method="bonferroni")
 results$FDR <- p.adjust(results$PValue, method="fdr")
-
-## File name specified in config file
-print("Differential peaks file name is: ")
-print(diffPeaksCountsAll)
 save(results,  file = diffPeaksCountsAll)
