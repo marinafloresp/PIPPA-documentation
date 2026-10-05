@@ -52,7 +52,7 @@ corMergeStats<-cbind(qcStats$TotalNumReads,
                      qcStats$MNC,
                      qcStats$AlignmentRate)
 head(corMergeStats)                
-colnames(corMergeStats)<- c('Total\nreads', 'NRF', 'PBC1', 'PBC2', "%NFR", "%Mono", 'Alingment\nrate')
+colnames(corMergeStats)<- c('Total\nreads', 'NRF', 'PBC1', 'PBC2', "%NFR", "%MNC", 'Alingment\nrate')
 
 corMergeStats<- corMergeStats[, colSums(corMergeStats, na.rm = TRUE) != 0]
 
