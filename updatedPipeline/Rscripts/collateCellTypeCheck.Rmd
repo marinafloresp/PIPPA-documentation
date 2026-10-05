@@ -16,26 +16,31 @@ params:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.align='center', echo = TRUE)
 options(scipen=5)
 
-library(plotly)
-library(Rsubread)
-library(scater)
-library(GenomicRanges)
-library(Matrix)
-library(edgeR)
-library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-library(gridExtra)
-library(ggpubr)
-library(DESeq2)
-library(ggplot2)
-library(pheatmap)
-library(RColorBrewer)
-library(dplyr)
-library(cluster)
-library(BSgenome.Hsapiens.UCSC.hg38)
-library(ggExtra)
-library(corrplot)
-library(kableExtra)
-library(PCAtools)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.align='center', echo = TRUE)
+options(scipen=5)
+
+suppressWarnings(suppressPackageStartupMessages({
+  library(plotly)
+  library(Rsubread)
+  library(scater)
+  library(GenomicRanges)
+  library(Matrix)
+  library(edgeR)
+  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+  library(gridExtra)
+  library(ggpubr)
+  library(DESeq2)
+  library(ggplot2)
+  library(pheatmap)
+  library(RColorBrewer)
+  library(dplyr)
+  library(cluster)
+  library(BSgenome.Hsapiens.UCSC.hg38)
+  library(ggExtra)
+  library(corrplot)
+  library(kableExtra)
+  library(PCAtools)
+}))
 
 source(params$configFile)
 
@@ -50,21 +55,7 @@ pheno <- metadata[metadata$sampleID %in% passSamples$sampleID,]
 
 pheno$sequencingBatch <- as.factor(pheno$sequencingBatch)
 pheno<- droplevels(pheno)
-
-pheno$fraction[pheno$fraction == "SOX"] <- "SOX10+"
-pheno$fraction[pheno$fraction == "NEUN"] <- "NeuN+"
-pheno$fraction[pheno$fraction == "IRF8"] <- "IRF8+"
-
 df_ordered <- pheno[order(pheno$fraction), ]
-groups <- as.factor(df_ordered$fraction)
-
-if(length(cellTypes) == 4){
-  col_vals <- col_vals4CT
-} else if (length(cellTypes) == 3) {
-  col_vals <- col_vals3CT
-} else {
-  col_vals <-  col_vals2CT
-}
 ```
 
 ```{r}
@@ -224,7 +215,7 @@ load(groupCountsAll)
 counts.raw <- loadCounts(fc_ctPeaks$counts)
 cnt_table <- fc_ctPeaks$annotation
 
-#filter and align metadata
+## filter and align phenotype information 
 pheno.filt <- pheno[pheno$sampleID %in% colnames(counts.raw),]
 pheno.filt <- pheno.filt[match(colnames(counts.raw),pheno.filt$sampleID),]
 stopifnot(all(colnames(counts.raw) == pheno.filt$sampleID))
@@ -274,7 +265,6 @@ counts_to_plot <- counts.dif
 ```
 
 ### 3.1 Clustering of samples
-
 
 #### Principal component analysis
 
@@ -406,7 +396,6 @@ knitr::kable(counts)
 ```
 
 ```{r, echo = FALSE}
-
 DT::datatable(wrongCT)
 ```
 
@@ -418,7 +407,7 @@ passSamples$QCS3 <- pheno.filt[match(pheno.filt$sampleCode,passSamples$sampleCod
 ##list of samples
 samplesPassAll <- passSamples[passSamples$QCS3 == TRUE,]$sampleID
 
-#write.table(samplesPassAll,file = qc3passList, row.names = FALSE, col.names = FALSE)
+write.table(samplesPassAll,file = qc3passList, row.names = FALSE, col.names = FALSE)
 ```
 
 ```{r}
@@ -440,7 +429,6 @@ allQC$PASSALL <- ifelse(allQC$QCS1 == TRUE & allQC$QCS2 == TRUE & allQC$QCS3 == 
 write.csv(allQC, file = allQCresults, row.names = FALSE)
 
 ```
-
 
 ```{r}
 ## Collate results from previous Stage 1 and 2, and new Stage 3 results in a single table
