@@ -3,21 +3,13 @@
 #####################################
 
 suppressWarnings(suppressPackageStartupMessages({
-  library(dplyr)
-  library(plyr)
-  library(knitr)
-  library(vioplot)
   library(corrplot)
   library(ggplot2)
   library(reshape2)
-  library(gridExtra)
+  library(pheatmap)
   library(cowplot)
-  library(kableExtra)
-  library(scales)
-  library(tibble)
-  library(ChIPQC)
-  library(tidyr)
   library(patchwork)
+  library(scales)
 }))
 
 ## for plotting ##
