@@ -98,6 +98,10 @@ fc_ctPeaks <- featureCounts(file.path(bamFiles),annot.ext=ctPeaks, allowMultiOve
 save(fc_ctPeaks, file = groupCountsAll)
 print("Counts in peaks matrix done")
 
+## ================##
+##   DAR analysis  ##
+## ================##
+                                               
 ## Differential accessible analysis is done to get topmost differential peaks ##
 ## File name specified in config file
 print("Differential peaks file name is: ")
