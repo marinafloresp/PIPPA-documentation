@@ -53,6 +53,10 @@ source(configFile)
 
 plot_colour <- col_vals[cf]
 
+## ===============##
+##   GATHER DATA  ##
+## ===============##
+
 ## get peaks called with q5e-2, only blacklisted regions peaks filtered
 peakFile <- paste0(peaksAnalysis,"/", cf,"/", cf,"_",macs_thres_group,".narrowPeak.filt")
 peaks.gr<-makeGRangesFromDataFrame(read.table(file.path(peakFile)), keep.extra.columns=TRUE, seqnames.field="V1",
@@ -118,6 +122,10 @@ ymax <- max(df$count)
 seg_y <- seq(ymax * 0.95,ymax * 0.80,length.out = length(seg_breaks))
 ci_low_y <- seq(ymax * 0.75,ymax * 0.65,length.out = length(ci_lower))
 ci_up_y <- seq(ymax * 0.60,ymax * 0.50,length.out = length(ci_upper))
+
+## ===============================##
+##   GENERATE PLOT WITH ANALYSIS  ##
+## ===============================##
 
 pdf(file.path(paste0(peaksCutoff, "/cutoffAnalysis_", cf,".pdf")), width = 10, height = 5)
 
