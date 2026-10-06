@@ -1,5 +1,5 @@
 #####################################
-##       Supplementary Fig 12      ##
+##       Supplementary Fig 13      ##
 #####################################
 
 library(kneedle)
@@ -53,7 +53,7 @@ peaks.df <- peakSets
 peakSets$fraction <- cf
 df.list <- peaks.df
 
-# ########################## Fig 7.a ###########################################
+# ########################## Fig Sup 13.a ###########################################
 # Violin plots of distribution of number of samples overlap with (y-axis)
 # q-value threshold (x-axis). 
 # coloured by cell-fraction (facets)
@@ -84,7 +84,7 @@ peaks.df$threshold_exp <- factor(
   levels = c(1.3, seq(10, 100, 5))
 )
 
-p1 <- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+ 
+p13a <- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+ 
   geom_violin(scale = "width", fill = "#6B8E23")+
   geom_boxplot(width = 0.05, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")+
@@ -96,9 +96,8 @@ p1 <- ggplot(peaks.df, aes(x = threshold_exp, y = n_samples))+
   pub_theme +
   theme(
     legend.position = "none")
-p1
 
-# ########################## Fig 12.b ###########################################
+# ########################## Fig Sup 13.b ###########################################
 # Line graph of number of peaks (y-axis)
 # q-value threshold (x-axis) 
 # with one line per “peak size group”.  
@@ -169,8 +168,7 @@ plot_df$threshold_exp <- ifelse(
   1.3,
   as.numeric(sub("1e-", "", plot_df$threshold_log))
 )
-#line-graph version of plot
-p2 <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) +
+p13b <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) +
   geom_line(linewidth = 1)+
   labs(
     x = "Q value",
@@ -185,9 +183,8 @@ p2 <-ggplot(plot_df, aes(x = threshold_log, y = n, group=group, color = group)) 
   pub_theme +
   theme(
     legend.position = "bottom")
-p2
 
-# ########################## Fig 12.c ###########################################
+# ########################## Fig Sup 13.c ###########################################
 # Line graph of number of peaks (y-axis) 
 # q-value threshold (x-axis) with
 # one line per overlap with 0,1,2,3 samples etc.  
@@ -215,8 +212,7 @@ df_plot$threshold_exp <- ifelse(
   as.numeric(sub("1e-", "", df_plot$threshold_log))
 )
 
-#line-graph version of plot
-p3 <-ggplot(df_plot, aes(x = threshold_exp, y = count, group=n_samples, color = n_samples)) +
+p13c <-ggplot(df_plot, aes(x = threshold_exp, y = count, group=n_samples, color = n_samples)) +
   #geom_point() +
   geom_line(linewidth = 1)+
   scale_x_continuous(
@@ -231,24 +227,23 @@ p3 <-ggplot(df_plot, aes(x = threshold_exp, y = count, group=n_samples, color = 
   theme(
     legend.position = "bottom"
   )
-p3
 
 design <- "AAAAAA
            AAAAAA
            BBBCCC
            BBBCCC"
 
-supFig12 <- free(p1) + p2 + p3 +  plot_layout(design = design)
+supFig13 <- free(p13a) + p13b + p13c +  plot_layout(design = design)
 
 ggsave(
-  filename = paste0("SupplementaryFig_12_D1_SOX.png"),
-  plot = supFig12,
+  filename = paste0("SupplementaryFig_13_D1_SOX.png"),
+  plot = supFig13,
   width = 17,
   height = 12
 )
 ggsave(
-  filename = paste0("SupplementaryFig_12_D1_SOX.pdf"),
-  plot = supFig12,
+  filename = paste0("SupplementaryFig_13_D1_SOX.pdf"),
+  plot = supFig13,
   width = 17,
   height = 12
 )
