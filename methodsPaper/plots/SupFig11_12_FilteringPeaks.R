@@ -1,5 +1,5 @@
 ########################################
-##       Supplementary Fig 10,11      ##
+##       Supplementary Fig 11,12      ##
 ########################################
 
 library(tidyr)
@@ -54,7 +54,7 @@ colnames(tableCounts.merged.df) <- c("chr", "start", "end", "width", "strand", "
 tableCounts.merged.df$pvals <- 10^(-tableCounts.merged.df$pvalue)
 tableCounts.merged.df$qvals<- 10^(-tableCounts.merged.df$qvalue)
 
-# ########################## Fig Sup 10.b ###########################################
+# ########################## Fig Sup 11.b ###########################################
 # Stacked bar plot graph of % from total peaks (y-axis) 
 # number of reads (x-axis) for default thresholds
 # with separate groups based on number of samples peaks overlap with
@@ -94,7 +94,7 @@ plot_df <- plot_df %>%
       )
     )
   )
-p10b <- ggplot(plot_df, aes(
+p11b <- ggplot(plot_df, aes(
     x = factor(setReads),
     y = percentage,
     fill = overlap_group
@@ -109,7 +109,7 @@ p10b <- ggplot(plot_df, aes(
   ) + theme(legend.position = "none")
 
 
-# ########################## Fig Sup 10.c ###########################################
+# ########################## Fig Sup 11.c ###########################################
 # Stacked bar plot graph of number of peaks (y-axis) 
 # number of reads (x-axis) for default thresholds
 # with separate groups based on number of samples peaks overlap with
@@ -151,7 +151,7 @@ plot_df <- plot_df %>%
   )
 
 
-p10c <- ggplot(plot_df, aes(
+p11c <- ggplot(plot_df, aes(
   x = factor(setReads),
   y = partNum,
   fill = overlap_group
@@ -166,7 +166,7 @@ p10c <- ggplot(plot_df, aes(
 
 
 
-# ########################## Fig Sup 10.a ###########################################
+# ########################## Fig Sup 11.a ###########################################
 # Line graph of mean number of samples each peak overlaps with (y-axis) 
 # number of reads (x-axis) for default thresholds
 # with separate lines for different groups of peak sizes (i.e. very narrow, narrow,…)
@@ -193,7 +193,7 @@ plot_df <- tableCounts.merged.df %>%
 plot_df[plot_df$setReadsfact == 100,]
 
 #line-graph version of plot
-fig10 <-ggplot(plot_df, aes(x = factor(setReadsfact), y = mean_n_sample, group=widthgroup,
+p11a <-ggplot(plot_df, aes(x = factor(setReadsfact), y = mean_n_sample, group=widthgroup,
                             color = widthgroup )) +
   geom_point() +
   geom_line(linewidth = 1)+
@@ -206,60 +206,60 @@ fig10 <-ggplot(plot_df, aes(x = factor(setReadsfact), y = mean_n_sample, group=w
   theme(
     legend.position = "bottom"
   )
-fig10
+p11a
 
 legend_A <- get_legend(
-  fig10 +
+  p11a +
     theme(legend.position = "bottom")
 )
 
 # Extract B/C legend
 legend_BC <- get_legend(
-  p10b +
+  p11b +
     theme(legend.position = "bottom")
 )
 
 # Remove legends from plots
-fig10_noleg <- fig10 +
+p11a_noleg <- p11a +
   theme(legend.position = "none")
 
-p10b_noleg <- p10b +
+p11b_noleg <- p11b +
   theme(legend.position = "none")
 
-p10c_noleg <- p10c +
+p11c_noleg <- p11c +
   theme(legend.position = "none")
 
 # Main figure
-main_plots <- fig10_noleg | p10b_noleg | p10c_noleg
+main_plots <- p11a_noleg | p11b_noleg | p11c_noleg
 
 # Legends side-by-side
 legends <- wrap_elements(legend_A) |
   wrap_elements(legend_BC)
 
 # Combine
-supFig10 <- main_plots /
+supFig11 <- main_plots /
   legends +
   plot_layout(
     heights = c(1, 0.15)
   )
 ggsave(
-  filename = "SupplementaryFig_10_D1_NEUN.pdf",
-  plot = supFig10,
+  filename = "SupplementaryFig_11_D1_NEUN.pdf",
+  plot = supFig11,
   width = 22,
   height = 6
 )
 
 ggsave(
-  filename = "SupplementaryFig_10_D1_NEUN.png",
-  plot = supFig10,
+  filename = "SupplementaryFig_11_D1_NEUN.png",
+  plot = supFig11,
   width = 16,
   height = 6)
 
-# ########################## Fig Sup 11.a ###########################################
+# ########################## Fig Sup 12.a ###########################################
 # Violin plot of number of samples each peak overlaps with (y-axis) 
 # number of reads (x-axis) for default thresholds
 
-p11a <- ggplot(tableCounts.merged.df, aes(x = factor(setReads), y = n_samples))+ 
+p12a <- ggplot(tableCounts.merged.df, aes(x = factor(setReads), y = n_samples))+ 
   geom_violin(scale = "width", fill = "#56B4E9")+
   geom_boxplot(width = 0.05, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white")+
@@ -293,11 +293,11 @@ plot_df$unique_fraction <-
 
 plot_df.sub <- plot_df %>% filter(group == "50")
 
-# ########################## Fig Sup 11.b ###########################################
+# ########################## Fig Sup 12.b ###########################################
 # Scatter plot of number of peaks that only overlap one sample (y-axis)
 # by the number of reads for that sample they overlap with only (x-axis) 
 
-p11b <- ggplot(plot_df.sub, aes(
+p12b <- ggplot(plot_df.sub, aes(
   x = numReads,
   y = unique_group_peaks)) +
   geom_point(
@@ -310,11 +310,11 @@ p11b <- ggplot(plot_df.sub, aes(
     y = "Peaks overlap one sample", title = "B"
   ) 
 
-# ########################## Fig Sup 11.c ###########################################
+# ########################## Fig Sup 12.c ###########################################
 # Scatter plot of number of peaks per sample (y-axis)
 # by number of peaks that only overlap one sample (x-axis) 
 
-p11c <- ggplot(plot_df.sub, aes(
+p12c <- ggplot(plot_df.sub, aes(
   x = sample_peaks ,
   y = unique_group_peaks)) +
   geom_point( size = 3,color = "#56B4E9")+
@@ -326,20 +326,20 @@ p11c <- ggplot(plot_df.sub, aes(
     y = "Peaks overlap one sample", title = "C", colour = ""
   )
 
-supFig11 <- (p11a + p11b +p11c)+
+supFig12 <- (p12a + p12b +p12c)+
   plot_layout(
     heights = c(1,1),
     nrow = 1
   )
 ggsave(
-  filename = "SupplementaryFig_11_D1_NEUN.pdf",
-  plot = supFig11,
+  filename = "SupplementaryFig_12_D1_NEUN.pdf",
+  plot = supFig12,
   width = 22,
   height = 6
 )
 
 ggsave(
-  filename = "SupplementaryFig_11_D1_NEUN.png",
-  plot = supFig11,
+  filename = "SupplementaryFig_12_D1_NEUN.png",
+  plot = supFig12,
   width = 16,
   height = 6)
