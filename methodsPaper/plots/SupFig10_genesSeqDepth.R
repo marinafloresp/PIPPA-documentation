@@ -1,5 +1,5 @@
 #####################################
-##       Supplementary Fig 10       ##
+##       Supplementary Fig 10      ##
 #####################################
 
 library(ChIPpeakAnno)
