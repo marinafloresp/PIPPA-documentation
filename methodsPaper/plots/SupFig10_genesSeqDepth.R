@@ -1,5 +1,5 @@
 #####################################
-##       Supplementary Fig 9       ##
+##       Supplementary Fig 10       ##
 #####################################
 
 library(ChIPpeakAnno)
@@ -80,13 +80,13 @@ genesReadsSets.all$fraction[genesReadsSets.all$fraction == "NEUN"] <- "NeuN+"
 genesReadsSets.all$fraction[genesReadsSets.all$fraction == "SOX"] <- "SOX10+"
 genesReadsSets.all$thres <-fct_recode(genesReadsSets.all$thres, "0.05" = "5e-2", "0.01" = "1e-2", "0.00001" = "1e-5")
 
-# ########################## Fig Sup 9.a ###########################################
+# ########################## Fig Sup 10.a ###########################################
 # Line plot of total annotated genes (y-axis)
 # by read pairs (x-axis) 
 # coloured by Q value threshold
 # line type by cell type
 
-p9a <- ggplot(as.data.frame(genesReadsSets.all), aes(x = num_reads, y = n_genes, color = thres, linetype = fraction)) +
+p10a <- ggplot(as.data.frame(genesReadsSets.all), aes(x = num_reads, y = n_genes, color = thres, linetype = fraction)) +
   geom_point(size = 3) +
   geom_line(linewidth = 1) +
   scale_x_continuous(
@@ -105,13 +105,13 @@ p9a <- ggplot(as.data.frame(genesReadsSets.all), aes(x = num_reads, y = n_genes,
     legend.position = "bottom"
   )
 
-# ########################## Fig Sup 9.b ###########################################
+# ########################## Fig Sup 10.b ###########################################
 # Line plot of mean genes annotated per peak (y-axis)
 # by read pairs (x-axis) 
 # coloured by Q value threshold
 # line type by cell type
 
-p9b <- ggplot(
+p10b <- ggplot(
   genesReadsSets.all,
   aes(x = factor(num_reads), y = mean_peaks_per_gene, color = thres,
       linetype = fraction,
@@ -136,7 +136,7 @@ p9b <- ggplot(
     legend.position = "bottom"
   )
 
-# ########################## Fig Sup 9.c ###########################################
+# ########################## Fig Sup 10.c ###########################################
 # Line plot of % of peaks annotated as brain genes (y-axis)
 # by read pairs (x-axis) 
 # coloured by Q value threshold
@@ -184,7 +184,7 @@ genesReadsSetsBrain.all$fraction[genesReadsSetsBrain.all$fraction == "NEUN"] <- 
 genesReadsSetsBrain.all$fraction[genesReadsSetsBrain.all$fraction == "SOX"] <- "SOX10+"
 
 
-p9c <- ggplot(
+p10c <- ggplot(
   genesReadsSetsBrain.all,
   aes(
     x = num_reads,
@@ -212,7 +212,7 @@ p9c <- ggplot(
     legend.position = "bottom"
   )
 
-# ########################## Fig Sup 9.d ###########################################
+# ########################## Fig Sup 10.d ###########################################
 # Line plot of mean number of narrow (< 400bp) peaks annotated per gene (y-axis)
 # by read pairs (x-axis) 
 # coloured by Q value threshold
@@ -289,7 +289,7 @@ genesReadsSetsNarrow$fraction[genesReadsSetsNarrow$fraction == "NEUN"] <- "NeuN+
 genesReadsSetsNarrow$fraction[genesReadsSetsNarrow$fraction == "SOX"] <- "SOX10+"
 genesReadsSetsNarrow[genesReadsSetsNarrow$num_reads == 50 & genesReadsSetsNarrow$thres == "0.05",]$mean_peaks_lt400
 
-p9d <- ggplot(
+p10d <- ggplot(
   genesReadsSetsNarrow,
   aes(
     x = num_reads,
@@ -317,13 +317,13 @@ p9d <- ggplot(
     legend.position = "bottom"
   )
 
-# ########################## Fig Sup 9.e ###########################################
+# ########################## Fig Sup 10.e ###########################################
 # Line plot of mean number of promoert peaks annotated per gene (y-axis)
 # by read pairs (x-axis) 
 # coloured by Q value threshold
 # line type by cell type
 
-p9e <- ggplot(
+p10e <- ggplot(
   genesReadsSetsNarrow,
   aes(
     x = num_reads,
@@ -354,34 +354,34 @@ p9e <- ggplot(
 ## Combine plots for figure ##
 
 legend_shared <- cowplot::get_legend(
-  p9a +
+  p10a +
     theme(
       legend.position = "bottom",
       legend.box = "vertical"
     )
 )
-p9a_clean <- p9a + theme(legend.position = "none")
-p9b_clean <- p9b2 + theme(legend.position = "none")
-p9c_clean <- p9c + theme(legend.position = "none")
-p9d_clean <- p9d + theme(legend.position = "none")
-p9e_clean <- p9e + theme(legend.position = "none")
+p10a_clean <- p10a + theme(legend.position = "none")
+p10b_clean <- p10b2 + theme(legend.position = "none")
+p10c_clean <- p10c + theme(legend.position = "none")
+p10d_clean <- p10d + theme(legend.position = "none")
+p10e_clean <- p10e + theme(legend.position = "none")
 
-figSup9 <- 
-  (p9a_clean | p9b_clean) / (p9c_clean | p9d_clean) / (p9e_clean | legend_shared) +
+figSup10 <- 
+  (p10a_clean | p10b_clean) / (p10c_clean | p10d_clean) / (p10e_clean | legend_shared) +
   plot_layout(
     heights = c(1, 1, 1), nrow = 3
   )
 
 ggsave(
-  filename = "SupplementaryFig_9_D1.pdf",
-  plot = figSup9,
+  filename = "SupplementaryFig_10_D1.pdf",
+  plot = figSup10,
   width = 14,
   height = 16
 )
 
 ggsave(
-  filename = "SupplementaryFig_9_D1.png",
-  plot = figSup9,
+  filename = "SupplementaryFig_10_D1.png",
+  plot = figSup10,
   width = 14,
   height = 16
 )
