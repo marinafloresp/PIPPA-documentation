@@ -1,5 +1,5 @@
 #####################################
-##       Supplementary Fig 13      ##
+##       Supplementary Fig 14      ##
 #####################################
 
 library(pheatmap)
@@ -172,7 +172,7 @@ peaksAnno.all.SOX<-lapply(overPeaksSOX,annotatePeak,
 names(peaksAnno.all.SOX) <- names(overPeaksSOX)
 peaksAnno.df.SOX<- lapply(peaksAnno.all.SOX, function(x) as.data.frame(x@anno))
 
-# ########################## Fig Sup 13.a ###########################################
+# ########################## Fig Sup 14.a ###########################################
 # Stacked bar plots of % of peaks that are shared vs specific to curated and default peak sets
 
 allPeaks <- c(overPeaks.NEUN,overPeaks.SOX)
@@ -207,7 +207,7 @@ level_order <- c("Dataset 1 NeuN default", "Dataset 1 NeuN curated",
                  "Dataset 2 NeuN default", "Dataset 2 NeuN curated" )
 numPeaks.NEUN$peakset <- factor(numPeaks.NEUN$peakset,
                                 levels =rev(level_order ))
-p13A1 <- ggplot(
+p14A1 <- ggplot(
   numPeaks.NEUN,
   aes(x = percent, y = peakset, fill = over)
 ) +
@@ -256,7 +256,7 @@ level_order <- c("Dataset 1 SOX10 default", "Dataset 1 SOX10 curated",
 numPeaks.SOX$peakset <- factor(numPeaks.SOX$peakset,
                                levels =rev(level_order ))
 
-p13A2 <- ggplot(
+p14A2 <- ggplot(
   numPeaks.SOX,
   aes(x = percent, y = peakset, fill = over)
 ) +
@@ -298,7 +298,7 @@ p13A2 <- ggplot(
     )
   )
                           
-# ########################## Fig Sup 13.b ###########################################
+# ########################## Fig Sup 14.b ###########################################
 # Stacked bar plots of % of genes annotated to peaks that are related to brain for 
 # shared vs specific peak sets                          
 
@@ -369,7 +369,7 @@ level_order <- c("Dataset 1 specific default", "Dataset 1 shared default",
 brainGenes.plot.NEUN$peakset <- factor(brainGenes.plot.NEUN$peakset,
                                        levels =rev(level_order ))
 
-p13B1 <- ggplot(
+p14B1 <- ggplot(
   brainGenes.plot.NEUN,
   aes(
     y = peakset,
@@ -419,7 +419,7 @@ level_order <- c("Dataset 1 specific default", "Dataset 1 shared default",
                  "Dataset 2 specific curated","Dataset 2 shared curated")
 brainGenes.plot.SOX$peakset <- factor(brainGenes.plot.SOX$peakset,
                                       levels =rev(level_order ))
-p13B2 <- ggplot(
+p14B2 <- ggplot(
   brainGenes.plot.SOX,
   aes(
     y = peakset,
@@ -462,25 +462,25 @@ p13B2 <- ggplot(
     
   )+ guides(fill = guide_legend(ncol = 2))
 
-panel_top <- (p13A1 | p13A2) +
+panel_top <- (p14A1 | p14A2) +
   plot_layout(widths = c(1.5,1.5))
 
-middle_pannel <- p13B1 | p13B2
+middle_pannel <- p14B1 | p14B2
 
-SupFig13 <- panel_top / middle_pannel  +
+SupFig14 <- panel_top / middle_pannel  +
   plot_layout(heights = c(0.75,1))
 
 
 ggsave(
-  filename = "SupplementaryFig_13.png",
-  plot = SupFig13,
+  filename = "SupplementaryFig_14.png",
+  plot = SupFig14,
   width = 20,
   height = 15
 )
 
 ggsave(
-  filename = "SupplementaryFig_13.pdf",
-  plot = SupFig13,
+  filename = "SupplementaryFig_14.pdf",
+  plot = SupFig14,
   width = 20,
   height = 15
 )
