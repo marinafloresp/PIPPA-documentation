@@ -207,7 +207,7 @@ This script checks the sex of samples as part of their identity check by creatin
 - ./subScripts/sexChrPeaks.sh : Peak calling on the sex chromomes, filtering and read counts using MACS3 in paired-end mode.
 
 ##### -parameters-
-- `--array` : number of batch jobs, each number matches a sample. No needed for step 5.2 `PEAKS`.
+- `--array` : number of batch jobs, each number matches a sample. Only for step 5.1 `SPLIT`.
 - `(project-directory)` project's directory.
 -optional-
 - `[STEPS]` They may be combined, with desired steps included as single string, i.e. MULIQC,COLLATE. Default if left blank is to run all of them.
