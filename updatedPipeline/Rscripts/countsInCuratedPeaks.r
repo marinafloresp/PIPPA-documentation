@@ -17,7 +17,7 @@
 ## -  counts in peaks (all peaks) file:  in 5_countPeaks folder "ccCounts"                         ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
-## - R/4.2.1-foss-2022a, R libraries: Rsubread, GenomicRanges                                      ||
+## - R version > 4.2, R libraries: Rsubread, GenomicRanges                                         ||
 ## - A txt file with list of samples used for curated peak calling: downAnalysisSamples_<cf>.txt   ||
 ## ================================================================================================##
 
