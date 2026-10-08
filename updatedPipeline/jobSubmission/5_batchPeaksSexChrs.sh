@@ -13,10 +13,9 @@
 ##                                 ATAC-seq pipeline STEP 5: Sex chromosomes                                          ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/5_batchFormatSexChrs.sh <project-directory> <STEP>        ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script prepares files for calling peaks in sex chromosomes, performs peak calling and checks the ||
-## sex assigned to samples based on the sex chromosomes peaks                                                         ||
+## DESCRIPTION: This script prepares files for calling peaks in sex chromosomes (SPLIT) and performs peak calling     ||
+## (PEAKS) on sex chromosome reads.                                                                                   ||
 ##                                                                                                                    || 
 ## INPUTS:                                                                                                            || 
 ## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input for SPLIT             || 
@@ -26,15 +25,12 @@
 ## REQUIRES:                                                                                                          ||
 ## - File in ${META_DIR}/samples.txt that lists sample names.                                                         ||
 ## - Config.txt file in <project directory>.                                                                          ||
-## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, PEAKCOUNTS, ALIGNED_DIR, PEAK_DIR ||
-##   SCRIPTS_DIR, PROJECT,RSCRIPTS_DIR, CONDA, CONDA_ENV                                                              ||
+## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR_SEXCHR,     ||
+##   SCRIPTS_DIR, PROJECT,RSCRIPTS_DIR, CONDA, CONDA_ENV, PEAKCOUNTS_DIR_SEXCHR                                       ||
 ## - For modules or references required, please refer to each subscript run in this script.                           ||
 ## - A conda environment setup with several modules: samtools, MACS3                                                  ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
 ## - Subscripts: subsetSexChrs.sh, sexChrPeaks.sh                                                                     ||
-## - R scripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                                  ||
-## - R Subscripts: collateSexChecks.r                                                                                 ||
-##                                                                                                                    ||
 ## ===================================================================================================================##
 
 ## ============ ##
