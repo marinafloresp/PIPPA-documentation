@@ -3,7 +3,6 @@
 ##                   ATAC-seq pipeline STEP 7.1: Progress Report Stage 2 QC                     ##
 ## =============================================================================================##
 ## EXECUTION: sbatch ./subScripts/progressReportS2.sh                                           ||
-## - execute from pipeline's main directory                                                     ||
 ##                                                                                              ||
 ## DESCRIPTION: This script checks whether all samples have undergone all steps in Stage 2 QC.  ||
 ##                                                                                              ||
@@ -15,6 +14,10 @@
 ## - File in ${META_DIR}/samples.txt that lists sample names.                                   ||
 ##                                                                                              ||
 ## =============================================================================================##
+
+## ============ ##
+##    SET UP    ##
+## ============ ##
 
 echo "Running progress report"
 
@@ -32,6 +35,10 @@ fi
 ### First count number of output files for each part of the pipeline
 
 echo "Number of sample IDs found:"" ""${#SAMPLEIDS[@]}"""
+
+## ============ ##
+##    COLLATE   ##
+## ============ ##
 
 ## check for individual samples
 ## save output in csv file
@@ -71,7 +78,14 @@ do
     else
         echo "Y" >> "${META_DIR}/summariseSampleProgressS2.csv"
     fi
-    
 
 done
 
+if [[ ! -f "${META_DIR}/summariseSampleProgressS2.csv" ]]
+then
+  { echo "Stage 2 progress report has been not been created." ; exit 1; }
+else
+  echo "Stage 2 progress report has been been created."
+  echo Job ended on:
+  date -u
+fi
