@@ -27,8 +27,8 @@
 ## - Config.txt file in <project directory>.                                                                          ||
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, RAWDATADIR, ALIGNED_DIR, TRIM_DIR ||
 ##   SCRIPTS_DIR, PROJECT, CONDA_ENV, CONDA, UTILS                                                                    ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
 ## - A conda environment setup with several modules: samtools, fastqc, samstats, bedtools, bowtie2, picard and fastp  ||
+## - For more software or references required, please refer to each subscript run in this script.                     ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
 ## - Subscripts: fastqc.sh, fastp.sh, alignment.sh, assign_multimappers.py and calcENCODEQCMetrics.sh                 ||
 ##                                                                                                                    ||
