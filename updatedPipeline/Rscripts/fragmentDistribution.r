@@ -1,21 +1,21 @@
 ## =========================================================================================================================##
 ##                             ATAC-seq pipeline STEP 2.1: fragment distribution and post-alignment metrics                 ##
 ## =========================================================================================================================##
-## EXECUTION: Rscript ./Rscripts/fragmentDistribution.r <configFile> <gsNumber>                                             ||
+## EXECUTION: Rscript ./Rscripts/fragmentDistribution.r <project_config> <gsNumber>                                         ||
 ## - execute from scripts directory                                                                                         ||
 ##                                                                                                                          ||
 ## DESCRIPTION: This script uses the ATACseqQC R package to generate the fragment distribution and calculate some           ||
 ## summary statistics to assess the periodicity                                                                             ||
 ##                                                                                                                          ||
 ## INPUTS:                                                                                                                  ||
-## - <configFile> : path to config.r file                                                                                   ||
+## - <project_config> : path to config.r file.                                                                              ||
 ## - <gsNumber>: number of samples to process at a time                                                                     ||
 ##                                                                                                                          ||
 ## OUTPUTS:                                                                                                                 ||
 ## - FragmentDistribution_<gsNumber>.rdata, FSD_<gsNumber>.pdf                                                              ||
 ##                                                                                                                          ||
 ## REQUIRES:                                                                                                                ||
-## - R > 4.2, libraries: ATACseqQC, diptest, ptest, plyr ,ggplot2                                                           ||
+## - R > 4.2, libraries: ATACseqQC, diptest, ptest, plyr ,ggplot2,ggpubr,gridExtra                                          ||
 ## - Parameters in config.r file: samplesList, alignedDir, qcDir                                                            ||
 ## =========================================================================================================================##
 
