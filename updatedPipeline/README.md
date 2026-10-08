@@ -231,7 +231,7 @@ This script checks the genotype of the samples as part of their identity check b
   * Contaminated samples will go to a created file potentialSwitches.txt. If this file is not empty, searchBestGenoMatch.sh is executed and an alternative Genotype search is done for the sample.
 
 ##### -parameters-
-- `--array` : number of batch jobs, each number matches a sample.
+- `--array` : number of batch jobs, each number matches a sample. 
 - `(project-directory)` project's directory.
 -optional-
 - `[STEPS]` They may be combined, with desired steps included as single string, i.e. GENCHECK,COMPARE. Default if left blank is to run all of them.
