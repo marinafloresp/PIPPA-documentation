@@ -1,8 +1,6 @@
 #!/bin/bash
 #SBATCH --export=ALL # export all environment variables to the batch job.
-#SBATCH -p mrcq # submit to the serial queue
-#SBATCH --time=48:00:00 # Maximum wall time for the job.
-#SBATCH -A Research_Project-MRC190311 # research project to submit under. 
+#SBATCH --time=72:00:00 # Maximum wall time for the job.
 #SBATCH --nodes=1 # specify number of nodes.
 #SBATCH --ntasks-per-node=16 # specify number of processors per node
 #SBATCH --mail-type=END # send email at job completion 
@@ -11,30 +9,28 @@
 #SBATCH --job-name=ATACDownAnalysisS10
 
 ## ===================================================================================================================##
-##                           ATAC-seq pipeline STEP 10: Downstream analysis                                           ##
+##                          ATAC-seq pipeline STEP 10: Preparation for Downstream analysis                            ##
 ## ===================================================================================================================##
-## EXECUTION: sbatch  ./jobSubmission/10_batchDownstreamAnalyses.sh <project directory> <STEP> <GROUP>                ||
-## - execute from pipeline's main directory                                                                           ||
+## EXECUTION: sbatch  ./jobSubmission/10_batchDownstreamAnalyses.sh <project directory> <STEP> <GROUP> <THRES>        ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script performs different downstream analyses on the curated peak sets for each cell-type.       ||
+## DESCRIPTION: This script prepares curated peak sets generated for each cell-type for downstream analyses.          ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <project directory> directory of project, location of config.txt file                                        ||
 ## $2 -> <STEP> Specify step to run: PEAKS, COUNTS. Can be combined. Default is to run all                            ||
 ## $3 -> <GROUP> Specify cell group to run previous step(s).                                                          ||
+## $4 -> <THRES> Specify peak calling threshold used for curated peak set.                                            ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
-## - File in ${META_DIR}/samples.txt that lists sample names.                                                         ||
-## - Config.txt file in <project directory>.                                                                          ||
+## - File in ${META_DIR}/downAnalysisSamples_${GROUP}.txt that lists sample names for each cell type group.           ||
+## - Config.txt, config.r files in <project directory>.                                                               ||
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR, PEAKCOUNTS ||
 ##   SCRIPTS_DIR, PROJECT,CONFIGR,RSCRIPTS_DIR,CONDA_ENV, CONDA                                                       ||
-## - A list of cell types of samples specified in config file: CELLTYPES                                              ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
-## - A conda environment setup with several modules: samtools, MACS3                                                  ||
-## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
-## - Subscripts: groupPeaks.sh                                                                                        ||
+## - A list of cell types of samples specified in config files: CELLTYPES                                             ||
+## - A conda environment setup with several modules: samtools, MACS3, R                                               ||
+## - For other tools, modules or references required, please refer to each subscript run in this script.              ||
 ## - R subscripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                               ||
-## - R subscripts: countsInPeaks.r                                                                                    ||
+## - R subscripts: curatedPeaksChecks.Rmd, countsInCleanPeaksCT.r, countsInCuratedPeaks.r                             ||
 ## ===================================================================================================================##
 
 
@@ -66,7 +62,6 @@ EOF
 source ${CONDA} 
 conda activate ${CONDA_ENV}
 
-
 ## ================ ##
 ##    VARIABLES     ##
 ## ================ ##
@@ -85,14 +80,21 @@ then
 fi
 
 ## check step method matches required options and exit if not
-if [[ ! $2 == "CTCLEAN" ]] && [[ ! $2 == 'COUNTS' ]];
+if [[ ! $2 == "SUMMARY" ]] && [[ ! $2 == "CTCLEAN" ]] && [[ ! $2 == 'COUNTS' ]];
 then 
-    { echo "Unknown step specified. Please use PEAKS, BW or some combination of this as a single string (i.e. FASTQC,TRIM)" ; exit 1; }            
+    { echo "Unknown step specified. Please use CTCLEAN, COUNTS or some combination of this as a single string (i.e. FASTQC,TRIM)" ; exit 1; }            
 fi
 
+## check cell type group has been specified for specific steps
 if [[ ! " ${CELLTYPES[*]} " == *" $GROUP "* && ($2 == "COUNTS" )]]; 
 then
   { echo "Cell group specified not found. Please check whether samples that belong to that cell fraction exist."; exit 1; }            
+fi
+
+## check peak calling threshold has been specified for specific steps
+if [[ $2 == "COUNTS" && ! -v ${THRES} ]];
+then 
+    { echo "Invalid threshold for $2 STEP. Should be a peak calling threshold used to generated a curated peak set from STEP 9.5" ; exit 1; }
 fi
 
 if [[ ! ${GROUP} == '' ]]
@@ -108,6 +110,11 @@ else
   echo "No cell group specified."
 fi
 
+## ========= ##
+##   STEPS   ##
+## ========= ##
+
+## option SUMMARY: summarise properties of curated peak sets generated at STEP 9.5 for all cell types
 if [ $# = 1 ] || [[ $2 == 'SUMMARY' ]]
 then
 
@@ -124,6 +131,7 @@ EOF
 
 fi
 
+## option CTCLEAN: counts in peaks for samples that pass all QC stages across cell types 
 if [ $# = 1 ] || [[ $2 == 'CTCLEAN' ]]
 then
   
@@ -141,7 +149,7 @@ EOF
   Rscript "${RSCRIPTS_DIR}/countsInCleanPeaksCT.r" ${CONFIGR}
 fi
 
-
+## option COUNTS: counts in curated set of peaks for specified cell type
 if [ $# = 1 ] || [[ $2 == 'COUNTS' ]]
 then
 
@@ -159,5 +167,8 @@ EOF
 
  Rscript "${RSCRIPTS_DIR}/countsInCuratedPeaks.r" ${CONFIGR} ${GROUP} ${THRES}
 fi
+
+echo Job finished on:
+date -u
 
 conda deactivate
