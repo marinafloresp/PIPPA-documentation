@@ -23,18 +23,6 @@
 ## ==========##
 ##   SET-UP  ##
 ## ==========##
-format_q_label <- function(q) {
-  
-  exponent <- round(log10(q))
-  
-  mantissa <- q / (10^exponent)
-  
-  nearest <- c(1, 5)[
-    which.min(abs(c(1, 5) - mantissa))
-  ]
-  
-  paste0(nearest, "e", exponent)
-}
 
 suppressWarnings(suppressPackageStartupMessages({
   library(GenomicRanges)
@@ -52,6 +40,23 @@ cf<-args[2]
 source(configFile)
 
 plot_colour <- col_vals[cf]
+
+## ===============##
+##    FUNCTIONS   ##
+## ===============##
+
+format_q_label <- function(q) {
+  
+  exponent <- round(log10(q))
+  
+  mantissa <- q / (10^exponent)
+  
+  nearest <- c(1, 5)[
+    which.min(abs(c(1, 5) - mantissa))
+  ]
+  
+  paste0(nearest, "e", exponent)
+}
 
 ## ===============##
 ##   GATHER DATA  ##
