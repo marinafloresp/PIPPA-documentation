@@ -1,8 +1,7 @@
 ## ================================================================================================##
 ##                          ATAC-seq pipeline STEP 8.3: Counts in peaks                            ##
 ## ================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/countsInPeaksGroup.r <project_config>          ||
-## - execute from scripts directory                                                                ||
+## EXECUTION: Rscript ./Rscripts/countsInPeaksGroup.r <project_config>                             ||
 ##                                                                                                 ||
 ## DESCRIPTION: This scripts gets read counts in peaks called at cell group level. Only samples    ||
 ## that passed both QC stages are used, as done to call peaks.                                     ||
