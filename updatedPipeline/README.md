@@ -30,6 +30,7 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
   - An alphabetically ordered list of cell types to which samples belong to needs to be specified as *cellTypes*.
 - Additional source files of R packages that are installed manually will also be located in this folder.
 - A temporary directory can be either specified in the system's _.bashrc_ file or in the *config.txt* as an additional variable `TMPDIR`. Please make sure you have full permissions for the directory specified.
+- For each main bash script, make sure the SBATCH details are filled in/removed if not apply.
 
 ## Requisites:
 
