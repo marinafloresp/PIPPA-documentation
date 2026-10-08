@@ -139,7 +139,7 @@ cat <<EOF
 || Running STEP 1.2 of ATAC-seq pipeline: TRIM ||
 
 Starting trimming on ${sampleName} 
-Output written to  ${TRIM_DIR}
+Output written to ${TRIM_DIR}
 
 EOF
       
