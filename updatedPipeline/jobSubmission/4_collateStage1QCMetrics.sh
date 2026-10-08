@@ -12,19 +12,20 @@
 ##                          ATAC-seq pipeline STEP 4: Collate Stage 1 Results                                         ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch ./jobSubmission/4_collateStage1QCMetrics.sh <project-directory> <STEP>                           ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script collates results from the first part of the pipeline: pre-analysis and peak calling.      || 
+## QC results are collated for FastQC on raw and trimmed reads and alignment results (MULTIQC). A check is done to    ||
+## collate other results and ensure all samples have been processed (COLLATE). Stage 1 QC results are output (SUMMARY)||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <project dir> directory of project, location of config.txt file                                              ||
 ## $2 -> <STEP> Specify step to run: MULTIQC, COLLATE, SUMMARY. Can be combined. Default is to run all                ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
-## - Config.txt file in <project directory>.                                                                          ||
+## - Config.txt, config.r file in <project directory>.                                                                ||
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, RAWDATADIR, ALIGNED_DIR, TRIM_DIR ||
-##   SCRIPTS_DIR, PROJECT,FASTQCDIR,CONDA_ENV, CONDA                                                                  ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
+##   SCRIPTS_DIR, PROJECT, FASTQCDIR,CONDA_ENV, CONDA, PEAK_DIR                                                       ||
+## - For software or references required, please refer to each subscript run in this script.                          ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subscripts                                                            ||
 ## - Subscripts: progressReport.sh, countMTcollateFS.sh                                                               ||
 ## - R subscripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                               ||
@@ -73,7 +74,7 @@ then
 fi
 
 ## check step method matches required options and exit if not
-if [[ ! $2 == "MULTIQC" ]] && [[ ! $2 == "COLLATE" ]] && [[ ! $2 == "SUMMARY" ]] && [[ ! $2 == "METRICS" ]] && [[ ! $2 == '' ]];
+if [[ ! $2 == "MULTIQC" ]] && [[ ! $2 == "COLLATE" ]] && [[ ! $2 == "SUMMARY" ]] && [[ ! $2 == '' ]];
 then 
     { echo "Unknown step specified. Please use MULTIQC, COLLATE, SUMMARY or some combination of this as a single string (i.e. MULTIQC,COLLATE)" ; exit 1; }            
 fi
@@ -107,10 +108,10 @@ EOF
 	
   ## collate qc reports for trimmed reads
 	multiqc ${TRIM_DIR}/qc/*_trimmed_fastqc.zip -f -o "${TRIM_DIR}/multiqc"
-  rm -f ${TRIM_DIR}/qc/*.html
+    rm -f ${TRIM_DIR}/qc/*.html
   
   ## collate qc reports for aligned reads
-  multiqc ${ALIGNED_DIR}/*.bowtie.log -f -o "${ALIGNED_DIR}/multiqc"
+    multiqc ${ALIGNED_DIR}/*.bowtie.log -f -o "${ALIGNED_DIR}/multiqc"
   
 fi
 
@@ -123,7 +124,7 @@ cat <<EOF
 || Running step 4.2 of ATAC-seq pipeline: COLLATE ||
 
 It will be checked that all samples had gone through all processes and had produced the right outputs.
-Output directory is ${META_DIR} and ${ALIGNED_DIR}/ENCODEMetrics/
+Output directory is ${META_DIR} and ${ALIGNED_DIR}/QCOutput/
 
 EOF
  
@@ -144,7 +145,7 @@ Output directory is ${PEAK_DIR}/QCOutput
 
 EOF
    
-   Rscript -e "rmarkdown::render('${RSCRIPTS_DIR}/collateDataQualityStats.Rmd'), output_file='$PEAK_DIR/QCOutput/stage1SummaryStats.html'))" "${CONFIGR}"
+   Rscript -e "rmarkdown::render('${RSCRIPTS_DIR}/collateDataQualityStats.Rmd'), output_file='${PEAK_DIR}/QCOutput/stage1SummaryStats.html'))" "${CONFIGR}"
 fi
 conda deactivate
 
