@@ -36,7 +36,7 @@ peaksCurated <-  paste0(peakDir,"/peaksCuration/curatedPeaks/")
 
 ## Counts directories (change to user's input) ##
 groupsCounts <- paste0(countsDir, "/checkCTCounts/")
-downstreamCounts <- paste0(countsDir, "/caseControl/")
+downstreamCounts <- paste0(countsDir, "/donwCounts/")
 
 ## create colourblind friendly palette
 colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999", 
