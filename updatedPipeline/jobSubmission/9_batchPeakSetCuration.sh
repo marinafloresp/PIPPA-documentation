@@ -124,6 +124,7 @@ fi
 ##   STEPS   ##
 ## ========= ##
 
+## option MERGE: merge bam files from samples in a single file
 if [ $# == 1 ] || [[ $2 == 'MERGE' ]]
 then
 
@@ -157,6 +158,7 @@ EOF
   
 fi
 
+## option BW: convert merged bam file to bigWig format
 if [ $# == 1 ] || [[ $2 == 'BW' ]]
 then
   
@@ -174,16 +176,20 @@ Output directory is ${OUPUTDIR}
 
 EOF
 
-  samtools index "${INPUTDIR}/${GROUP}.sorted.merged.bam"
-  
-  bamCoverage \
-  --bam "${INPUTDIR}/${GROUP}.sorted.merged.bam" \
-  -o "${OUPUTDIR}/${GROUP}.bigWig" \
-  --binSize 50 \
-  --normalizeUsing CPM \
-  --effectiveGenomeSize 2913022398 \
-  --minMappingQuality 30
-
+  if test -f "${INPUTDIR}/${GROUP}.sorted.merged.bam";
+  then
+    samtools index "${INPUTDIR}/${GROUP}.sorted.merged.bam"
+    
+    bamCoverage \
+    --bam "${INPUTDIR}/${GROUP}.sorted.merged.bam" \
+    -o "${OUPUTDIR}/${GROUP}.bigWig" \
+    --binSize 50 \
+    --normalizeUsing CPM \
+    --effectiveGenomeSize 2913022398 \
+    --minMappingQuality 30
+  else
+    echo "Merged bam file for ${GROUP} not found. Please refer to STEP 9.1"
+  fi
 fi
 
 ## option PEAKS: peak calling is performed using MACS3 in paired-end at group level in narrow peak mode 
