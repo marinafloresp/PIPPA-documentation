@@ -80,6 +80,7 @@ Available cell fractions are: ${CELLTYPES[@]}
 
 EOF
 
+## check whether step to be run is specified
 if [[ $2 == '' ]] 
 then
   echo "No step specified. All steps in the script will be run. "
@@ -91,11 +92,13 @@ then
     { echo "Unknown step specified. Please use PEAKS, BW or some combination of this as a single string (i.e. FASTQC,TRIM)" ; exit 1; }            
 fi
 
+## check cell type group has been specified for specific steps
 if [[ ! " ${CELLTYPES[*]} " == *" $GROUP "* && ($2 == "MERGE" || $2 == "BW" || $2 == "PEAKS" || $2 == "CUTOFF" || $2 == "PEAKSTR" )]]; 
 then
   { echo "Cell group specified not found. Please check whether samples that belong to that cell fraction exist."; exit 1; }            
 fi
 
+## check peak calling threshold has been specified for specific steps
 if [[ $2 == "PEAKSTR" && ! -v ${THRES} ]];
 then 
     { echo "Invalid threshold for $2 STEP. Should be a peak calling threshold to be used to generated a curated peak set." ; exit 1; }
