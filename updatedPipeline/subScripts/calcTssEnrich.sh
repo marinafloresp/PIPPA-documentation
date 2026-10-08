@@ -3,7 +3,6 @@
 ##                  ATAC-seq pipeline STEP 2.3: Calculate TSS enrichment score                               ##
 ## ==========================================================================================================##
 ## EXECUTION: sbatch ./subScripts/calcTSSEnrich.sh <sampleName>                                              ||
-## - execute from scripts directory                                                                          ||
 ##                                                                                                           ||
 ## DESCRIPTION: This calculates the TSS enrichment score of a selected sample.                               ||
 ##                                                                                                           ||
@@ -19,7 +18,7 @@
 ## - deeptools (in a conda environment)                                                                      ||
 ## - Variables in config file: ALIGNED_DIR,TSS, REFTSS                                                       ||
 ## - Shifted BW file for sampleName: <sampleName>.shifted.bw                                                 ||
-## - Reference TSS file (path specified in config.txt file                                                   ||
+## - Reference TSS file (path specified in config.txt file)                                                  ||
 ##                                                                                                           ||
 ## ==========================================================================================================##
 
@@ -73,4 +72,3 @@ else
   echo Job finished on:
   date -u 
 fi 
-
