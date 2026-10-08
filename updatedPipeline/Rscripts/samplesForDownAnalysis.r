@@ -1,22 +1,21 @@
 ## ===============================================================================================================##
 ##             ATAC-seq pipeline STEP 9.0: Sample list for downstream analyses                                    ##
 ## ===============================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForDownAnalysis.r <project> <cf>                       ||
-## - execute from scripts directory                                                                               ||
+## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForDownAnalysis.r <project_config> <cf>                ||
 ##                                                                                                                ||
 ## DESCRIPTION: This scripts creates a file with samples that passed all stages of the QC and selects             ||
 ## samples that belong to an input cell type to perform peak calling.                                             ||
 ##                                                                                                                ||
 ## INPUTS:                                                                                                        ||
-## - <project> : project on which analysis is being run                                                           ||
-## - <cf>: cell fraction of samples to select for group peak calling                                              ||
+## - <project_config> : path to config.r file.                                                                    ||
+## - <cell-group>: cell fraction of samples to select for group peak calling                                      ||
 ##                                                                                                                ||
 ## OUTPUTS:                                                                                                       ||
 ## - "downAnalysisSamples_<cell-group>.txt" in 0_metadata folder                                                  ||
 ## - "samplesDownAnalysis.csv" in in 0_metadata folder                                                            || 
 ##                                                                                                                ||
 ## REQUIRES:                                                                                                      ||
-## - R/4.2.1-foss-2022a                                                                                           ||
+## - R > 4.2                                                                                                      ||
 ## - A csv file in the metadata folder with the summary of all QC stages: passAllQCStatus.csv This is             ||
 ## produced at STEP 8.4 CTCHECK                                                                                   ||
 ## ===============================================================================================================##
