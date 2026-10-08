@@ -12,15 +12,14 @@
 ##                             ATAC-seq pipeline STEP 3: Sample Peak Calling                                          ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/3_batchRunPeakCalling.sh <project directory> <STEP>       ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs the core analysis of the ATAC-seq pipeline: calling peaks at sample level using  ||
-## the paired-end mode in MACS3.                                                                                      ||
+## the paired-end mode in MACS3 (PEAKS). Then results are collated to calculate Fraction Reads in Peaks (FRIP)        ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
-## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input. Only for PEAKS       ||
+## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input. Only for PEAKS.      ||
 ## $1 -> <project directory> directory to config file for the corresponding project                                   ||
-## $2 -> <STEP> Specify step to run: FRIP,PEAKS. Can be combined. Default is to run all. FRIP step should be run at   ||
+## $2 -> <STEP> Specify step to run: PEAKS, FRIP. Can be combined. Default is to run all. FRIP step should be run at  ||
 ## the end                                                                                                            ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
@@ -32,7 +31,6 @@
 ## - A conda environment setup with several modules: samtools, MACS3, R, bedtools, samtools                           ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subscripts                                                            ||
 ## - Subscripts: shiftAlignedReads.sh, samplePeaks.sh, collateCalcFrip.sh                                             ||
-## - For STEP 3.3 FRIP, a single job array number should be used, e.g. -array=0                                       ||
 ##                                                                                                                    ||
 ## ===================================================================================================================##
 
@@ -99,7 +97,7 @@ echo "Total number of samples: "" ""${#SAMPLEIDS[@]}"""
 ##    STEPS     ##
 ## ============ ##
 
-## option PEAKS: peak calling is performed using MACS3 in paired-end at sampleName level in narrow peak mode 
+## option PEAKS: peak calling is performed using MACS3 in paired-end at sample level in narrow peak mode 
 if [ $# = 1 ] || [[ $2 == 'PEAKS' ]]
 then
 
