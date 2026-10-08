@@ -1,14 +1,14 @@
 ## ================================================================================================##
 ##                          ATAC-seq pipeline STEP 8.3: Counts in peaks                            ##
 ## ================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/countsInPeaksGroup.r <project>                 ||
+## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/countsInPeaksGroup.r <project_config>          ||
 ## - execute from scripts directory                                                                ||
 ##                                                                                                 ||
 ## DESCRIPTION: This scripts gets read counts in peaks called at cell group level. Only samples    ||
 ## that passed both QC stages are used, as done to call peaks.                                     ||
 ##                                                                                                 ||
 ## INPUTS:                                                                                         ||
-## - <configFile> : config file of project on which analysis is being run                          ||
+## - <project_config> : path to config.r file.                                                     ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
 ## - consensus peak set across cell types: "consensusPeaks_5e-2_passS1-2.narrowPeak.bed" in        ||
