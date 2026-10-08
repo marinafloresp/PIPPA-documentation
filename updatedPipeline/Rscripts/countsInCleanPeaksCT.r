@@ -1,22 +1,23 @@
 ## ================================================================================================##
 ##                  ATAC-seq pipeline STEP 10.1: Counts in curated cell type peaks                 ##
 ## ================================================================================================##
-## EXECUTION: Rscript ./Rscripts/countsInCleanPeaksCT.r <project>                                  ||
+## EXECUTION: Rscript ./Rscripts/countsInCleanPeaksCT.r <project_config>                           ||
 ## - execute from scripts directory                                                                ||
 ##                                                                                                 ||
 ## DESCRIPTION: This scripts gets read counts in curated peaks called from all cell types. Only    ||
 ## samples that passed all QC stages are used, as done to call peaks.                              ||
 ##                                                                                                 ||
 ## INPUTS:                                                                                         ||
-## - <project> : project on which analysis is being run                                            ||
+## - <project_config> : path to config.r file.                                                     ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
-## -  counts in peaks (all peaks) file: in 5_countPeaks folder "groupsCounts"                      ||
+## - counts in peaks (all peaks) file: in 5_countPeaks folder "groupsCounts"                       ||
 ## - consensus peak set file: "consensusPeaks_5e-2_passAll.narrowPeak.bed" in 4_calledPeaks folder ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
-## - R/4.2.1-foss-2022a, R libraries: Rsubread, GenomicRanges                                      ||
+## - R > 4.2, R libraries: Rsubread, GenomicRanges                                                 ||
 ## - A csv file with samples used for curated peak calling: downAnalysisSamples.csv                ||
+## - Parameters in config.r file: downAnalysisSamples, sampleSheet, peaksAnalysis, groupsCounts    ||
 ## ================================================================================================##
 
 ## ==========##
