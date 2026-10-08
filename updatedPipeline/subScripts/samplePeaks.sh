@@ -1,9 +1,8 @@
 #!/bin/bash
 ## ===================================================================================================================##
-##                             ATAC-seq pipeline STEP 3.2: Sample Peak Calling                                        ##
+##                             ATAC-seq pipeline STEP 3.1: Sample Peak Calling                                        ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch ./subScripts/samplePeaks.sh <sampleName>                                                         ||
-## - execute from pipeline's main  directory                                                                          ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script calls peaks in an input sample using MACS3 in paired-end mode. Parameter choices guided by||
 ## https://github.com/taoliu/MACS/issues/331                                                                          ||
@@ -19,7 +18,7 @@
 ## - aligned filtered, no duplicated bam file for MACS3 PE: <sampleName>.filt.nodup.bam                               ||
 ## - MACS3,bedtools installed in a conda environment,                                                                 ||
 ## - Variables in config file: ALIGNED_DIR, PEAK_DIR_SAMPLES, BLACKLIST, MACS_SAMPLE                                  ||
-## - BLACKLIST: list of blacklist regions to exclude peaks called in these                                            ||
+## - BLACKLIST: list of blacklist regions to exclude peaks called in these, specified in config.txt file              ||
 ##                                                                                                                    ||
 ## ===================================================================================================================##
 
@@ -69,4 +68,3 @@ else
   echo Job ended on:
   date -u
 fi
-
