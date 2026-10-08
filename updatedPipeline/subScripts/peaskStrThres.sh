@@ -1,9 +1,8 @@
 #!/bin/bash
 ## ===================================================================================================================##
-##                    ATAC-seq pipeline STEP 9.5: Cell group Peak Calling (case-control)                              ##
+##                    ATAC-seq pipeline STEP 9.5: Cell group Peak Calling                                             ##
 ## ===================================================================================================================##
 ## EXECUTION: sh ./subScripts/peaskStrThres.sh <cell-group> <thres>                                                   ||
-## - execute from pipeline's main  directory                                                                          ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script calls peaks at cell group level, on all samples that belong to the same cell type using   ||
 ## MACS3 in paired-end mode.                                                                                          ||
@@ -24,16 +23,20 @@
 ##   regions and sex chromosomes filtered. Sorted by chromosome number                                                ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
-## - aligned filtered, no duplicated bam files for MACS3 PE: <sampleName>.filt.nodup.bam                              ||
+## - aligned filtered, no duplicated bam files for list of samples ${META_DIR}/downAnalysisSamples_${GROUP}.txt       ||
 ## - or merged bam file: /merged/passAllQC/${GROUP}.sorted.merged.bam                                                 ||
 ## - MACS3 and bedtools installed in a conda environment                                                              ||
 ## - Variables in config file: ALIGNED_DIR, PEAK_DIR, BLACKLIST,CURATED_PEAKS                                         ||
-## - BLACKLIST: list of blacklist regions to exclude peaks called in these                                            ||
+## - BLACKLIST: list of blacklist regions to exclude peaks called in these,specified in config.txt file               ||
 ##                                                                                                                    ||
 ## ===================================================================================================================##
 
+## ============ ##
+##    SET UP    ##
+## ============ ##
+
 PEAKS_NAME_GROUP="${GROUP}_${THRES}"
-OUTPUT_DIR="${CURATED_PEAKS}/${GROUP}"
+OUTPUT_DIR="${CURATED_PEAKS}/${GROUP}/"
 
 echo "Starting peak calling using MACS3 PE on samples that belong to cell fraction ${GROUP} at: "
 date -u
