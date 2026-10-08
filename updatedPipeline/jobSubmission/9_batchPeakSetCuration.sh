@@ -96,6 +96,11 @@ then
   { echo "Cell group specified not found. Please check whether samples that belong to that cell fraction exist."; exit 1; }            
 fi
 
+if [[ $2 == "PEAKSTR" && ! -v ${THRES} ]];
+then 
+    { echo "Invalid threshold for $2 STEP. Should be a peak calling threshold to be used to generated a curated peak set." ; exit 1; }
+fi
+
 if [[ ! ${GROUP} == '' ]]
 then
   echo "Chosen cell fraction is ${GROUP}"
