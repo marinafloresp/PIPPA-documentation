@@ -17,12 +17,11 @@
 ## - differential accessibility results file: diffPeaksCountsAll.rdata in 5_countPeaks folder      ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
-## - R version > 4.2, R libraries: Rsubread, GenomicRanges, ChIPpeakAnno,ChIPseeker                ||
-##   TxDb.Hsapiens.UCSC.hg38.knownGene,org.Hs.eg.db                                                ||
+## - R version > 4.2, R libraries: Rsubread, GenomicRanges, edgeR, rtracklayer                     ||
 ## - A csv file in the metadata folder with samples used for group peak calling:                   || 
 ##   samplesGroupAnalysis.csv. This is produced in STEP 8.0                                        ||
 ## - Parameters in config.r file: groupAnalysisSamples, sampleSheet, macs_thres_group, groupsPeaks ||
-##   groupCountsAll, diffPeaksCountsAll                                                            ||
+##   groupCountsAll, diffPeaksCountsAll, alignedDir                                                ||
 ## ================================================================================================##
 
 ## ==========##
@@ -37,8 +36,6 @@ suppressWarnings(suppressPackageStartupMessages({
   library(Rsubread)
   library(GenomicRanges)
   library(rtracklayer)
-  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-  library(org.Hs.eg.db)
   library(edgeR)
 }))
 
