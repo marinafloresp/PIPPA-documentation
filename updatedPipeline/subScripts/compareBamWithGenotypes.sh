@@ -4,7 +4,6 @@
 ##               ATAC-seq pipeline STEP 6.1: Verify Genotype                                            ##
 ## =====================================================================================================##
 ## EXECUTION: sbatch ./subScripts/compareBamWithGenotype.sh <sampleName>  <vcf id>                      ||
-## - execute from pipeline's main scripts directory                                                     ||
 ##                                                                                                      ||
 ## DESCRIPTION: This script compares genotype information of sample with existing genotype SNPs info to ||
 ## verify there is no contamination.                                                                    ||
@@ -21,7 +20,7 @@
 ##                                                                                                      ||
 ## REQUIRES:                                                                                            ||
 ## - sorted bam file, VCF file with SNP chip data                                                       ||
-## - Softwares: samtools and picard (in a conda environment), verifyBamID                         ||
+## - Softwares in conda environment: samtools, picard, verifyBamID                                      ||
 ## - Variables in config file: ALIGNED_DIR, GENOMEFASTA, KGREF,GENODIR,VERIFYBAMID                      ||
 ## - Reference genome: GENOMEFASTA: genome.fa                                                           ||
 ##                                                                                                      ||
@@ -87,7 +86,7 @@ then
     rm "${ALIGNED_DIR}/baseRecalibrate/${sampleName}_dedup.bam"
     rm "${ALIGNED_DIR}/${sampleName}_sorted_name.bam"
     rm ${ALIGNED_DIR}/baseRecalibrate/${sampleName}_dedup_rglabelled.bam*
-	  rm "${ALIGNED_DIR}/baseRecalibrate/${sampleName}_recal_data.table"
+	rm "${ALIGNED_DIR}/baseRecalibrate/${sampleName}_recal_data.table"
 else
     echo "No genotype data available"
     echo $sampleName >> "${META_DIR}/noVCFfound.txt"
@@ -101,8 +100,3 @@ else
   echo Job finished at: 
   date -u
 fi
-
-
-
-
- 
