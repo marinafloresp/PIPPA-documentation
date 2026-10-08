@@ -1,7 +1,7 @@
 ## ===============================================================================================================##
 ##             ATAC-seq pipeline STEP 9.0: Sample list for downstream analyses                                    ##
 ## ===============================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForDownAnalysis.r <project_config> <cf>                ||
+## EXECUTION: Rscript ./Rscripts/samplesForDownAnalysis.r <project_config> <cell-group>                           ||
 ##                                                                                                                ||
 ## DESCRIPTION: This scripts creates a file with samples that passed all stages of the QC and selects             ||
 ## samples that belong to an input cell type to perform peak calling.                                             ||
