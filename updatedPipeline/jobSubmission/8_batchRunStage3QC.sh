@@ -12,7 +12,6 @@
 ##                           ATAC-seq pipeline STEP 8: Group Peak calling                                             ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch  ./jobSubmission/8_batchRunStage3QC.sh <project directory> <STEP> <GROUP>                        ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs peak calling by grouping samples of the same cell type. This includes selecting  ||
 ## samples that passed both stages 1 and 2 of quality control. Next, peak calling is performed (PEAKS). Counts in     ||
@@ -31,8 +30,8 @@
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR_GROUPS,     ||
 ##   SCRIPTS_DIR, PROJECT,CONFIGR,RSCRIPTS_DIR,CONDA_ENV, CONDA, PEAKCOUNTS_DIR_GROUPS                                ||
 ## - A list of cell types of samples specified in config file: CELLTYPES                                              ||
+## - A conda environment setup with several tools: samtools, MACS3                                                    ||
 ## - For modules or references required, please refer to each subscript run in this script.                           ||
-## - A conda environment setup with several modules: samtools, MACS3                                                  ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
 ## - Subscripts: groupPeaks.sh                                                                                        ||
 ## - R subscripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                               ||
