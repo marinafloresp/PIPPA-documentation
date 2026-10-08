@@ -3,15 +3,9 @@
 ##                    ATAC-seq pipeline STEP 1.1: Pre-analysis -- quality-control raw data                            ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch  ./subScripts/fastqc.sh <sampleName> <R1> <R2>                                                   ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script calculates sequencing quality control qc metrics with fastqc for a                        ||
 ## pair of raw fastq samples.                                                                                         ||
-##                                                                                                                    ||
-## REQUIRES:                                                                                                          ||
-## - Variables in config file: RAWDATADIR, FASTQCDIR                                                                  ||
-## - Software: fastqc (in conda environment)                                                                          ||
-## - Paired-end files for sample: Read 1 and Read 2 in the same directory (RAWDATADIR)                                ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <sampleName> Name of sample specified in command line.                                                       ||
@@ -20,6 +14,11 @@
 ##                                                                                                                    ||
 ## OUTPUTS:                                                                                                           || 
 ##  sample_R1.fastq.gz, sample_R2.fastq.gz, sample_R1_fastqc.html, sample_R2_fastqc.html                              ||
+##                                                                                                                    ||
+## REQUIRES:                                                                                                          ||
+## - Variables in config file: RAWDATADIR, FASTQCDIR                                                                  ||
+## - Software: fastqc (in conda environment)                                                                          ||
+## - Paired-end files for sample: Read 1 and Read 2 in the same directory (RAWDATADIR)                                ||
 ##                                                                                                                    ||
 ## ===================================================================================================================##
 
@@ -48,6 +47,3 @@ if [[ ! -f "${FASTQCDIR}/${out1}_fastqc.html" ]] && [[ ! -f "${FASTQCDIR}/${out2
 then 
   { echo "FASTQC on ${sampleID} was not completed. Please check variables and inputs." ; exit 1; }
 fi 
-
-echo Job finished on:
-date -u 
