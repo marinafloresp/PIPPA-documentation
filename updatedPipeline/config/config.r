@@ -42,7 +42,7 @@ downstreamCounts <- paste0(countsDir, "/donwCounts/")
 colorBlindGrey8   <- c("#009E73", "#CC79A7", "#D55E00", "#999999", 
                        "#F0E442", "#0072B2",  "#E69F00", "#56B4E9")
 ## colours for cell types plotting (change as needed) ##
-col_vals4CT <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
+col_vals <- c("SOX10+" = "#6B8E23","TN" = "#C77CFF","NeuN+" = "hotpink","IRF8+" = "orange")
                        
 ## Thresholds applied in the first stage of QC (change to user's input)
 nrfThres <- 0.7
