@@ -16,8 +16,10 @@
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
 ## - R > 4.2, R libraries: Rsubread, GenomicRanges                                                 ||
-## - A csv file with samples used for curated peak calling: downAnalysisSamples.csv                ||
+## - A csv file with samples used for curated peak calling: downAnalysisSamples.csv. This is       ||
+## produced in STEP 9.0                                                                            ||
 ## - Parameters in config.r file: downAnalysisSamples, sampleSheet, peaksAnalysis, groupsCounts    ||
+## macs_thres_group, alignedDir                                                                    ||
 ## ================================================================================================##
 
 ## ==========##
@@ -49,7 +51,6 @@ print(nrow(pheno))
 print("Number of samples per cell-fraction")
 print(table(pheno$fraction))
 
-print(peaksAnalysis)
 peakFiles <- list.files(
   path = peaksAnalysis,
   pattern = "narrowPeak\\.filt$",
@@ -73,7 +74,7 @@ for(each in peakFiles){
 }
 
 peaks<-reduce(unlist(GRangesList(peaks)),min.gapwidth = 150)
-export(peaks, con = paste0(peaksAnalysis,"/consensusPeaks_5e-2_passAll.narrowPeak.bed"), format = "bed")
+export(peaks, con = paste0(peaksAnalysis,"/consensusPeaks_",macs_thres_group, "_passAll.narrowPeak.bed"), format = "bed")
 
 bamFiles<-list.files(alignedDir, pattern = ".filt.nodup.bam$", recursive = TRUE, include.dirs = TRUE)
 
@@ -90,5 +91,5 @@ allPeaks <- as.data.frame(peaks)
 ctPeaks<-data.frame("GeneID"=paste0("Peak_", c(1:nrow(allPeaks))), "Chr"=allPeaks$seqnames, "Start"=allPeaks$start, "End"=allPeaks$end, "Strand"="*")
 ## Get counts in all peaks
 fc_ctPeaks <- featureCounts(file.path(paste0(alignedDir,"/", bamFiles)),annot.ext=ctPeaks, allowMultiOverlap = TRUE, isPairedEnd = TRUE, nthreads = 10, fracOverlap=0.2)
-save(fc_ctPeaks, file = paste0(groupsCounts, "/peakCounts_cellTypes_5e-2_passAll.narrowPeak.rdata"))
+save(fc_ctPeaks, file = paste0(groupsCounts, "/peakCounts_cellTypes_",macs_thres_group,"_passAll.narrowPeak.rdata"))
 print("Counts in peaks matrix done")
