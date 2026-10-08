@@ -17,7 +17,7 @@
 ## - differential accessibility results file: diffPeaksCountsAll.rdata in 5_countPeaks folder      ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
-## - R version > 4.3, R libraries: Rsubread, GenomicRanges, ChIPpeakAnno,ChIPseeker                ||
+## - R version > 4.2, R libraries: Rsubread, GenomicRanges, ChIPpeakAnno,ChIPseeker                ||
 ##   TxDb.Hsapiens.UCSC.hg38.knownGene,org.Hs.eg.db                                                ||
 ## - A csv file in the metadata folder with samples used for group peak calling:                   || 
 ##   samplesGroupAnalysis.csv. This is produced in STEP 8.0                                        ||
