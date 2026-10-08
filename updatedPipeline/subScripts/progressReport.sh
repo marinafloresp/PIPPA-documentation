@@ -3,7 +3,6 @@
 ##                             ATAC-seq pipeline STEP 4.2: Collate QMetrics                     ##
 ## =============================================================================================##
 ## EXECUTION: sbatch ./subScripts/progressReport.sh                                             ||
-## - execute from pipeline's main directory                                                     ||
 ##                                                                                              ||
 ## DESCRIPTION: This script  checks whether all samples have undergone all steps.               ||
 ##                                                                                              ||
@@ -15,6 +14,10 @@
 ## - File in ${META_DIR}/samples.txt that lists sample names.                                   ||
 ##                                                                                              ||
 ## =============================================================================================##
+
+## ============ ##
+##    SET UP    ##
+## ============ ##
 
 echo "Running progress report"
 
@@ -55,6 +58,10 @@ echo "Number of ENCODE QC metric output files found " $(ls ${ALIGNED_DIR}/ENCODE
 ## check for peak calling output
 
 echo "Number of MACS3 peak files (paired end) found " $(ls ${PEAK_DIR_SAMPLES}/*.narrowPeak.filt | wc -l)
+
+## ============ ##
+##    COLLATE   ##
+## ============ ##
 
 ## check for individual samples
 ## save output in csv file
@@ -130,6 +137,13 @@ do
         echo "Y" >> "${META_DIR}/summariseSampleProcessingProgress.csv"
     fi
     
-
 done
 
+if [[ ! -f "${META_DIR}/summariseSampleProcessingProgress.csv" ]]
+then
+  { echo "Stage 1 progress report has been not been created." ; exit 1; }
+else
+  echo "Stage 1 progress report has been been created."
+  echo Job ended on:
+  date -u
+fi
