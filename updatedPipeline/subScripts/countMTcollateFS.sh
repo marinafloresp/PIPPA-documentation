@@ -3,14 +3,14 @@
 ##          ATAC-seq pipeline STEP 4.2: Count MT chromosome reads and collate ENCODE results           ##
 ## ====================================================================================================##
 ## EXECUTION: sbatch ./subScripts/countMTReads.sh                                                      ||
-## - execute from pipeline's main directory                                                            ||
 ##                                                                                                     ||
 ## DESCRIPTION: This script gets the number of reads aligned to MT chromosome and collates results     ||
 ## of ENCODE metrics calculation.                                                                      ||
 ##                                                                                                     ||
 ## OUTPUTS:                                                                                            ||
-## ${ALIGNED_DIR}/countMTReads.txt                                                                     ||
+## ${ALIGNED_DIR}/QCOutput/countMTReads.txt                                                            ||
 ## ${ALIGNED_DIR}/ENCODEMetrics/collateFlagStatMetrics.txt                                             ||
+## ${ALIGNED_DIR}/QCOutput/collateENCODEMetrics.txt                                                    ||
 ##                                                                                                     ||
 ## REQUIRES:                                                                                           ||
 ## - Variable in config file: ALIGNED_DIR                                                              ||
@@ -66,5 +66,3 @@ else
   echo Job ended on:
   date -u
 fi
-
-
