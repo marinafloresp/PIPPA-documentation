@@ -12,7 +12,6 @@
 ##                               ATAC-seq pipeline STEP 1: Pre-analysis                                               ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/1_batchRunPreAnalysis.sh <project directory> <STEP>       ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs the first step in the ATAC-seq pipeline: pre-analysis. This                      ||
 ## includes quality control of raw reads (FASTQC), trimming the reads (TRIM), aligning reads to                       ||
@@ -29,7 +28,7 @@
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, RAWDATADIR, ALIGNED_DIR, TRIM_DIR ||
 ##   SCRIPTS_DIR, PROJECT, CONDA_ENV, CONDA, UTILS                                                                    ||
 ## - For modules or references required, please refer to each subscript run in this script.                           ||
-## - A conda environment setup with several modules: samtools, fastqc, samstats,bedtools, bowtie2 and fastp           ||
+## - A conda environment setup with several modules: samtools, fastqc, samstats, bedtools, bowtie2, picard and fastp  ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
 ## - Subscripts: fastqc.sh, fastp.sh, alignment.sh, assign_multimappers.py and calcENCODEQCMetrics.sh                 ||
 ##                                                                                                                    ||
@@ -69,12 +68,13 @@ conda activate ${CONDA_ENV}
 ##    VARIABLES     ##
 ## ================ ##
 
-##check array specified and exit if not
+## check array specified and exit if not
 if [[ ${SLURM_ARRAY_TASK_ID} == '' ]]
 then 
     { echo "Job does not appear to be an array. Please specify --array on the command line." ; exit 1; }
 fi
 
+## check step has been specified, run all otherwise
 if [[ $2 == '' ]] 
 then
   echo "No step specified. All steps in the script will be run. "
@@ -152,6 +152,7 @@ EOF
   	then
    
     mkdir -p  ${ALIGNED_DIR}/QCOutput
+	
 cat <<EOF
 
 || Running STEP 1.3 of ATAC-seq pipeline: ALIGN ||
