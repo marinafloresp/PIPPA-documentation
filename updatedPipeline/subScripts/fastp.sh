@@ -3,18 +3,8 @@
 ##                               ATAC-seq pipeline STEP 1.2: Pre-analysis -- trimming                                 ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch ./subScripts/fastp.sh <sampleName> <R1> <R2>                                                     ||
-## - execute from pipeline's subScripts directory                                                                     ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs trimming of raw reads and following quality control of the new trimmed reads.    ||
-##                                                                                                                    ||
-## REQUIRES:                                                                                                          ||
-## - Variables in config file: RAWDATADIR, TRIM_DIR, ADAPTERS_FILE                                                    ||
-## - Software: fastp, fastqc (in conda environment)                                                                   ||
-## - Read 1 and Read 2 of the same sample in the same directory (RAWDATADIR)                                          ||
-## - A fasta file (.fa) with all adapters or sequences to be trimmed. Path to file should be specified in config file ||
-##   as "ADAPTERS_FILE"                                                                                               ||
-## - The length of sequences should be specified in the config.txt file as "max_len_R1" and "max_len_R2" for the max  ||
-##   length of reads and "min_len" for the minimum.                                                                   ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <sampleName> Name of sample specified in command line.                                                       ||
@@ -26,6 +16,16 @@
 ##  sample_R1_trimmed.f, sample_R2_trimmed.f                                                                          ||
 ##  sample_R1_trimmed_fastqc.zip, R1_trimmed_fastqc.html                                                              || 
 ##  sample_R2_trimmed_fastqc.zip, R2_trimmed_fastqc.html                                                              || 
+##                                                                                                                    ||
+## REQUIRES:                                                                                                          ||
+## - Variables in config file: RAWDATADIR, TRIM_DIR, ADAPTERS_FILE                                                    ||
+## - Software: fastp, fastqc (in conda environment)                                                                   ||
+## - Read 1 and Read 2 of the same sample in the same directory (RAWDATADIR)                                          ||
+## - A fasta file (.fa) with all adapters or sequences to be trimmed. Path to file should be specified in config file ||
+##   as "ADAPTERS_FILE"                                                                                               ||
+## - The length of sequences should be specified in the config.txt file as "max_len_R1" and "max_len_R2" for the max  ||
+##   length of reads and "min_len" for the minimum.                                                                   ||
+##                                                                                                                    ||
 ## ===================================================================================================================##
 
 ## ============ ##
@@ -64,7 +64,6 @@ fastp --detect_adapter_for_pe \
     --adapter_fasta ${ADAPTERS_FILE} \
     -b ${max_len_R1} -B ${max_len_R2} \
     -g -c -x
-    
 
 if [[ ! -f ${TRIM_DIR}/${outf1} ]] && [[ ! -f ${TRIM_DIR}/${outf2} ]]
 then 
@@ -77,6 +76,5 @@ fi
 ##    QC        ##
 ## ============ ##
 
-## QC is performed in trimmed reads
+## QC is performed on trimmed reads
 fastqc ${TRIM_DIR}/${outf1} ${TRIM_DIR}/${outf2} -t 8 -o ${TRIM_DIR}/qc/
-
