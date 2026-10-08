@@ -14,16 +14,18 @@
 ## EXECUTION: sbatch ./jobSubmission/7_collateStage2QCMetrics.sh <project-directory> <STEP>                           ||
 ## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script collates results from the second part of the pipeline: confirmation of correct individual.|| 
+## DESCRIPTION: This script collates results from the second stage of the pipeline: confirmation of correct individual||
+## First, will check whether all samples have been processed for the second stage (COLLATE). Results of Stage 2 will  ||
+## output (SUMMARY).                                                                                                  ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <project dir> directory of project, location of config.txt file                                              ||
 ## $2 -> <STEP> Specify step to run: COLLATE, SUMMARY. Can be combined. Default is to run all                         ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
-## - Config.txt file in <project directory>.                                                                          ||
-##   SCRIPTS_DIR, PROJECT,FASTQCDIR,CONDA_ENV, CONDA                                                                  ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
+## - Config.txt, config.r files in <project directory>.                                                               ||
+## - Variables to be specified in config.txt: SCRIPTS_DIR, PROJECT,CONDA_ENV, CONDA                                   ||
+## - For other software or references required, please refer to each subscript run in this script.                    ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subscripts                                                            ||
 ## - Subscripts: progressReportS2.sh                                                                                  ||
 ## - R subscripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                               ||
