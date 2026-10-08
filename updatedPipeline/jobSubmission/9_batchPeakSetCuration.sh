@@ -250,5 +250,7 @@ EOF
 
 fi
 
+conda deactivate
+
 echo Job finished on:
 date -u
