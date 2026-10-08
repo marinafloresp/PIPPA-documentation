@@ -1,14 +1,13 @@
 ## ===============================================================================================================##
 ##                          ATAC-seq pipeline STEP 8.0: Sample list for group peak calling                        ##
 ## ===============================================================================================================##
-## EXECUTION: Rscript ./sequencing/ATACSeq/Rscripts/samplesForGroupAnalysis.r <project> <cf>                      ||
-## - execute from scripts directory                                                                               ||
+## EXECUTION: Rscript ./Rscripts/samplesForGroupAnalysis.r <project_config> <cf>                                  ||
 ##                                                                                                                ||
 ## DESCRIPTION: This scripts creates a file with samples that passed both stage 1 and 2 of the QC and selects     ||
 ## samples that belong to an input cell type to perform peak calling.                                             ||
 ##                                                                                                                ||
 ## INPUTS:                                                                                                        ||
-## - <project> : project on which analysis is being run                                                           ||
+## - <project_config> : path to config.r file.                                                                    ||
 ## - <cf>: cell fraction of samples to select for group peak calling                                              ||
 ##                                                                                                                ||
 ## OUTPUTS:                                                                                                       ||
@@ -16,7 +15,7 @@
 ## - "samplesGroupAnalysis.csv" in 0_metadata folder                                                              ||
 ##                                                                                                                ||
 ## REQUIRES:                                                                                                      ||
-## - R version > 4.3                                                                                              ||
+## - R version > 4.2                                                                                              ||
 ## - A csv file in the metadata folder with the summary of QC stages 1 and 2: passS1S2Status.csv. This is produced||
 ##   at STEP 7.2 SUMMARY                                                                                          ||
 ## ===============================================================================================================##
