@@ -3,7 +3,6 @@
 ##                    ATAC-seq pipeline STEP 9.3: Cell group Peak Calling for cutoff analysis                         ##
 ## ===================================================================================================================##
 ## EXECUTION: sh ./subScripts/peaskForCuration.sh <cell-group>                                                        ||
-## - execute from pipeline's main  directory                                                                          ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script calls peaks at cell group level, on all samples that belong to the same cell type using   ||
 ## MACS3 in paired-end mode.                                                                                          ||
@@ -23,13 +22,17 @@
 ##   regions and sex chromosomes filtered. Sorted by chromosome number                                                ||
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
-## - aligned filtered, no duplicated bam file for MACS3 PE: <sampleName>.filt.nodup.bam                               ||
+## - aligned filtered, no duplicated bam files for list of samples ${META_DIR}/downAnalysisSamples_${GROUP}.txt       ||
 ## - or merged bam file: /merged/passAllQC/${GROUP}.sorted.merged.bam                                                 ||
 ## - MACS3 and bedtools installed in a conda environment                                                              ||
 ## - Variables in config file: ALIGNED_DIR, PEAK_DIR_C, BLACKLIST, macs_group_thres                                   ||
-## - BLACKLIST: list of blacklist regions to exclude peaks called in these                                            ||
+## - BLACKLIST: list of blacklist regions to exclude peaks called in these,specified in config.txt file               ||
 ##                                                                                                                    ||
 ## ===================================================================================================================##
+
+## ============ ##
+##    SET UP    ##
+## ============ ##
 
 PEAKS_NAME_GROUP="${GROUP}_${macs_group_thres}"
 OUTPUT_DIR="${PEAK_DIR_C}/${GROUP}/"
