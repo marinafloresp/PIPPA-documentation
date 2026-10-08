@@ -12,7 +12,6 @@
 ##                               ATAC-seq pipeline STEP 0: Set up                                            ##
 ## ==========================================================================================================##
 ## EXECUTION: sbatch ./jobSubmission/0_setUp.sh <project directory>                                          ||
-## - execute from scripts directory                                                                          ||
 ##                                                                                                           ||
 ## INPUTS:                                                                                                   || 
 ## $1 -> <project directory> path to project's directory                                                     || 
