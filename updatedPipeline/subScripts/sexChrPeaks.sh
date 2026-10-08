@@ -3,20 +3,19 @@
 ##                           ATAC-seq pipeline STEP 5.2: Sex Chr Peak calling                      ||                  
 ## ================================================================================================##
 ## EXECUTION: sbatch ./subScripts/sexChrPeaks.sh                                                   ||
-## - execute from scripts directory                                                                ||
 ##                                                                                                 ||
 ## DESCRIPTION: This script call peaks only on reads assigned to sex chromosomes merging all       ||
 ## samples, using MACS3 paired-end mode                                                            ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
 ## PEAK_DIR/chrX.narrowPeak.filt, PEAK_DIR/chrY.narrowPeak.filt                                    ||
-## - output will be peaks called in sex chromosomes and not aligned to par regions                 ||
+## - output will be peaks called in sex chromosomes and not aligned to PAR regions                 ||
 ##  PEAKCOUNTS/chrX.peakcounts.txt, PEAKCOUNTS/chrY.peakcounts.txt                                 ||
 ## - output will be counts in peaks called on sex chromosomes for each sample                      ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
 ## - bam files, split chromosomes for MACS3 in ALIGNED_DIR/sexChr/                                 ||
-## - MACS3 installed in a pip environment, bedtools                                                ||
+## - MACS3, bedtools installed in conda environment                                                ||
 ## - Variables in config file: ALIGNED_DIR, PEAK_DIR, XCHRBED,PEAKCOUNTS, PAR                      ||
 ##                                                                                                 ||
 ## ================================================================================================##
@@ -47,8 +46,8 @@ do
 	else
 		## Y chr exclude peaks overlapping psuedoautosomal regions
 	  bedtools intersect -v -a "${PEAK_DIR_SEXCHR}/chrY_peaks.narrowPeak" -b ${PAR} \
-    | awk 'BEGIN{OFS="\t"} {if ($5>1000) $5=1000; print $0}' \
-    | grep -P 'chr[\dXY]+[ \t]' > "${PEAK_DIR_SEXCHR}/chrY.narrowPeak.filt"
+    	| awk 'BEGIN{OFS="\t"} {if ($5>1000) $5=1000; print $0}' \
+    	| grep -P 'chr[\dXY]+[ \t]' > "${PEAK_DIR_SEXCHR}/chrY.narrowPeak.filt"
 	fi
   rm *_peaks.*
  
@@ -62,6 +61,7 @@ do
 	touch "${PEAKCOUNTS_DIR_SEXCHR}/${chr}.peakcounts.txt"
 	for file in ${f_PE[@]}
 	do
-		bedtools intersect -C -filenames -a "${PEAK_DIR_SEXCHR}/${chr}.narrowPeak.filt" -b ${file} | awk -v var=${file} '{ print $0, var}' >> "${PEAKCOUNTS_DIR_SEXCHR}/${chr}.peakcounts.txt"
+		bedtools intersect -C -filenames -a "${PEAK_DIR_SEXCHR}/${chr}.narrowPeak.filt" -b ${file} \
+		| awk -v var=${file} '{ print $0, var}' >> "${PEAKCOUNTS_DIR_SEXCHR}/${chr}.peakcounts.txt"
     done
 done
