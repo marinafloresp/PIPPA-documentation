@@ -12,13 +12,12 @@
 ##                              ATAC-seq pipeline STEP 6: Genotype concordance                                                 ##
 ## ============================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/6_batchRunGenotypeConcordance.sh <project directory> <STEP>        ||
-## - execute from pipeline's main directory                                                                                    ||
 ##                                                                                                                             ||
-## DESCRIPTION: This script will detect possible DNA contamination in order to ensure high quality sequence reads. If any      ||
-## contamination is detected, possible swaps will be suggested.                                                                ||
+## DESCRIPTION: This script will detect possible DNA contamination in order to ensure high quality sequence reads (COMPARE).   ||
+## if any contamination is detected, possible swaps will be suggested.                                                         ||
 ##                                                                                                                             ||
 ## INPUTS:                                                                                                                     || 
-## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input, for COMPARE step only         ||
+## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input.                               ||
 ## $1 -> <project directory> Directory of the project, location of the config file                                             ||
 ## $2 -> <STEP> Specify step to run: COMPARE, SWITCH. Can be combined. Default is to run all                                   ||
 ##                                                                                                                             ||
@@ -30,15 +29,10 @@
 ## - Config.txt file in <project directory>.                                                                                   ||
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, SCRIPTS_DIR, PROJECT,PEAK_DIR ||
 ##   CONDA, CONDA_ENV                                                                                                          ||
-## - Directory of the following software should be specified in config file: verifyBAMID (VERIFYBAMID)                         ||
-## - Softwares: Picard, GATK, R, Pandoc, samtools in conda environment                                                         ||
+## - Softwares: Picard, GATK, R, Pandoc, samtools, verifyBAMID in conda environment                                            ||
 ## - For modules or references required, please refer to each subscript run in this script.                                    ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subscripts                                                                     ||
 ## - Subscripts: compareBamWithGenotypes.sh, searchBestGenoMatch.sh                                                            ||
-## - R subscripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                                        ||
-## - R scripts: collateSampleChecks.Rmd                                                                                        ||
-## - --array number should start from 1 for the first sample.                                                                  ||
-## - For STEP 6.2 GENCHECK, array number should be a single number, as need to be run once.                                    ||
 ##                                                                                                                             ||
 ## ============================================================================================================================##
 
