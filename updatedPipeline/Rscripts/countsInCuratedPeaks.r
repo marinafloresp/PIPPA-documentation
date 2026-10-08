@@ -13,7 +13,7 @@
 ## - <thres> : q value threshold used for curated peak set                                         ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
-## -  counts in peaks (all peaks) file:  in 5_countPeaks folder "ccCounts"                         ||
+## -  counts in peaks (all peaks) file: in 5_countPeaks folder "downstreamCounts"                  ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
 ## - R version > 4.2, R libraries: Rsubread, GenomicRanges                                         ||
@@ -77,4 +77,4 @@ names(ctPeaks) <- c("GeneID", "Chr", "Start", "End", "Strand")
 
 ## Get counts in all peaks
 fc_ctPeaks <- featureCounts(file.path(paste0(alignedDir,"/", bamFiles)),annot.ext=ctPeaks, allowMultiOverlap = TRUE, isPairedEnd = TRUE, nthreads = 10, fracOverlap=0.2)
-save(fc_ctPeaks, file = paste0(ccCounts, "/peakCounts_",cf,"_", thres, ".narrowPeak.rdata"))
+save(fc_ctPeaks, file = paste0(downstreamCounts, "/peakCounts_",cf,"_", thres, ".narrowPeak.rdata"))
