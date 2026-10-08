@@ -1,4 +1,7 @@
-## Figure 4
+#########################
+##       Figure 4      ##
+#########################
+
 #Figure 4: More stringent q-value thresholds change the genomic annotation of peaks. BDR & SFARI, three positive cell types, one line per dataset (6 in total). 
 
 # 4a Line graph of number of genes annotated to any peak (y-axis) vs qvalue threshold. 
