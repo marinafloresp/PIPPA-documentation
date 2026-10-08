@@ -1,9 +1,8 @@
 #!/bin/bash
 ## =============================================================================================##
-##                    ATAC-seq pipeline STEP 6.3: Best Genotype                                 ##
+##                    ATAC-seq pipeline STEP 6.2: Best Genotype                                 ##
 ## =============================================================================================##
 ## EXECUTION: sbatch ./subScripts/searchBestGenotype.sh <sampleName>  <vcf id>                  ||
-## - execute from pipeline's main scripts directory                                             ||
 ##                                                                                              ||
 ## DESCRIPTION: This script takes potential contaminated genotype samples and aims to find the  ||
 ## best matching genotype                                                                       ||
@@ -38,7 +37,9 @@ echo "processing" ${sampleName} "with" ${vcfid}
 ##    FIND BEST GENOTYPE    ##
 ## ======================== ##
 
-verifybamid2 --vcf ${SNP} --bam "${ALIGNED_DIR}/baseRecalibrate/${sampleName}_baserecal.bam" --out "${ALIGNED_DIR}/genotypeConcordance/${sampleName}" --ignoreRG --smID ${vcfid} --best
+verifybamid2 --vcf ${SNP} --bam "${ALIGNED_DIR}/baseRecalibrate/${sampleName}_baserecal.bam" \
+--out "${ALIGNED_DIR}/genotypeConcordance/${sampleName}" \
+--ignoreRG --smID ${vcfid} --best
 
 if [[ ! -f "${ALIGNED_DIR}/genotypeConcordance/${sampleName}.bestSM" ]]
 then
