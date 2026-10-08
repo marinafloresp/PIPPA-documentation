@@ -27,7 +27,7 @@
 ## - Config.txt file in <project directory>.                                                                          ||
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR, PROJECT    ||
 ##   SCRIPTS_DIR, PEAK_DIR_SAMPLES, RSCRIPTS_DIR, CONDA_ENV, CONDA                                                    ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
+## - For software or references required, please refer to each subscript run in this script.                          ||
 ## - A conda environment setup with several modules: samtools, MACS3, R, bedtools, samtools                           ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subscripts                                                            ||
 ## - Subscripts: shiftAlignedReads.sh, samplePeaks.sh, collateCalcFrip.sh                                             ||
