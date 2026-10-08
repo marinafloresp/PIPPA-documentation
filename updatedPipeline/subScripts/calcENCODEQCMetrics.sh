@@ -3,7 +3,6 @@
 ##                    ATAC-seq pipeline STEP 1.4: Pre-analysis -- ENCODEQC metrics calculation                        ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch ./subScripts/calcENCODEQCMetrics.sh <sampleName>                                                 ||
-## - execute from pipeline's subScripts directory                                                                     ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script calculates ENCODE library complexity metrics according to                                 ||
 ## https://docs.google.com/document/d/1f0Cm4vRyDQDu0bMehHD7P7KOMxTOP-HiNoIvL1VcBt8/edit#                              ||
