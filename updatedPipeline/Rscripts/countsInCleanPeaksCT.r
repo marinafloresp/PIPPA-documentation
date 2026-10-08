@@ -15,7 +15,7 @@
 ## - consensus peak set file: "consensusPeaks_5e-2_passAll.narrowPeak.bed" in 4_calledPeaks folder ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
-## - R > 4.2, R libraries: Rsubread, GenomicRanges                                                 ||
+## - R > 4.2, R libraries: Rsubread, GenomicRanges, rtracklayer                                    ||
 ## - A csv file with samples used for curated peak calling: downAnalysisSamples.csv. This is       ||
 ## produced in STEP 9.0                                                                            ||
 ## - Parameters in config.r file: downAnalysisSamples, sampleSheet, peaksAnalysis, groupsCounts    ||
@@ -34,9 +34,6 @@ suppressWarnings(suppressPackageStartupMessages({
   library(Rsubread)
   library(GenomicRanges)
   library(rtracklayer)
-  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-  library(org.Hs.eg.db)
-  library(edgeR)
 }))
 
 ## ===============##
