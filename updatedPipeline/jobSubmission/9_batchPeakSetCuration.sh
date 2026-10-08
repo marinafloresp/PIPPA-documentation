@@ -12,9 +12,11 @@
 ##                           ATAC-seq pipeline STEP 9: Curation of peak sets                                          ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch  ./jobSubmission/9_batchPeakSetCuration.sh <project directory> <STEP> <GROUP> <THRES>            ||
-## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script performs analysis and curation of peak sets that can be used in downstream analyses.      ||
+## Samples that passed all QC are merged into single bam file (MERGE) and converted to BigWig format (BW). Peak       ||
+## calling at cell type level is performed at default threshold (PEAKS). Segmented analysis is performed to guide     ||
+## peak calling threshold (CUTOFF) for peak calling to be repeated (PEAKSTR).                                         ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## $1 -> <project directory> directory of project, location of config.txt file                                        ||
@@ -24,16 +26,16 @@
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
 ## - File in ${META_DIR}/samples.txt that lists sample names.                                                         ||
-## - Config.txt file in <project directory>.                                                                          ||
-## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR, PEAKCOUNTS ||
-##   SCRIPTS_DIR, PROJECT,CONFIGR,RSCRIPTS_DIR,CONDA_ENV, CONDA                                                       ||
-## - A list of cell types of samples specified in config file: CELLTYPES                                              ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
+## - Config.txt, config.r files in <project directory>.                                                               ||
+## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR_C,          ||
+##   SCRIPTS_DIR, PROJECT,CONFIGR,RSCRIPTS_DIR,CONDA_ENV, CONDA, CURATED_PEAKS, PEAK_DIR_CUTOFF                       ||
+## - A list of cell types of samples specified in config files: CELLTYPES                                             ||
 ## - A conda environment setup with several modules: samtools, MACS3                                                  ||
+## - For other tools or references required, please refer to each subscript run in this script.                       ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
-## - Subscripts: groupPeaks.sh                                                                                        ||
+## - Subscripts: peaksForCuration.sh, peaksStrThres.sh                                                                ||
 ## - R subscripts to be in ${RSCRIPTS_DIR} = ./Rscripts                                                               ||
-## - R subscripts: cutoffAnalysis.r                                                                                   ||
+## - R subscripts: cutoffAnalysis.r, samplesForDownAnalysis.r                                                         ||
 ## ===================================================================================================================##
 
 
@@ -151,14 +153,13 @@ if [ $# == 1 ] || [[ $2 == 'BW' ]]
 then
   
   INPUTDIR="${ALIGNED_DIR}/merged/passAllQC/"
-
   OUPUTDIR="${ALIGNED_DIR}/bigWig/passAllQC/"
   
   mkdir -p "${OUPUTDIR}"
   
 cat <<EOF
 
-|| Running STEP 9.2 of ATAC-seq pipeline: BigWig ||
+|| Running STEP 9.2 of ATAC-seq pipeline: BW ||
 
 If exists, a merged bam file will be converted to bigwig format to be used for genome tracks.
 Output directory is ${OUPUTDIR}
@@ -215,7 +216,7 @@ EOF
   
 fi
 
-## option STRPEAKS: peak calling is repeated with chosen threshold for curated peak set
+## option PEAKSTR: peak calling is repeated with chosen threshold for curated peak set
 if [ $# = 1 ] || [[ $2 == 'PEAKSTR' ]]
 then
   
@@ -226,7 +227,7 @@ cat <<EOF
 || Running STEP 9.5 of ATAC-seq pipeline: PEAKSTR ||
 
 Peak calling on ${GROUP} samples will be performed.
-Cutoff is ${THRES}
+Q value Cutoff is ${THRES}
 Output directory is ${CURATED_PEAKS}
 
 EOF
