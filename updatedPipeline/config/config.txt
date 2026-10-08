@@ -21,8 +21,7 @@ export PROJECT="project name"
 export MAIN_DIR="/path/to/project/folder/${PROJECT}"
 
 export CONFIGR="${MAIN_DIR}/config.r"
-export CONDAFILE="${MAIN_DIR}/environment.yml"
-export PIPFILE="${MAIN_DIR}/packagesPip.txt"
+export CONDAFILE="${MAIN_DIR}/environment.txt"
 
 ## =========================================== ##
 || Scripts and software filepaths and versions ||
@@ -34,9 +33,6 @@ export SCRIPTS_DIR="/path/to/these/scripts/folder"
 export SUB_SCRIPTS_DIR="${SCRIPTS_DIR}/subscripts"
 export RSCRIPTS_DIR="${SCRIPTS_DIR}/Rscripts"
 export LOG_DIR="${SCRIPTS_DIR}/logFiles"
-
-## Specify full path to the required softwares ##
-export RLIB="/path/to/users/R/libraries"
 
 ## Specify full path to conda environment ##
 export CONDA="/path/tp/.conda/envs/folder"
