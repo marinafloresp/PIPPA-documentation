@@ -21,7 +21,13 @@
 ## the analysis.                                                                                             ||
 ##                                                                                                           ||
 ## REQUIRES:                                                                                                 ||
-## - File in ${METADIR}/samples.txt that lists sample names.                                                 ||
+## - File ${METADIR}/samples.txt that lists sample names.                                                    ||
+## - File with requirements to set up conda environment specified in ${CONDA_FILE}                           ||
+## - File in ${METADIR} with phenotype information specified in ${SAMPLE_SHEET}                              ||
+## - Config.txt, config.r files in <project directory>.                                                      ||
+## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, RAWDATADIR, ALIGNED_DIR, ||
+## SAMPLE_SHEET, TRIM_DIR, PEAK_DIR, CONDA_ENV, CONDA, RSCRIPTS_DIR, RLIB, PROJECT, SCRIPTS_DIR, CONDA_FILE  ||
+## - intallLibraries.r file in ${RSCRIPTS_DIR} = ./Rscripts directory                                        || 
 ## ==========================================================================================================##
 
 
