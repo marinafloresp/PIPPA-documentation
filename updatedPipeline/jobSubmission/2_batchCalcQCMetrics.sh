@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --export=ALL # export all environment variables to the batch job.
-#SBATCH --time=25:00:00 # Maximum wall time for the job.
+#SBATCH --time=72:00:00 # Maximum wall time for the job.
 #SBATCH --nodes=1 # specify number of nodes.
 #SBATCH --ntasks-per-node=16 # specify number of processors per node
 #SBATCH --mail-type=END # send email at job completion 
@@ -8,40 +8,37 @@
 #SBATCH --error=ATACcalcQCS2-%A_%a.err
 #SBATCH --job-name=ATACcalcQCS2
 
-## ===================================================================================================================##
-##                             ATAC-seq pipeline STEP 2: Post alignment processing                                    ##
-## ===================================================================================================================##
-## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/2_batchCalcQCMetrics.sh <project directory> <STEP>        ||
-## - execute from pipeline's main scripts directory                                                                   ||
-##                                                                                                                    ||
-## DESCRIPTION: This script performs the second step in the ATAC-seq pipeline: ATAC-seq-specific metrics calculation. ||
-## Includes the classification of aligned reads into fragment sizes and related statistics (FRAG).Then pre-processing ||
-## of aligned reads are done (BW) to calculate TSS enrichment score (SCORE) and collate results (COLLATE)             ||
-##                                                                                                                    ||
-## INPUTS:                                                                                                            || 
-## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input. Needed for steps BW, ||
-##  and SCORE.                                                                                                        || 
-## - $1 -> <project directory> : directory to config file for project                                                 ||
-## - $2 -> <STEP> Specify step to run: FRAG, BW, SCORE or COLLATE. Needs to be specified.                             ||
-## - $3 -> <GROUP_SAMPS> Only to be specified for FRAG step. It splits the samples into groups of 10 to run in        ||
-##  parallel, so batch number should be the number of samples divided by 10. e.g. If there are 50 samples, batch      ||
-##  number should be 0-5, producing 5 batches of 10 samples each. If the number of samples is less than 10, set batch ||
-##  number to 0.                                                                                                      ||
-##                                                                                                                    ||
-## REQUIRES:                                                                                                          ||
-## - File in ${META_DIR}/samples.txt that lists sample names.                                                         ||
-## - Config.txt file in <project directory>.                                                                          ||
-## - The following variables specified in config file: MAIN_DIR, SCRIPTS_DIR, LOG_DIR, ALIGNED_DIR, RSCRIPTS_DIR,     ||
-##   CONDA, CONDA_ENV                                                                                                 ||
-## - For modules or references required, please refer to each subscript run in this script.                           ||
-## - A conda environment setup with several modules: samtools, R, samstats,bedtools, bowtie2 and fastp                ||
-## - R version should be > 4.2 in conda environment.                                                                  ||
-## - fragmentDistribution.r file in ${RSCRIPTS_DIR} = ./Rscripts directory                                            ||
-## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
-## - Subscripts: prepareBigWig.sh, calcTssEnrich.sh, collateTSSScores.sh                                              ||
-##                                                                                                                    ||
-## ===================================================================================================================##
-
+## ===========================================================================================================================##
+##                             ATAC-seq pipeline STEP 2: Post alignment processing                                            ##
+## ===========================================================================================================================##
+## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/2_batchCalcQCMetrics.sh <project directory> <STEP> <GROUP_SAMPS>  ||
+##                                                                                                                            ||
+## DESCRIPTION: This script performs the second step in the ATAC-seq pipeline: ATAC-seq-specific metrics calculation.         ||
+## Includes the classification of aligned reads into fragment sizes and related statistics (FRAG).Then pre-processing         ||
+## of aligned reads are done (BW) to calculate TSS enrichment score (SCORE) and collate results (COLLATE)                     ||
+##                                                                                                                            ||
+## INPUTS:                                                                                                                    || 
+## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input. Needed for steps BW,         ||
+##  and SCORE.                                                                                                                || 
+## - $1 -> <project directory> : directory to config file for project                                                         ||
+## - $2 -> <STEP> Specify step to run: FRAG, BW, SCORE or COLLATE. Needs to be specified.                                     ||
+## - $3 -> <GROUP_SAMPS> Only to be specified for FRAG step. It splits the samples into groups of 10 to run in                ||
+##  parallel, so batch number should be the number of samples divided by 10. E.G. If there are 50 samples, batch              ||
+##  number should be 0-5, producing 5 batches of 10 samples each. If the number of samples is less than 10, set batch         ||
+##  number to 0.                                                                                                              ||
+##                                                                                                                            ||
+## REQUIRES:                                                                                                                  ||
+## - File in ${META_DIR}/samples.txt that lists sample names.                                                                 ||
+## - Config.txt file in <project directory>.                                                                                  ||
+## - The following variables specified in config file: MAIN_DIR, SCRIPTS_DIR, LOG_DIR, ALIGNED_DIR, RSCRIPTS_DIR,             ||
+##   CONDA, CONDA_ENV                                                                                                         ||
+## - For other variables, software or references required, please refer to each subscript run in this script.                 ||
+## - A conda environment setup with several modules: samtools, R, samstats,bedtools, bowtie2 and fastp                        ||
+## - fragmentDistribution.r file in ${RSCRIPTS_DIR} = ./Rscripts directory                                                    ||
+## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                                    ||
+## - Subscripts: prepareBigWig.sh, calcTssEnrich.sh, collateTSSScores.sh                                                      ||
+##                                                                                                                            ||
+## ===========================================================================================================================##
 
 ## ============ ##
 ##    SET UP    ##
