@@ -18,7 +18,7 @@
 ## - A csv file with samples used for curated peak calling: downAnalysisSamples.csv. This is       ||
 ## produced in STEP 9.0                                                                            ||
 ## - Parameters in config.r file: downAnalysisSamples, sampleSheet, peaksAnalysis, groupsCounts    ||
-## macs_thres_group, alignedDir                                                                    ||
+## macs_thres_group, alignedDir,groupCountsClean                                                   ||
 ## ================================================================================================##
 
 ## ==========##
@@ -83,9 +83,13 @@ bamFiles<-bamFiles[bamFiles %in% unlist(lapply(sampleNames, function(x) paste0(x
 ##   COUNTS (ALL)  ##
 ## ================##
 
+## File name specified in config file
+print("Counts in peaks file name is: ")
+print(groupCountsClean)
+           
 allPeaks <- as.data.frame(peaks)
 ctPeaks<-data.frame("GeneID"=paste0("Peak_", c(1:nrow(allPeaks))), "Chr"=allPeaks$seqnames, "Start"=allPeaks$start, "End"=allPeaks$end, "Strand"="*")
 ## Get counts in all peaks
 fc_ctPeaks <- featureCounts(file.path(paste0(alignedDir,"/", bamFiles)),annot.ext=ctPeaks, allowMultiOverlap = TRUE, isPairedEnd = TRUE, nthreads = 10, fracOverlap=0.2)
-save(fc_ctPeaks, file = paste0(groupsCounts, "/peakCounts_cellTypes_",macs_thres_group,"_passAll.narrowPeak.rdata"))
+save(fc_ctPeaks, file = groupCountsClean)
 print("Counts in peaks matrix done")
