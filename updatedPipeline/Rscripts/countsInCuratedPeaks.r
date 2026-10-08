@@ -9,7 +9,7 @@
 ## filtered for blacklisted regions only.                                                          ||
 ##                                                                                                 ||
 ## INPUTS:                                                                                         ||
-## - <project> : project on which analysis is being run                                            ||
+## - <project_config> : path to config.r file.                                                     ||
 ## - <cf> : chosen cell type                                                                       ||
 ## - <thres> : q value threshold used for curated peak set                                         ||
 ##                                                                                                 ||
