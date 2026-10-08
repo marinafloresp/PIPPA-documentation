@@ -2,7 +2,6 @@
 ##                  ATAC-seq pipeline STEP 10.1: Counts in curated cell type peaks                 ##
 ## ================================================================================================##
 ## EXECUTION: Rscript ./Rscripts/countsInCleanPeaksCT.r <project_config>                           ||
-## - execute from scripts directory                                                                ||
 ##                                                                                                 ||
 ## DESCRIPTION: This scripts gets read counts in curated peaks called from all cell types. Only    ||
 ## samples that passed all QC stages are used, as done to call peaks.                              ||
