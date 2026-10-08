@@ -3,7 +3,6 @@
 ##               ATAC-seq pipeline STEP 2.2: Prepare BigWig files for TSS scores                             ##
 ## ==========================================================================================================##
 ## EXECUTION: sbatch ./subScripts/prepareBigWig.sh <sampleName>                                              ||
-## - execute from scripts directory                                                                          ||
 ##                                                                                                           ||
 ## DESCRIPTION: Produce bigWig file in required format for TSS enrichment score calculation.                 ||
 ##                                                                                                           ||
@@ -12,12 +11,12 @@
 ##  duplicates marked                                                                                        ||
 ##                                                                                                           ||
 ## OUTPUTS:                                                                                                  ||
-## - "sampleName.shifted.bw"                                                                                 ||
+## - "<sampleName>.shifted.bw"                                                                               ||
 ##                                                                                                           ||
 ## REQUIRES:                                                                                                 ||
 ## - Deeptools, SAMtools (in a conda environment)                                                            ||
 ## - Variables in config file: ALIGNED_DIR                                                                   ||
-## - Duplicated marked, aligned bam file: sampleName.filt.dupmark.bam                                        ||
+## - Duplicated marked, aligned bam file: ${ALIGNED_DIR}/<sampleName>.filt.dupmark.bam                       ||
 ##                                                                                                           ||
 ## ==========================================================================================================##
 
