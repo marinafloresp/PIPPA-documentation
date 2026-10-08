@@ -3,7 +3,6 @@
 ##                          ATAC-seq pipeline STEP 8.2: Cell group Peak Calling                                       ##
 ## ===================================================================================================================##
 ## EXECUTION: sh ./groupPeaks.sh <cell-group>                                                                         ||
-## - execute from pipeline's main  directory                                                                          ||
 ##                                                                                                                    ||
 ## DESCRIPTION: This script calls peaks at cell group level, on all samples that belong to the same cell type using   ||
 ## MACS3 in paired-end mode.                                                                                          ||
@@ -17,12 +16,16 @@
 ##                                                                                                                    ||
 ## REQUIRES:                                                                                                          ||
 ## - if available, merged bam file with samples that belong to cell-type input: ${GROUP}.sorted.merged.bam            ||
-## - otherwise, aligned bam files                                                                                     ||
+## - otherwise, aligned bam files. List of samples in samplesForGroupAnalysis_${GROUP}.txt                            ||
 ## - MACS3 and bedtools installed in a conda environment                                                              ||
 ## - Variables in config file: ALIGNED_DIR, PEAK_DIR_GROUPS, BLACKLIST,macs_group_thres                               ||
-## - BLACKLIST: list of blacklist regions to exclude peaks called in these                                            ||
+## - BLACKLIST: list of blacklist regions to exclude peaks called in these, specified in config.txt file              ||
 ##                                                                                                                    ||
 ## ===================================================================================================================##
+
+## ============ ##
+##    SET UP    ##
+## ============ ##
 
 PEAKS_NAME_GROUP="${GROUP}_${macs_group_thres}"
 
@@ -62,17 +65,15 @@ else
   macs3 callpeak -t ${bamFiles[@]} --outdir ${PEAK_DIR_GROUPS} -n ${PEAKS_NAME_GROUP} -f BAMPE -g 2.9e9 -q $macs_group_thres --keep-dup all --nomodel 
 fi
 
-## exclude peaks aligned to blacklist regions and peaks called in chr X and Y
+## exclude peaks aligned to blacklist regions
 bedtools intersect -v -a "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}_peaks.narrowPeak" -b ${BLACKLIST} \
-	| awk 'BEGIN{OFS="\t"} {if ($5>1000) $5=1000; print $0}' \
-	| awk '!/^(chrY|chrX)/' > "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}.narrowPeak.filt"
+	| awk 'BEGIN{OFS="\t"} {if ($5>1000) $5=1000; print $0}' > "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}.narrowPeak.filt"
  
 echo "Sorting peaks by chr"
 sort -k1 "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}.narrowPeak.filt" > "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}.sorted.narrowPeak.filt"
 
 rm "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}.narrowPeak.filt"
 rm "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}_peaks.xls" 
-
 
 if [[ ! -f "${PEAK_DIR_GROUPS}/${PEAKS_NAME_GROUP}.sorted.narrowPeak.filt" ]]
 then
