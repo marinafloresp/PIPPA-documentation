@@ -112,4 +112,3 @@ diffPeaksCountsAll <- paste0(groupsCounts, "/cellType_diffPeaks_edgeR_",macs_thr
 
 ## Counts in curated peaks for STEP 10 (change to user's input) ##
 groupCountsClean <- paste0(groupsCounts,"/peakCounts_all_",macs_thres_group,"_passAll.narrowPeak.rdata")
-diffPeaksCountsClean <- paste0(groupsCounts, "/cellType_diffPeaks_edgeR_",macs_thres_group,"_passAll.narrowPeak.rdata")
