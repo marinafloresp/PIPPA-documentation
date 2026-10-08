@@ -1,14 +1,14 @@
 ## ================================================================================================##
 ##                          ATAC-seq pipeline STEP 9.4: Cutoff analysis                            ##
 ## ================================================================================================##
-## EXECUTION: Rscript ./Rscripts/cutoffAnalysis.r <project> <cf>                                   ||
+## EXECUTION: Rscript ./Rscripts/cutoffAnalysis.r <project_config> <cf>                            ||
 ## - execute from scripts directory                                                                ||
 ##                                                                                                 ||
 ## DESCRIPTION: This scripts reads peaks called at relaxed threshold and performs segmented        ||
 ## analysis as an alternative to cutoff analysis to decide a better threshold for peak calling.    ||
 ##                                                                                                 ||
 ## INPUTS:                                                                                         ||
-## - <project> : project on which analysis is being run                                            ||
+## - <project_config> : path to config.r file.                                                     ||
 ## - <cf> : cell type to perform segmented analysis on                                             ||
 ##                                                                                                 ||
 ## OUTPUTS:                                                                                        ||
