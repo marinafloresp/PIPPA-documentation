@@ -30,7 +30,7 @@
 ## - The following variables specified in config file: META_DIR, MAIN_DIR, LOG_DIR, ALIGNED_DIR, PEAK_DIR_C,          ||
 ##   SCRIPTS_DIR, PROJECT,CONFIGR,RSCRIPTS_DIR,CONDA_ENV, CONDA, CURATED_PEAKS, PEAK_DIR_CUTOFF                       ||
 ## - A list of cell types of samples specified in config files: CELLTYPES                                             ||
-## - A conda environment setup with several modules: samtools, MACS3                                                  ||
+## - A conda environment setup with several modules: samtools, MACS3, R                                               ||
 ## - For other tools or references required, please refer to each subscript run in this script.                       ||
 ## - Subscripts to be in ${SUB_SCRIPTS_DIR} = ./subScripts                                                            ||
 ## - Subscripts: peaksForCuration.sh, peaksStrThres.sh                                                                ||
