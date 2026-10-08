@@ -15,8 +15,8 @@
 ## -  plot with segmented analysis results: "cutoffAnalysis_<cf>.pdf"                              ||
 ##                                                                                                 ||
 ## REQUIRES:                                                                                       ||
-## - R/4.2.1-foss-2022a, R libraries: rtracklayer, GenomicRanges, segmented,tidyr, ggplot2         ||
-## - A peak file generated in STEP 9.3: <cf>_5e-2.sorted.narrowPeak.filt"                          ||
+## - R version > 4.2, R libraries: rtracklayer, GenomicRanges, segmented,tidyr, ggplot2            ||
+## - A peak file generated in STEP 9.3: "<cf>_<macs_thres_group>.sorted.narrowPeak.filt"           ||
 ## - Parameters in config.r file: col_vals, peaksAnalysis, macs_thres_group, peaksCutoff           ||
 ## ================================================================================================##
 
