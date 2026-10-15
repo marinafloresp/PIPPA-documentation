@@ -92,15 +92,17 @@ widthPeaks_df <- data.frame(
 
 widthPeaks_df$set_num <- as.integer(str_extract(widthPeaks_df$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-p2b <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = log10(width)))+ 
+p2b <-ggplot(widthPeaks_df, aes(x = factor(set_num), y = width))+ 
   geom_violin(scale = "width", fill = "#56B4E9") +
+  scale_y_log10()+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
   stat_summary(fun = median, geom = "point", color = "white") +
-  labs( x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"), y = "Peak width (bp, log10 scale)", title = "B") +
+  labs( x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"), y = expression("Peak width (bp; log"[10]*" scale)"),
+  title = "B") +
   pub_theme +
   theme(
     legend.position = "none", plot.title = element_text(size = 24)
-  )
+  ) 
 
 # ########################## Fig 2.c ###########################################
 # Box plot/violin plots of gaps between peaks (y-axis) 
@@ -126,11 +128,13 @@ peaksAnno.all.df.space <- bind_rows(peaksAnno.all.df)
 
 peaksAnno.all.df.space$set_num <- as.integer(str_extract(peaksAnno.all.df.space$set, "(?<=_)[0-9]+(?=readsAll)"))
 
-p2c <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = log10(spacing)))+ 
+p2c <- ggplot(peaksAnno.all.df.space, aes(x = factor(set_num), y = spacing))+ 
   geom_violin(scale = "width", fill = "#56B4E9")+
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.4,fill = 'black') +
+  scale_y_log10()+
   stat_summary(fun = median, geom = "point", color = "white")  +
-  labs(x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"), y = "Gap between peaks (bp, log10 scale)",title = "C") +
+  labs(x = expression("Read pairs (" ~ x ~ 10^7 ~ ")"), 
+       y = expression("Gap between peaks (bp; log"[10]*" scale)"),title = "C") +
   pub_theme +
   theme(
     legend.position = "none", plot.title = element_text(size = 24)
