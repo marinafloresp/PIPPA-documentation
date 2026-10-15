@@ -396,7 +396,7 @@ peaksAnno.all.df.NEUN$peakset <- factor(peaksAnno.all.df.NEUN$peakset,
 # Stacked bar plot of % of peaks per genomic annotation (x-axis)
 # for each peak set (NEUN only)
                             
-p6b1 <- ggplot(
+p6c1 <- ggplot(
   peaksAnno.all.df.NEUN,
   aes(
     x = peakset,
@@ -411,7 +411,7 @@ p6b1 <- ggplot(
   labs(
     x = "",
     y = "% Peaks",
-    fill = "Annotation", title = "B", subtitle = "NeuN"
+    fill = "Annotation", title = "C", subtitle = "NeuN+"
   ) +coord_flip()+ 
   pub_theme +theme(
     plot.title = element_text(size = 24,face = "bold",hjust = -0.5),
@@ -465,7 +465,7 @@ peaksAnno.all.df.SOX$peakset <- factor(peaksAnno.all.df.SOX$peakset,
 # Stacked bar plot of % of peaks per genomic annotation (x-axis)
 # for each peak set (SOX10 only)
 
-p6b2<- ggplot(
+p6c2<- ggplot(
   peaksAnno.all.df.SOX,
   aes(
     x = peakset,
@@ -480,7 +480,7 @@ p6b2<- ggplot(
   labs(
     x = "",
     y = "% Peaks",
-    fill = "Annotation", subtitle = "SOX10"
+    fill = "Annotation", subtitle = "SOX10+"
   ) +coord_flip()+ 
   pub_theme +theme(
     legend.position = "right",
@@ -513,20 +513,20 @@ D1_D2_curated_SOX <- perPeakPairJaccard(
 
 D1_D2_default_NEUN$threshold <- "default"
 D1_D2_curated_NEUN$threshold <- "curated"
-D1_D2_default_NEUN$cellType <- "NeuN"
-D1_D2_curated_NEUN$cellType <- "NeuN"
+D1_D2_default_NEUN$cellType <- "NeuN+"
+D1_D2_curated_NEUN$cellType <- "NeuN+"
 D1_D2_default_SOX$threshold <- "default"
 D1_D2_curated_SOX$threshold <- "curated"
-D1_D2_default_SOX$cellType <- "SOX10"
-D1_D2_curated_SOX$cellType <- "SOX10"
+D1_D2_default_SOX$cellType <- "SOX10+"
+D1_D2_curated_SOX$cellType <- "SOX10+"
 D1_D2$peaksets <- paste0(D1_D2$cellType, " ",D1_D2$threshold )
 
-# ########################## Fig 6.c ############################
+# ########################## Fig 6.b ############################
 # Violin plot of per-peak-pair Jaccard scores (y-axis)
 # per peak set comparison
 # coloured by cell type (NEUN/SOX10) and peak set (curated/default)
                            
-p6c <- ggplot(
+p6b <- ggplot(
   D1_D2,
   aes(
     x = peaksets,
@@ -550,7 +550,7 @@ p6c <- ggplot(
   ) +
   labs(
     x = "Comparison of peak sets",
-    y = "Per-peak-pair Jaccard overlap (%)", title = "C"
+    y = "Per-peak-pair Jaccard overlap (%)", title = "B"
   ) +
   pub_theme +  theme_bw(12)+
   theme(axis.title = element_text(size = 14), legend.position = "none",
@@ -566,10 +566,10 @@ p6c <- ggplot(
 panel_top <- (p6a1 | p6a2) +
   plot_layout(widths = c(1.5,1.5))
 
-p6b1_clean <- p6b1 + theme(legend.position = "none")
-p6b2_clean <- p6b2 + theme(legend.position = "right")
+p6c1_clean <- p6c1 + theme(legend.position = "none")
+p6c2_clean <- p6c2 + theme(legend.position = "right")
 
-bottom_pannel <- p6b1_clean | p6b2_clean | p6c 
+bottom_pannel <- p6b | p6c1_clean | p6c2_clean |  
                            
 figure6 <- panel_top / bottom_pannel  +
   plot_layout(heights = c(1.25,1))
