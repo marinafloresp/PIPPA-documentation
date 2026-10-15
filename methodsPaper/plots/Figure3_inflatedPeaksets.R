@@ -126,7 +126,7 @@ p3a <- ggplot(df, aes(
 # Line graph of number of peaks (y-axis)
 # q-value threshold (x-axis) 
 # with one line per “peak size group”.  
-
+peaks.df <- peaks$`NeuN+_Dataset1`
 exponents <- seq(-4, -100, by = -2)
 thresholds <- sort(c(0.05,10^exponents))
 labels <- as.character(thresholds)
