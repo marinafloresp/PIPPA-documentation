@@ -57,8 +57,7 @@ Several software are needed to run the pipeline. Some of these can be used from 
 
 Important software that will be installed in this environment are: MACS3 (3.0.2), SAMstats, SAMtools, BEDTools, Bowtie2, MultiQC, R, VerifyBamID, Python3, Pandoc, GATK, Picard. If you already have a conda environment, please specify its name or path in the *config.txt* file. 
   - Python version in this conda environment should be >= 3.12, as this is required by MACS3. For further details about MACS3 requirements: [MACS3 documentation](https://macs3-project.github.io/MACS/docs/INSTALL.html)
-  - R version should be >= 4.3. Some packages are no longer supported in the regular CRAN repository and need to be installed from source. To do this, download the source file of the package [ptest R package](https://cran.r-project.org/src/contrib/Archive/ptest/), keep this in the *config* folder and this will be installed from source at the *0_setUp.sh* script.
-Other software that needs to be available locally are (and path to these need to be specified in the *config.txt* file):
+  - R version should be >= 4.3. Most packages are installed through the conda environment. A couple of packages would be installed when running the *0_setUp.sh* script. Some packages are no longer supported in the regular CRAN repository and need to be installed from source. To do this, download the source file of the package [ptest R package](https://cran.r-project.org/src/contrib/Archive/ptest/), keep this in the *config* folder and this will be installed from source when running the *0_setUp.sh* script.
 
 ## Sample sheet 
 
