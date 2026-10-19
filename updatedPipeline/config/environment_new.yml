@@ -1,4 +1,4 @@
-name: testPipeline
+name: atacseqPipeline
 channels:
   - plotly
   - conda-forge
