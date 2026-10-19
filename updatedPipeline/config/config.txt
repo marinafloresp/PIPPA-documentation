@@ -21,7 +21,7 @@ export PROJECT="project name"
 export MAIN_DIR="/path/to/project/folder/${PROJECT}"
 
 export CONFIGR="${MAIN_DIR}/config.r"
-export CONDAFILE="${MAIN_DIR}/condaEnv.txt"
+export CONDAFILE="${MAIN_DIR}/condaEnv.yml"
 
 ## =========================================== ##
 || Scripts and software filepaths and versions ||
