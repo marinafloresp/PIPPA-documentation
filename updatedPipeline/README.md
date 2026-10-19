@@ -324,4 +324,3 @@ This scripts prepares inputs for downstream analyses, especially counts in peaks
   - `SUMMARY`: Collates curated peak sets generated across cell types in a Rmarkdown report with  properties of peaks: number, genomic annotation, width, etc. Run curatedPeaksChecks.Rmd only.
   - `CTCLEAN`: Gets read counts in peaks called at cell group level and analysis for topmost differential peaks. Run only countsInCleanPeaksCT.r.
   - `COUNTS`: Gets read counts in peaks called in curated peak set in chosen cell type. Run only countsInCuratedPeaks.r.
-  - 
