@@ -38,7 +38,7 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
 - Requires config files (file paths should be specified in config.txt):
   - config.txt: with variables for bash scripts.
   - config.r with parameters for R scripts
-  - environment.txt : file with packages and their version to be installed by conda.
+  - condaEnv.yml : file with packages and their version to be installed by conda as an environment.
 - Requires a samples.txt file in the META_DIR (0_metadata) folder with the names of the samples that will be used to run the pipeline. 
 - Requires a sampleSheet.csv file in the META_DIR (0_metadata) folder with information about the samples. Name given/path should be specified as `sampleSheet` in the config.r file. More information below.
 - Samples need to be in the RAWDATADIR folder in the project folder (1_raw)
@@ -53,7 +53,7 @@ In order to use the ATAC-seq pipeline, two main configuration files need to be s
 
 ## Software 
 
-Several software are needed to run the pipeline. Some of these can be used from a conda. The set up script (0_setUp.sh) will create a conda environment where some of these packages will be installed by conda. As explained in *Requisites*, the environment.txt file can be used to set up the conda environment. This can be done using either Anaconda or Miniconda, which local source directory needs to be specified in the *config.txt* file (`CONDA`). In order to download and install refer to: [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
+Several software are needed to run the pipeline. Some of these can be used from a conda. The set up script (0_setUp.sh) will create a conda environment where some of these packages will be installed by conda. As explained in *Requisites*, the condaEnv.yml file can be used to set up the conda environment. This can be done using either Anaconda or Miniconda, which local source directory needs to be specified in the *config.txt* file (`CONDA`). In order to download and install refer to: [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
 
 Important software that will be installed in this environment are: MACS3 (3.0.2), SAMstats, SAMtools, BEDTools, Bowtie2, MultiQC, R, VerifyBamID, Python3, Pandoc, GATK, Picard. If you already have a conda environment, please specify its name or path in the *config.txt* file. 
   - Python version in this conda environment should be >= 3.12, as this is required by MACS3. For further details about MACS3 requirements: [MACS3 documentation](https://macs3-project.github.io/MACS/docs/INSTALL.html)
@@ -101,7 +101,7 @@ This script checks for required files, packages or libraries that are needed in 
 - `(project-name)` project's directory.
 
 ##### -requires-
-- environment.txt: list of conda packages to be installed in conda.
+- condaEnv.yml: list of conda packages to be installed in conda.
 - config.r: R config file with data paths and thresholds used in analysis.
 
 ### 1. Pre-analysis (stage 1 QC) 
