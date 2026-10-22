@@ -9,12 +9,12 @@
 #SBATCH --job-name=ATACQCSummaryStage2S7
 
 ## ===================================================================================================================##
-##                          ATAC-seq pipeline STEP 2: Collate Stage 1 Results                                         ##
+##                                      PIPPA STEP 7: Collate Stage 1 Results                                         ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch ./jobSubmission/7_collateStage2QCMetrics.sh <project-directory> <STEP>                           ||
 ## - execute from pipeline's main directory                                                                           ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script collates results from the second stage of the pipeline: confirmation of correct individual||
+## DESCRIPTION: This script collates results from the second stage of PIPPA: confirmation of correct individual.      ||
 ## First, will check whether all samples have been processed for the second stage (COLLATE). Results of Stage 2 will  ||
 ## output (SUMMARY).                                                                                                  ||
 ##                                                                                                                    ||
