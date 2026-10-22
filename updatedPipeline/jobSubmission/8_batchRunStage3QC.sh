@@ -9,7 +9,7 @@
 #SBATCH --job-name=ATACGroupPeakCallingS8
 
 ## ===================================================================================================================##
-##                           ATAC-seq pipeline STEP 8: Group Peak calling                                             ##
+##                                       PIPPA STEP 8: Group Peak calling                                             ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch  ./jobSubmission/8_batchRunStage3QC.sh <project directory> <STEP> <GROUP>                        ||
 ##                                                                                                                    ||
