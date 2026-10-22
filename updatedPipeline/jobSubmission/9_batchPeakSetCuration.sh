@@ -9,7 +9,7 @@
 #SBATCH --job-name=ATACPeakSetCurationS9
 
 ## ===================================================================================================================##
-##                           ATAC-seq pipeline STEP 9: Curation of peak sets                                          ##
+##                                       PIPPA STEP 9: Curation of peak sets                                          ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch  ./jobSubmission/9_batchPeakSetCuration.sh <project directory> <STEP> <GROUP> <THRES>            ||
 ##                                                                                                                    ||
