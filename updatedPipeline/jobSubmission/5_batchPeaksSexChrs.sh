@@ -10,12 +10,12 @@
 #SBATCH --mem=230G
 
 ## ===================================================================================================================##
-##                                 ATAC-seq pipeline STEP 5: Sex chromosomes                                          ##
+##                                             PIPPA STEP 5: Sex chromosomes                                          ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/5_batchFormatSexChrs.sh <project-directory> <STEP>        ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script prepares files for calling peaks in sex chromosomes (SPLIT) and performs peak calling     ||
-## (PEAKS) on sex chromosome reads.                                                                                   ||
+## DESCRIPTION: This script performs the fifth step of PIPPA and first step of Stage 2 of QC. It prepares files for   ||
+## calling peaks in sex chromosomes (SPLIT) and performs peak calling (PEAKS) on sex chromosome reads.                ||
 ##                                                                                                                    || 
 ## INPUTS:                                                                                                            || 
 ## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input for SPLIT             || 
