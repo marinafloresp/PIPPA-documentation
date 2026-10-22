@@ -9,7 +9,7 @@
 #SBATCH --job-name=ATACSetUpS0
 
 ## ==========================================================================================================##
-##                               ATAC-seq pipeline STEP 0: Set up                                            ##
+##                                          PIPPA STEP 0: Set up                                             ##
 ## ==========================================================================================================##
 ## EXECUTION: sbatch ./jobSubmission/0_setUp.sh <project directory>                                          ||
 ##                                                                                                           ||
@@ -39,7 +39,7 @@
 echo Job started on:
 date -u
 
-LOG_DIR=./ATACSeq/logFiles/${USER}/${SLURM_JOB_ID}
+LOG_DIR=./logFiles/${USER}/${SLURM_JOB_ID}
 echo "Log files will be moved to dir: " $LOG_DIR
 mkdir -p $LOG_DIR
 mv ATACSetUpS0-${SLURM_JOB_ID}* $LOG_DIR
