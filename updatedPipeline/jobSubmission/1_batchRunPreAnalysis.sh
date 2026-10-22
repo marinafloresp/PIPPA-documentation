@@ -9,7 +9,7 @@
 #SBATCH --job-name=ATACpreAnalysisS1
 
 ## ===================================================================================================================##
-##                               ATAC-seq pipeline STEP 1: Pre-analysis                                               ##
+##                                           PIPPA STEP 1: Pre-analysis                                               ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/1_batchRunPreAnalysis.sh <project directory> <STEP>       ||
 ##                                                                                                                    ||
