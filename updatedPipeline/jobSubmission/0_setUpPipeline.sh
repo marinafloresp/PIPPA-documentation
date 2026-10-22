@@ -39,7 +39,7 @@
 echo Job started on:
 date -u
 
-LOG_DIR=./logFiles/${USER}/${SLURM_JOB_ID}
+LOG_DIR=${LOG_DIR}/${USER}/${SLURM_JOB_ID}
 echo "Log files will be moved to dir: " $LOG_DIR
 mkdir -p $LOG_DIR
 mv ATACSetUpS0-${SLURM_JOB_ID}* $LOG_DIR
