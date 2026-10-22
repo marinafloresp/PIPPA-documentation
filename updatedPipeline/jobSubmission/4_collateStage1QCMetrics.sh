@@ -9,7 +9,7 @@
 #SBATCH --job-name=ATACQCSummaryStage1S4
 
 ## ===================================================================================================================##
-##                          ATAC-seq pipeline STEP 4: Collate Stage 1 Results                                         ##
+##                                      PIPPA STEP 4: Collate Stage 1 Results                                         ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch ./jobSubmission/4_collateStage1QCMetrics.sh <project-directory> <STEP>                           ||
 ##                                                                                                                    ||
