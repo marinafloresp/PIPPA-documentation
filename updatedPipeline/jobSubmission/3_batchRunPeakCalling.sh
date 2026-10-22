@@ -9,12 +9,12 @@
 #SBATCH --job-name=ATACPeakCallingS3
 
 ## ===================================================================================================================##
-##                             ATAC-seq pipeline STEP 3: Sample Peak Calling                                          ##
+##                                        PIPPA STEP 3: Sample Peak Calling                                           ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/3_batchRunPeakCalling.sh <project directory> <STEP>       ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script performs the core analysis of the ATAC-seq pipeline: calling peaks at sample level using  ||
-## the paired-end mode in MACS3 (PEAKS). Then results are collated to calculate Fraction Reads in Peaks (FRIP)        ||
+## DESCRIPTION: This script performs the third step of PIPPA: calling peaks at sample level using the paired-end mode ||
+## in MACS3 (PEAKS). Then results are collated to calculate Fraction Reads in Peaks (FRIP)                            ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input. Only for PEAKS.      ||
