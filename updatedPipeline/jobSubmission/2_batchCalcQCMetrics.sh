@@ -9,13 +9,13 @@
 #SBATCH --job-name=ATACcalcQCS2
 
 ## ===========================================================================================================================##
-##                             ATAC-seq pipeline STEP 2: Post alignment processing                                            ##
+##                                         PIPPA STEP 2: Post alignment processing                                            ##
 ## ===========================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/2_batchCalcQCMetrics.sh <project directory> <STEP> <GROUP_SAMPS>  ||
 ##                                                                                                                            ||
-## DESCRIPTION: This script performs the second step in the ATAC-seq pipeline: ATAC-seq-specific metrics calculation.         ||
-## Includes the classification of aligned reads into fragment sizes and related statistics (FRAG).Then pre-processing         ||
-## of aligned reads are done (BW) to calculate TSS enrichment score (SCORE) and collate results (COLLATE)                     ||
+## DESCRIPTION: This script performs the second step of PIPPA: ATAC-seq-specific metrics calculation. Includes the            ||
+## classification of aligned reads into fragment sizes and related statistics (FRAG).Then pre-processing of aligned reads are || 
+## done (BW) to calculate TSS enrichment score (SCORE) and collate results (COLLATE)                                          ||
 ##                                                                                                                            ||
 ## INPUTS:                                                                                                                    || 
 ## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input. Needed for steps BW,         ||
