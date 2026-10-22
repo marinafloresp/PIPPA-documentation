@@ -13,9 +13,9 @@
 ## ===================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/1_batchRunPreAnalysis.sh <project directory> <STEP>       ||
 ##                                                                                                                    ||
-## DESCRIPTION: This script performs the first step in the ATAC-seq pipeline: pre-analysis. This                      ||
-## includes quality control of raw reads (FASTQC), trimming the reads (TRIM), aligning reads to                       ||
-## reference genome (ALIGN) and calculate ENCODEQC metrics (ENCODE).                                                  ||
+## DESCRIPTION: This script performs the first step of PIPPA: pre-analysis. This  includes quality control of raw     ||
+## reads (FASTQC), trimming the reads (TRIM), aligning reads to reference genome (ALIGN) and calculate ENCODEQC       ||
+## metrics (ENCODE).                                                                                                  ||
 ##                                                                                                                    ||
 ## INPUTS:                                                                                                            || 
 ## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input                       ||
