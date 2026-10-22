@@ -9,12 +9,12 @@
 #SBATCH --job-name=ATACGenoConcorS6
 
 ## ============================================================================================================================##
-##                              ATAC-seq pipeline STEP 6: Genotype concordance                                                 ##
+##                                          PIPPA STEP 6: Genotype concordance                                                 ##
 ## ============================================================================================================================##
 ## EXECUTION: sbatch --array=<sample-index> ./jobSubmission/6_batchRunGenotypeConcordance.sh <project directory> <STEP>        ||
 ##                                                                                                                             ||
-## DESCRIPTION: This script will detect possible DNA contamination in order to ensure high quality sequence reads (COMPARE).   ||
-## if any contamination is detected, possible swaps will be suggested.                                                         ||
+## DESCRIPTION: This script checks for possible DNA contamination or sample switch in order to ensure high quality sequence    ||
+## reads (COMPARE). If any contamination is detected, possible swaps will be suggested.                                        ||
 ##                                                                                                                             ||
 ## INPUTS:                                                                                                                     || 
 ## --array -> Number of jobs to run. Will select sample(s) corresponding to the number(s) input.                               ||
