@@ -9,7 +9,7 @@
 #SBATCH --job-name=ATACDownAnalysisS10
 
 ## ===================================================================================================================##
-##                          ATAC-seq pipeline STEP 10: Preparation for Downstream analysis                            ##
+##                                      PIPPA STEP 10: Preparation for Downstream analysis                            ##
 ## ===================================================================================================================##
 ## EXECUTION: sbatch  ./jobSubmission/10_batchDownstreamAnalyses.sh <project directory> <STEP> <GROUP> <THRES>        ||
 ##                                                                                                                    ||
