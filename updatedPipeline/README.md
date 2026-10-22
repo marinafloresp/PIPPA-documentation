@@ -1,6 +1,5 @@
-# ATAC-seq analysis pipeline 
-
-The Assay for Transposase-Accessible Chromatin followed by sequencing (ATAC-seq) experiment provides genome-wide profiles of chromatin accessibility. This pipeline has been developed to provide end-to-end quality control, processing and analysis of paired-end ATAC-seq datasets. This pipeline has been developed so that can be run end-to-end, starting from raw FASTQ files all the way to curated peak sets that can be used for downstream analyses.
+# PIPPA
+Pipeline for Integrative Peak calling in Population-scale ATAC-seq (**PIPPA**) provides end-to-end quality control and processing of ATAC-seq datasets and curated of reproducible peak sets. The pipeline has been developed to work from raw FASTQ files all the way to curated peak sets that can be used for downstream analyses.
 
 ## Pipeline's structure
 
@@ -323,3 +322,7 @@ This scripts prepares inputs for downstream analyses, especially counts in peaks
   - `SUMMARY`: Collates curated peak sets generated across cell types in a Rmarkdown report with  properties of peaks: number, genomic annotation, width, etc. Run curatedPeaksChecks.Rmd only.
   - `CTCLEAN`: Gets read counts in peaks called at cell group level and analysis for topmost differential peaks. Run only countsInCleanPeaksCT.r.
   - `COUNTS`: Gets read counts in peaks called in curated peak set in chosen cell type. Run only countsInCuratedPeaks.r.
+
+# Citation
+
+If you use PIPPA, please cite: 
