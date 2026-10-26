@@ -18,4 +18,4 @@ After QC has been completed for all samples, these are then used to generated cu
 2. Segmented analysis is performed on default peak set to find optimal peak calling threshold.
 3. Peak calling is repeated using the chosen stringent threshold.
 
-You can find a more detailed explanation of PIPPA [here](./static/img/pipelineOverview.pdf)
+You can find a more detailed explanation of PIPPA [here](/img/pipelineOverview.pdf)
