@@ -4,4 +4,4 @@ Pipeline for Integrative Peak calling in Population-scale ATAC-seq (**PIPPA**) p
 
 ## Citation
 
-If you use PIPPA, please cite: 
+If you use PIPPA, please cite: "Best Practices for Pre-Processing Large-Scale ATAC-Seq Data: Why Epidemiological Studies Demand Greater Stringency"
