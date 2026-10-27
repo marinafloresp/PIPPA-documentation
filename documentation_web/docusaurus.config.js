@@ -104,7 +104,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} BrainFANS ATAC-seq pipeline, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} PIPPA, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
