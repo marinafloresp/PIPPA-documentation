@@ -16,7 +16,7 @@ const config = {
   favicon: 'img/dna.ico',
 
   url: 'https://marinafloresp.github.io',
-  baseUrl: '/',
+  baseUrl: '/PIPPA-documentation/',
   trailingSlash: false,
 
   organizationName: 'marinafloresp', 
