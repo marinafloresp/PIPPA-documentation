@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkdocumentation_web||=[]).push([[8461],{6628(t){t.exports=JSON.parse('{"metadata":{"permalink":"/PIPPA-documentation/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":0,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
